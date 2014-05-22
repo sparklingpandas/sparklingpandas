@@ -50,7 +50,7 @@ class PRDD(RDD):
         >>> str(result.sort(['magic'])).replace(' ','').replace('\\n','')
         'magicthing0pandacoffeepandahappiest0pandateapandahappy0pandawaterpandasad[3rowsx2columns]'
         """
-        return PRDD._fromRDD(self.map(lambda data: data.applymap(f), **kwargs))
+        return self.fromRDD(self.map(lambda data: data.applymap(f), **kwargs))
 
     def __getitem__(self, key):
         """
@@ -61,7 +61,7 @@ class PRDD(RDD):
         >>> str(prdd['thing'].pcollect()).replace(' ','').replace('\\n','')
         '0happy0sad0happiestName:thing,dtype:object'
         """
-        return PRDD._fromRDD(self.map(lambda x: x[key]))
+        return self.fromRDD(self.map(lambda x: x[key]))
 
     def pcollect(self):
         """

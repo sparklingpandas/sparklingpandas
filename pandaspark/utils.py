@@ -32,11 +32,13 @@ def run_tests():
     globs['psc'].stop()
     msg = "{0} test ran {1} failures".format(test_count, failure_count)
     try:
+        # My kingdom for the letter u
         from termcolor import colored
         if failure_count:
-            msg = colour(msg, 'red')
+            msg = colored(msg, 'red')
         else:
-            msg = colour(msg, 'green')
+            msg = colored(msg, 'green')
+        print msg
     except ImportError:
         if failure_count:
             msg = '\033[91m' + msg 
