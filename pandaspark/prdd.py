@@ -1,3 +1,6 @@
+"""
+Provide a way to work with panda data frames in Spark
+"""
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
