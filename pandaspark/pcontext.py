@@ -31,7 +31,7 @@ class PSparkContext(SparkContext):
     PySpark which makes it easy to load data into L{PRDD}s.
     """
 
-    def pcsvfile(self, name, useWholeFile = True, **kwargs):
+    def pcsvfile(self, name, useWholeFile=True, **kwargs):
         """
         Read a CSV file in and parse it into panda data frames. Note this uses
         wholeTextFiles by default underneath the hood so as to support
@@ -39,17 +39,17 @@ class PSparkContext(SparkContext):
         All additional parameters are passed to the read_csv function
         """
         # TODO(holden): string IO stuff
-        def csvFile(contents, **kwargs):
+        def csv_file(contents, **kwargs):
             pandas.read_csv(contents, kwargs)
-        def csvRows(rows, **kwargs):
+        def csv_rows(rows, **kwargs):
             for row in rows:
                 yield pandas.read_csv(row, kwargs)
         if useWholeFile:
             return PRDD.fromRDD(self.wholeTextFiles(name).flatMap(
-                lambda x: csvFile(x, **kwargs)))
+                lambda x: csv_file(x, **kwargs)))
         else:
             return PRDD.fromRDD(self.textFile(name).mapPartitions(
-                lambda x: csvRows(x, **kwargs)))
+                lambda x: csv_rows(x, **kwargs)))
 
     def pDataFrame(self, elements, **kwargs):
         """

@@ -1,5 +1,6 @@
 """
-This module provides statistics for L{PRDD}s. Look at the stats() method on PRDD for more info.
+This module provides statistics for L{PRDD}s.
+Look at the stats() method on PRDD for more info.
 """
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -18,8 +19,8 @@ This module provides statistics for L{PRDD}s. Look at the stats() method on PRDD
 # limitations under the License.
 #
 
-import utils
-utils.add_pyspark_path()
+from pandaspark.utils import add_pyspark_path, run_tests
+add_pyspark_path()
 
 from pyspark.statcounter import StatCounter
 
@@ -27,8 +28,9 @@ class PStatCounter(object):
     """
     A wrapper around StatCounter which collects stats for multiple columns
     """
+    counters = dict()
+
     def __init__(self, values=[]):
-        self._counters = dict()
         for value in values:
             self.merge(value)
 
@@ -45,7 +47,7 @@ class PStatCounter(object):
             except KeyError:
                 self._counters[column] = StatCounter(values)
 
-    def mergePStats(self, other):
+    def merge_pstats(self, other):
         """
         Merge all of the stats counters of the other PStatCounter with our counters
         """
@@ -58,3 +60,5 @@ class PStatCounter(object):
             except KeyError:
                 self._counters[column] = counter
 
+if __name__ == "__main__":
+    run_tests()

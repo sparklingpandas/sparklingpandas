@@ -41,7 +41,7 @@ def run_tests():
         print msg
     except ImportError:
         if failure_count:
-            msg = '\033[91m' + msg 
+            msg = '\033[91m' + msg
         else:
             msg = '\033[92m' + msg
         print msg + '\033[0m'

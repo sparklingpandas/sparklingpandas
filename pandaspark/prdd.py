@@ -34,7 +34,7 @@ class PRDD(RDD):
     """
 
     @classmethod
-    def fromRDD(self, rdd):
+    def fromRDD(cls, rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs"""
         return PRDD(rdd._jrdd, rdd.ctx, rdd._jrdd_deserializer)
 
@@ -42,7 +42,7 @@ class PRDD(RDD):
         """
         Return a new PRDD by applying a function to each element of each
         Panda DataFrame
-        
+
         >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
         >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
         >>> addpandasfunc = (lambda x: "panda" + x)
