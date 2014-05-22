@@ -49,4 +49,4 @@ def run_tests():
         exit(-1)
 
 if __name__ == "__main__":
-    Utils.run_tests
+    run_tests()
