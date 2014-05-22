@@ -41,7 +41,7 @@ class PStatCounter(object):
                 for value in values:
                     counter.merge(v)
             except KeyError:
-                c = new StatCounter(values)
+                c = StatCounter(values)
 
     def mergePStats(self, other):
         if not isinstance(other, PStatCounter):
