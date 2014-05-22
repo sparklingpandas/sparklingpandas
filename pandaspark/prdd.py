@@ -20,6 +20,7 @@ utils.addPySparkPath()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
 from pyspark.rdd import RDD
+from pandaspark.pstatcounter import PStatCounter
 import pandas
 
 class PRDD(RDD):
@@ -28,9 +29,6 @@ class PRDD(RDD):
     It is an RDD containg Panda dataframes and provides special methods that
     are aware of this. All specialized panda functions are prefixed with a p.
     """
-
-    # Keep track of which way our data is split up.
-    _perrow = True
 
     @classmethod
     def _fromRDD(self, rdd):
@@ -50,8 +48,11 @@ class PRDD(RDD):
     def __getitem__(self, key):
         """
         Returns a new PRDD of elements from that key
+        >>> prdd = psc.pDataFrame([("tea", "happy"), ("water", "sad"), ("coffee", "happiest")], columns=['magic', 'thing'])
+        >>> str(prdd['thing'].pcollect()).replace(' ','').replace('\\n','')
+        '0happy0sad0happiestName:thing,dtype:object'
         """
-        return PRDD._fromRDD(this.map(lambda x: x[key]))
+        return PRDD._fromRDD(self.map(lambda x: x[key]))
 
     def pcollect(self):
         """
@@ -65,6 +66,12 @@ class PRDD(RDD):
         def appendFrames(a, b):
             return a.append(b)
         return self.reduce(appendFrames)
+
+    def stats(self):
+        """
+        Compute the stats for each column
+        """
+        
 
 def _test():
     import doctest
