@@ -18,8 +18,8 @@ Provide an easy interface for loading data into L{PRDD}s for Spark.
 # limitations under the License.
 #
 
-import pandaspark.utils
-utils.add_pyspark_path()
+from pandaspark.utils import add_pyspark_path, run_tests
+add_pyspark_path()
 import pandas
 import StringIO
 from pyspark.context import SparkContext
@@ -66,4 +66,4 @@ class PSparkContext(SparkContext):
             lambda element: pandas.DataFrame(data = [element], **kwargs)))
 
 if __name__ == "__main__":
-    utils._test()
+    run_tests()

@@ -14,10 +14,10 @@ def add_pyspark_path():
                         "/python/lib/py4j-0.8.1-src.zip")
     except KeyError:
         print """SPARK_HOME was not set. please set it. e.g.
-         SPARK_HOME='/home/...' ./bin/pyspark [program]"""
+        SPARK_HOME='/home/...' ./bin/pyspark [program]"""
         exit(-1)
 
-def _test():
+def run_tests():
     """
     Setup and run the doc tests.
     """
@@ -30,5 +30,21 @@ def _test():
     (failure_count, test_count) = doctest.testmod(globs=globs,
                                                   optionflags=doctest.ELLIPSIS)
     globs['psc'].stop()
+    msg = "{0} test ran {1} failures".format(test_count, failure_count)
+    try:
+        from termcolor import colored
+        if failure_count:
+            msg = colour(msg, 'red')
+        else:
+            msg = colour(msg, 'green')
+    except ImportError:
+        if failure_count:
+            msg = '\033[91m' + msg 
+        else:
+            msg = '\033[92m' + msg
+        print msg + '\033[0m'
     if failure_count:
         exit(-1)
+
+if __name__ == "__main__":
+    Utils.run_tests

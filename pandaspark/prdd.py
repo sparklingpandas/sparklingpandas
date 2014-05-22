@@ -18,8 +18,8 @@ Provide a way to work with panda data frames in Spark
 # limitations under the License.
 #
 
-import pandaspark.utils
-utils.add_pyspark_path()
+from pandaspark.utils import add_pyspark_path, run_tests
+add_pyspark_path()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
 from pyspark.rdd import RDD
@@ -83,4 +83,4 @@ class PRDD(RDD):
         """
 
 if __name__ == "__main__":
-    utils._test()
+    run_tests()
