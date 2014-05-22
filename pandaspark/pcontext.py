@@ -18,8 +18,8 @@ Provide an easy interface for loading data into L{PRDD}s for Spark.
 # limitations under the License.
 #
 
-import utils
-utils.addPySparkPath()
+import pandaspark.utils
+utils.add_pyspark_path()
 import pandas
 import StringIO
 from pyspark.context import SparkContext
@@ -31,45 +31,39 @@ class PSparkContext(SparkContext):
     PySpark which makes it easy to load data into L{PRDD}s.
     """
 
-    def pCSVFile(self, name, useWholeFile = True, **kwargs):
+    def pcsvfile(self, name, useWholeFile = True, **kwargs):
         """
-        Read a CSV file in and parse it into panda data frames. Note this uses wholeTextFiles
-        underneath the hood so as to support multi-line CSV records so many small input files
-        are prefered. Additional parameters are passed to the read_csv function
+        Read a CSV file in and parse it into panda data frames. Note this uses
+        wholeTextFiles by default underneath the hood so as to support
+        multi-line CSV records so many small input files are prefered.
+        All additional parameters are passed to the read_csv function
         """
+        # TODO(holden): string IO stuff
         def csvFile(contents, **kwargs):
             pandas.read_csv(contents, kwargs)
         def csvRows(rows, **kwargs):
             for row in rows:
                 yield pandas.read_csv(row, kwargs)
         if useWholeFile:
-            return PRDD._fromRDD(self.wholeTextFiles(path).flatMap(lambda x: csvFile(x, **kwargs)))
+            return PRDD.fromRDD(self.wholeTextFiles(name).flatMap(
+                lambda x: csvFile(x, **kwargs)))
         else:
-            return PRDD._fromRDD(self.textFiles(path).mapPartitions(lambda x: csvRows(x, **kwargs)))
+            return PRDD.fromRDD(self.textFile(name).mapPartitions(
+                lambda x: csvRows(x, **kwargs)))
 
     def pDataFrame(self, elements, **kwargs):
         """
         Wraps the pandas.DataFrame operation
-        >>> prdd = psc.pDataFrame([("tea", "happy"), ("water", "sad"), ("coffee", "happiest")], columns=['magic', 'thing'])
+        >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
+        >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
         >>> elements = prdd.collect()
         >>> len(elements)
         3
         >>> sorted(map(lambda x: x['magic'].all(), elements))
         ['coffee', 'tea', 'water']
         """
-        return PRDD._fromRDD(self.parallelize(elements).map(lambda element: pandas.DataFrame(data = [element], **kwargs)))
-
-def _test():
-    import doctest
-    globs = globals().copy()
-    # The small batch size here ensures that we see multiple batches,
-    # even in these small test examples:
-    globs['psc'] = PSparkContext('local[4]', 'PythonTest', batchSize=2)
-    (failure_count, test_count) = doctest.testmod(globs=globs,optionflags=doctest.ELLIPSIS)
-    globs['psc'].stop()
-    if failure_count:
-        exit(-1)
-
+        return PRDD.fromRDD(self.parallelize(elements).map(
+            lambda element: pandas.DataFrame(data = [element], **kwargs)))
 
 if __name__ == "__main__":
-    _test()
+    utils._test()

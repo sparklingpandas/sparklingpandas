@@ -10,8 +10,25 @@ def add_pyspark_path():
     import os
     try:
         sys.path.append(os.environ['SPARK_HOME'] + "/python")
-        sys.path.append(os.environ['SPARK_HOME'] + "/python/lib/py4j-0.8.1-src.zip")
+        sys.path.append(os.environ['SPARK_HOME'] +
+                        "/python/lib/py4j-0.8.1-src.zip")
     except KeyError:
         print """SPARK_HOME was not set. please set it. e.g.
          SPARK_HOME='/home/...' ./bin/pyspark [program]"""
+        exit(-1)
+
+def _test():
+    """
+    Setup and run the doc tests.
+    """
+    import doctest
+    from pandaspark.pcontext import PSparkContext
+    globs = globals().copy()
+    # The small batch size here ensures that we see multiple batches,
+    # even in these small test examples:
+    globs['psc'] = PSparkContext('local[4]', 'PythonTest', batchSize=2)
+    (failure_count, test_count) = doctest.testmod(globs=globs,
+                                                  optionflags=doctest.ELLIPSIS)
+    globs['psc'].stop()
+    if failure_count:
         exit(-1)

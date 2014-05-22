@@ -18,7 +18,7 @@ Provide a way to work with panda data frames in Spark
 # limitations under the License.
 #
 
-import utils
+import pandaspark.utils
 utils.add_pyspark_path()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
@@ -34,16 +34,20 @@ class PRDD(RDD):
     """
 
     @classmethod
-    def _fromRDD(self, rdd):
-        """Construct a PRDD from an RDD. No checking or validation is performed"""
+    def fromRDD(self, rdd):
+        """Construct a PRDD from an RDD. No checking or validation occurs"""
         return PRDD(rdd._jrdd, rdd.ctx, rdd._jrdd_deserializer)
 
     def papplymap(self, f, **kwargs):
         """
-        Return a new PRDD by applying a function to each element of each panda dataframe
+        Return a new PRDD by applying a function to each element of each
+        Panda DataFrame
         
-        >>> prdd = psc.pDataFrame([("tea", "happy"), ("water", "sad"), ("coffee", "happiest")], columns=['magic', 'thing'])
-        >>> str(prdd.papplymap((lambda x: "panda" + x)).pcollect().sort(['magic'])).replace(' ','').replace('\\n','')
+        >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
+        >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
+        >>> addpandasfunc = (lambda x: "panda" + x)
+        >>> result = prdd.papplymap(addpandasfunc).pcollect()
+        >>> str(result.sort(['magic'])).replace(' ','').replace('\\n','')
         'magicthing0pandacoffeepandahappiest0pandateapandahappy0pandawaterpandasad[3rowsx2columns]'
         """
         return PRDD._fromRDD(self.map(lambda data: data.applymap(f), **kwargs))
@@ -51,7 +55,9 @@ class PRDD(RDD):
     def __getitem__(self, key):
         """
         Returns a new PRDD of elements from that key
-        >>> prdd = psc.pDataFrame([("tea", "happy"), ("water", "sad"), ("coffee", "happiest")], columns=['magic', 'thing'])
+
+        >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
+        >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
         >>> str(prdd['thing'].pcollect()).replace(' ','').replace('\\n','')
         '0happy0sad0happiestName:thing,dtype:object'
         """
@@ -61,33 +67,20 @@ class PRDD(RDD):
         """
         Collect the elements in an PRDD and concatenate the partition
 
-        >>> prdd = psc.pDataFrame([("tea", "happy"), ("water", "sad"), ("coffee", "happiest")], columns=['magic', 'thing'])
+        >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
+        >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
         >>> elements = prdd.pcollect()
         >>> str(elements.sort(['magic']))
         '    magic     thing\\n0  coffee  happiest\\n0     tea     happy\\n0   water       sad\\n\\n[3 rows x 2 columns]'
         """
-        def appendFrames(a, b):
-            return a.append(b)
+        def appendFrames(frame_a, frame_b):
+            return frame_a.append(frame_b)
         return self.reduce(appendFrames)
 
     def stats(self):
         """
         Compute the stats for each column
         """
-        
-
-def _test():
-    import doctest
-    from pcontext import PSparkContext
-    globs = globals().copy()
-    # The small batch size here ensures that we see multiple batches,
-    # even in these small test examples:
-    globs['psc'] = PSparkContext('local[4]', 'PythonTest', batchSize=2)
-    (failure_count, test_count) = doctest.testmod(globs=globs,optionflags=doctest.ELLIPSIS)
-    globs['psc'].stop()
-    if failure_count:
-        exit(-1)
-
 
 if __name__ == "__main__":
-    _test()
+    utils._test()

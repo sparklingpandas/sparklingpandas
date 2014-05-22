@@ -22,7 +22,6 @@ import utils
 utils.add_pyspark_path()
 
 from pyspark.statcounter import StatCounter
-import pandas
 
 class PStatCounter(object):
     """
@@ -30,20 +29,26 @@ class PStatCounter(object):
     """
     def __init__(self, values=[]):
         self._counters = dict()
-        for v in values:
-            self.merge(v)
+        for value in values:
+            self.merge(value)
 
     def merge(self, frame):
+        """
+        Add another DataFrame to the PStatCounter
+        """
         for column, values in frame.iteritems():
             counter = None
             try:
-                counter = self._counters.get(key)
+                counter = self._counters.get(column)
                 for value in values:
-                    counter.merge(v)
+                    counter.merge(value)
             except KeyError:
-                c = StatCounter(values)
+                self._counters[column] = StatCounter(values)
 
     def mergePStats(self, other):
+        """
+        Merge all of the stats counters of the other PStatCounter with our counters
+        """
         if not isinstance(other, PStatCounter):
             raise Exception("Can only merge PStatcounters!")
 
