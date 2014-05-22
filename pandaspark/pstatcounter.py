@@ -16,7 +16,7 @@
 #
 
 import utils
-utils.addPySparkPath()
+utils.add_pyspark_path()
 
 from pyspark.statcounter import StatCounter
 import pandas

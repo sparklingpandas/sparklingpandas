@@ -16,7 +16,7 @@
 #
 
 import utils
-utils.addPySparkPath()
+utils.add_pyspark_path()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
 from pyspark.rdd import RDD
