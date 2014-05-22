@@ -1,3 +1,6 @@
+"""
+This module provides statistics for L{PRDD}s. Look at the stats() method on PRDD for more info.
+"""
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -25,7 +28,7 @@ class PStatCounter(object):
     """
     A wrapper around StatCounter which collects stats for multiple columns
     """
-'''    def __init__(self, values=[]):
+    def __init__(self, values=[]):
         self._counters = dict()
         for v in values:
             self.merge(v)
@@ -49,4 +52,4 @@ class PStatCounter(object):
                 self._counters.get(column).mergeStats(counter)
             except KeyError:
                 self._counters[column] = counter
-'''
+

@@ -1,3 +1,6 @@
+"""
+Provide an easy interface for loading data into L{PRDD}s for Spark.
+"""
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
