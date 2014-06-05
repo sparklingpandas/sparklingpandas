@@ -52,7 +52,7 @@ class PRDD:
         >>> addpandasfunc = (lambda x: "panda" + x)
         >>> result = prdd.applymap(addpandasfunc).collect()
         >>> str(result.sort(['magic'])).replace(' ','').replace('\\n','')
-        'magicthing0pandacoffeepandahappiest0pandateapandahappy0pandawaterpandasad[3rowsx2columns]'
+        'magicthing0pandacoffeepandahappiest0pandateapandahappy0pandawaterpandasad...'
         """
         return self.fromRDD(self._rdd.map(lambda data: data.applymap(f), **kwargs))
 
@@ -75,7 +75,7 @@ class PRDD:
         >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
         >>> elements = prdd.collect()
         >>> str(elements.sort(['magic']))
-        '    magic     thing\\n0  coffee  happiest\\n0     tea     happy\\n0   water       sad\\n\\n[3 rows x 2 columns]'
+        '    magic     thing\\n0  coffee  happiest\\n0     tea     happy\\n0   water       sad...'
         """
         def appendFrames(frame_a, frame_b):
             return frame_a.append(frame_b)
