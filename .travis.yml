@@ -7,8 +7,8 @@ install:
   - "pip install ."
 # command to run tests
 script:
-  # Download spark 1.0.0-RC11
-  - "wget http://people.apache.org/~tdas/spark-1.0.0-rc11/spark-1.0.0-bin-hadoop2.tgz"
+  # Download spark 1.0.0
+  - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz"
   - "tar -xvf spark-1.0.0-bin-hadoop2.tgz"
   # Run the tests
   - "SPARK_HOME=./spark-1.0.0-bin-hadoop2/ ./run-tests"
