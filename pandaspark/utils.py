@@ -26,10 +26,10 @@ def run_tests():
     globs = globals().copy()
     # The small batch size here ensures that we see multiple batches,
     # even in these small test examples:
-    globs['psc'] = PSparkContext('local[4]', 'PythonTest', batchSize=2)
+    globs['psc'] = PSparkContext.simple('local[4]', 'PythonTest', batchSize=2)
     (failure_count, test_count) = doctest.testmod(globs=globs,
                                                   optionflags=doctest.ELLIPSIS)
-    globs['psc'].stop()
+    globs['psc'].sc.stop()
     msg = "{0} test ran {1} failures".format(test_count, failure_count)
     try:
         # My kingdom for the letter u

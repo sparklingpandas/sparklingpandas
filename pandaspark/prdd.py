@@ -26,56 +26,60 @@ from pyspark.rdd import RDD
 from pandaspark.pstatcounter import PStatCounter
 import pandas
 
-class PRDD(RDD):
+class PRDD:
     """
     A Panda Resilient Distributed Dataset (PRDD), is an extension of the RDD.
     It is an RDD containg Panda dataframes and provides special methods that
-    are aware of this. All specialized panda functions are prefixed with a p.
+    are aware of this. You can access the underlying RDD at _rdd, but be careful
+    doing so. Note: RDDs are lazy, so you operations are not performed until required.
     """
+
+    def __init__(self, rdd):
+        self._rdd = rdd
 
     @classmethod
     def fromRDD(cls, rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs"""
-        return PRDD(rdd._jrdd, rdd.ctx, rdd._jrdd_deserializer)
+        return PRDD(rdd)
 
-    def papplymap(self, f, **kwargs):
+    def applymap(self, f, **kwargs):
         """
         Return a new PRDD by applying a function to each element of each
         Panda DataFrame
 
         >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
+        >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
         >>> addpandasfunc = (lambda x: "panda" + x)
-        >>> result = prdd.papplymap(addpandasfunc).pcollect()
+        >>> result = prdd.applymap(addpandasfunc).collect()
         >>> str(result.sort(['magic'])).replace(' ','').replace('\\n','')
         'magicthing0pandacoffeepandahappiest0pandateapandahappy0pandawaterpandasad[3rowsx2columns]'
         """
-        return self.fromRDD(self.map(lambda data: data.applymap(f), **kwargs))
+        return self.fromRDD(self._rdd.map(lambda data: data.applymap(f), **kwargs))
 
     def __getitem__(self, key):
         """
         Returns a new PRDD of elements from that key
 
         >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
-        >>> str(prdd['thing'].pcollect()).replace(' ','').replace('\\n','')
+        >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
+        >>> str(prdd['thing'].collect()).replace(' ','').replace('\\n','')
         '0happy0sad0happiestName:thing,dtype:object'
         """
-        return self.fromRDD(self.map(lambda x: x[key]))
+        return self.fromRDD(self._rdd.map(lambda x: x[key]))
 
-    def pcollect(self):
+    def collect(self):
         """
         Collect the elements in an PRDD and concatenate the partition
 
         >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
-        >>> elements = prdd.pcollect()
+        >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
+        >>> elements = prdd.collect()
         >>> str(elements.sort(['magic']))
         '    magic     thing\\n0  coffee  happiest\\n0     tea     happy\\n0   water       sad\\n\\n[3 rows x 2 columns]'
         """
         def appendFrames(frame_a, frame_b):
             return frame_a.append(frame_b)
-        return self.reduce(appendFrames)
+        return self._rdd.reduce(appendFrames)
 
     def stats(self):
         """

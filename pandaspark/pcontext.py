@@ -25,13 +25,21 @@ import StringIO
 from pyspark.context import SparkContext
 from pandaspark.prdd import PRDD
 
-class PSparkContext(SparkContext):
+class PSparkContext():
     """
     This is a thin wrapper around SparkContext from
     PySpark which makes it easy to load data into L{PRDD}s.
     """
 
-    def pcsvfile(self, name, useWholeFile=True, **kwargs):
+    def __init__(self, sparkcontext):
+        self.sc = sparkcontext
+
+    @classmethod
+    def simple(cls, *args, **kwargs):
+        """Takes the same arguments as SparkContext and constructs a PSparkContext"""
+        return PSparkContext(SparkContext(*args, **kwargs))
+
+    def csvfile(self, name, useWholeFile=True, **kwargs):
         """
         Read a CSV file in and parse it into panda data frames. Note this uses
         wholeTextFiles by default underneath the hood so as to support
@@ -39,31 +47,31 @@ class PSparkContext(SparkContext):
         All additional parameters are passed to the read_csv function
         """
         # TODO(holden): string IO stuff
-        def csv_file(contents, **kwargs):
+        def csv_file(contents, *args, **kwargs):
             pandas.read_csv(contents, kwargs)
-        def csv_rows(rows, **kwargs):
+        def csv_rows(rows, *args, **kwargs):
             for row in rows:
                 yield pandas.read_csv(row, kwargs)
         if useWholeFile:
-            return PRDD.fromRDD(self.wholeTextFiles(name).flatMap(
-                lambda x: csv_file(x, **kwargs)))
+            return PRDD.fromRDD(self.sc.wholeTextFiles(name).flatMap(
+                lambda x: csv_file(x, *args, **kwargs)))
         else:
-            return PRDD.fromRDD(self.textFile(name).mapPartitions(
-                lambda x: csv_rows(x, **kwargs)))
+            return PRDD.fromRDD(self.sc.textFile(name).mapPartitions(
+                lambda x: csv_rows(x, *args, **kwargs)))
 
-    def pDataFrame(self, elements, **kwargs):
+    def DataFrame(self, elements, *args, **kwargs):
         """
         Wraps the pandas.DataFrame operation
         >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        >>> prdd = psc.pDataFrame(input, columns=['magic', 'thing'])
+        >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
         >>> elements = prdd.collect()
         >>> len(elements)
         3
-        >>> sorted(map(lambda x: x['magic'].all(), elements))
+        >>> sorted(elements['magic'])
         ['coffee', 'tea', 'water']
         """
-        return PRDD.fromRDD(self.parallelize(elements).map(
-            lambda element: pandas.DataFrame(data = [element], **kwargs)))
+        return PRDD.fromRDD(self.sc.parallelize(elements).map(
+            lambda element: pandas.DataFrame(data = [element], *args, **kwargs)))
 
 if __name__ == "__main__":
     run_tests()
