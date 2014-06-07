@@ -1,11 +1,10 @@
-
+![logo](https://github.com/holdenk/pandaspark/raw/master/img/logo.jpg)
+![buildstatus](https://travis-ci.org/holdenk/pandaspark.svg?branch=master)
 ===========
 PandaSpark
 ===========
 
 PandaSpark aims to make it easy to use the distributed computing power of PySpark to scale your data anlysis with Pandas.
-
-Build status is at https://travis-ci.org/holdenk/pandaspark.svg?branch=master
 
 Documentation
 =========
