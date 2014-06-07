@@ -73,5 +73,11 @@ class PSparkContext():
         return PRDD.fromRDD(self.sc.parallelize(elements).map(
             lambda element: pandas.DataFrame(data = [element], *args, **kwargs)))
 
+    def stop(self):
+        """
+        Stop the underlying SparkContext
+        """
+        self.sc.stop()
+
 if __name__ == "__main__":
     run_tests()

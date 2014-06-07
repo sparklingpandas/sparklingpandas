@@ -39,6 +39,7 @@ function run_test() {
 run_test "./pandaspark/pcontext.py"
 run_test "./pandaspark/pstatcounter.py"
 run_test "./pandaspark/prdd.py"
+run_test "./pandaspark/test/dataloadtests.py"
 
 if [[ $FAILED == 0 ]]; then
     echo -en "\033[32m"  # Green

@@ -22,24 +22,32 @@ import pandas
 
 from tempfile import NamedTemporaryFile
 from pandaspark.test.pandasparktestcase import PandaSparkTestCase
-import unittest
 import pandas
+import sys
+import unittest
 
 class DataLoad(PandaSparkTestCase):
     """
     Class of data loading tests.
     """
-    def test_from_tuples():
+    def test_from_tuples(self):
         """
         Test loading the data from a python tuples.
         """
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        pframe = self.psc.pDataFrame(input, columns=['magic', 'thing'])
-        collectedframe = pframe.pcollect().sort(['magic'])
+        pframe = self.psc.DataFrame(input, columns=['magic', 'thing'])
+        collectedframe = pframe.collect().sort(['magic'])
         shouldeq = pandas.DataFrame(input, columns=['magic', 'thing']).sort(['magic'])
-        self.assertEqual(shouldeq, collectedframe)
+        self.assertEqual(shouldeq.all(), collectedframe.all())
 
-#    def test_from_csv_record_per_line():
+    def test_from_csv_record_per_line(self):
+        x = "hi, i, like, coffee\n"
+        tempFile = NamedTemporaryFile(delete=True)
+        tempFile.write(x)
+        tempFile.close()
+        data = self.psc.csvfile("file://" + tempFile.name, useWholeFile=False).collect()
+        expected = pandas.DataFrame(data = [], columns=[])
+        self.assertEqual(data.all(), expected.all())
         
 
 if __name__ == "__main__":

@@ -24,18 +24,19 @@ add_pyspark_path()
 from pandaspark.pcontext import PSparkContext
 from pandaspark.prdd import PRDD
 import unittest
+import sys
 
 class PandaSparkTestCase(unittest.TestCase):
     """
     Basic PandaSparkTestCase, inheret from this class to get a PSparkContext as sc
     """
-    def setup(self):
+    def setUp(self):
         """
         Setup the basic panda spark test case. This right now just creates a PSparkContet
         """
         self._old_sys_path = list(sys.path)
         class_name = self.__class__.__name__
-        self.psc = PSparkContext('local[4]', class_name , batchSize=2)
+        self.psc = PSparkContext.simple('local[4]', class_name , batchSize=2)
 
     def tearDown(self):
         """
@@ -46,7 +47,7 @@ class PandaSparkTestCase(unittest.TestCase):
         sys.path = self._old_sys_path
         # To avoid Akka rebinding to the same port, since it doesn't unbind
         # immediately on shutdown
-        self.psc._jvm.System.clearProperty("spark.driver.port")
+        self.psc.sc._jvm.System.clearProperty("spark.driver.port")
 
 if __name__ == "__main__":
     unittest.main()
