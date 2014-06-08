@@ -21,7 +21,7 @@ Provide an easy interface for loading data into L{PRDD}s for Spark.
 from pandaspark.utils import add_pyspark_path, run_tests
 add_pyspark_path()
 import pandas
-import StringIO
+from StringIO import StringIO
 from pyspark.context import SparkContext
 from pandaspark.prdd import PRDD
 
@@ -39,7 +39,7 @@ class PSparkContext():
         """Takes the same arguments as SparkContext and constructs a PSparkContext"""
         return PSparkContext(SparkContext(*args, **kwargs))
 
-    def csvfile(self, name, useWholeFile=True, **kwargs):
+    def csvfile(self, name, useWholeFile=True, *args, **kwargs):
         """
         Read a CSV file in and parse it into panda data frames. Note this uses
         wholeTextFiles by default underneath the hood so as to support
@@ -48,10 +48,10 @@ class PSparkContext():
         """
         # TODO(holden): string IO stuff
         def csv_file(contents, *args, **kwargs):
-            pandas.read_csv(contents, kwargs)
+            return pandas.read_csv(StringIO(contents), *args, header=0,**kwargs)
         def csv_rows(rows, *args, **kwargs):
             for row in rows:
-                yield pandas.read_csv(row, kwargs)
+                yield pandas.read_csv(StringIO(row), *args, header=0, **kwargs)
         if useWholeFile:
             return PRDD.fromRDD(self.sc.wholeTextFiles(name).flatMap(
                 lambda x: csv_file(x, *args, **kwargs)))

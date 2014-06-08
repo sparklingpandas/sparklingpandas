@@ -38,16 +38,16 @@ class DataLoad(PandaSparkTestCase):
         pframe = self.psc.DataFrame(input, columns=['magic', 'thing'])
         collectedframe = pframe.collect().sort(['magic'])
         shouldeq = pandas.DataFrame(input, columns=['magic', 'thing']).sort(['magic'])
-        self.assertEqual(shouldeq.all(), collectedframe.all())
+        self.assertEqual(str(shouldeq.all()), str(collectedframe.all()))
 
-    def test_from_csv_record_per_line(self):
+    def test_from_csv_record_whole_file(self):
         x = "hi, i, like, coffee\n"
-        tempFile = NamedTemporaryFile(delete=True)
+        tempFile = NamedTemporaryFile()
         tempFile.write(x)
-        tempFile.close()
-        data = self.psc.csvfile("file://" + tempFile.name, useWholeFile=False).collect()
+        tempFile.flush()
+        data = self.psc.csvfile("file://" + tempFile.name, useWholeFile=True).collect()
         expected = pandas.DataFrame(data = [], columns=[])
-        self.assertEqual(data.all(), expected.all())
+        self.assertEqual(str(data.all()), str(expected.all()))
         
 
 if __name__ == "__main__":
