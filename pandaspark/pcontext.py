@@ -53,8 +53,8 @@ class PSparkContext():
             for row in rows:
                 yield pandas.read_csv(StringIO(row), *args, header=0, **kwargs)
         if useWholeFile:
-            return PRDD.fromRDD(self.sc.wholeTextFiles(name).flatMap(
-                lambda x: csv_file(x, *args, **kwargs)))
+            return PRDD.fromRDD(self.sc.wholeTextFiles(name).map(
+                lambda (name, contents): csv_file(contents, *args, **kwargs)))
         else:
             return PRDD.fromRDD(self.sc.textFile(name).mapPartitions(
                 lambda x: csv_rows(x, *args, **kwargs)))

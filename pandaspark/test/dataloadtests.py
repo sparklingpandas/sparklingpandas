@@ -41,12 +41,15 @@ class DataLoad(PandaSparkTestCase):
         self.assertEqual(str(shouldeq.all()), str(collectedframe.all()))
 
     def test_from_csv_record_whole_file(self):
-        x = "hi, i, like, coffee\n"
+        x = "hi,i,like,coffee\n"
         tempFile = NamedTemporaryFile()
         tempFile.write(x)
         tempFile.flush()
-        data = self.psc.csvfile("file://" + tempFile.name, useWholeFile=True).collect()
-        expected = pandas.DataFrame(data = [], columns=[])
+        data = self.psc.csvfile("file://" + tempFile.name,
+                                useWholeFile=True,
+                                names=["1", "2", "3", "4"]).collect()
+        expected = pandas.DataFrame(data =[["hi", "i", "like", "coffee"]],
+                                    columns=["1", "2", "3", "4"])
         self.assertEqual(str(data.all()), str(expected.all()))
         
 
