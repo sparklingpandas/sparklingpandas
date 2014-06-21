@@ -4,7 +4,7 @@ python:
   - "2.7"
 # command to install dependencies
 install:
-  - "apt-get update && apt-get install python-pandas"
+  - "sudo apt-get update && sudo apt-get install python-pandas"
   - "pip install ."
 # command to run tests
 script:
