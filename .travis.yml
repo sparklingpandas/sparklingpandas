@@ -4,7 +4,7 @@ python:
   - "2.7"
 # command to install dependencies
 install:
-  - "sudo apt-get update && sudo apt-get install python-pandas"
+  - "sudo apt-get update && sudo apt-get install python-pandas python-openpyxl"
   - "pip install ."
 # command to run tests
 script:
