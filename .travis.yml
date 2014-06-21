@@ -4,6 +4,7 @@ python:
   - "2.7"
 # command to install dependencies
 install:
+  - "pip install NumPy python-dateutil pytz bottleneck"
   - "pip install ."
 # command to run tests
 script:
