@@ -3,14 +3,7 @@ python:
   - "2.6"
   - "2.7"
 before_install:
- - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then
- - sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ saucy main universe"
- - sudo apt-get update
- - sudo apt-get install libquantlib0-dev
- - sudo apt-get install -qq python-numpy
- - pip install cython --use-mirrors
- - pip install unittest2; pip install pandas --use-mirrors
- - fi
+ - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then ./setup_for_travis fi
 # command to install dependencies
 install:
   - "pip install ."
