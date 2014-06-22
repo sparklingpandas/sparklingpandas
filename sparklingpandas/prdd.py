@@ -63,7 +63,7 @@ class PRDD:
 
     def collect(self):
         """
-        Collect the elements in an PRDD and concatenate the partition
+        Collect the elements in an PRDD and concatenate the partition.
 
         """
 
@@ -86,7 +86,6 @@ class PRDD:
         return self._rdd.mapPartitions(
             lambda i: [PStatCounter(dataframes=i, columns=columns)]).reduce(
                 reduce_func)
-
 
 if __name__ == "__main__":
     run_tests()
