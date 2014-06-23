@@ -20,6 +20,7 @@ Look at the stats() method on PRDD for more info.
 #
 
 from pandaspark.utils import add_pyspark_path, run_tests
+import pandas
 add_pyspark_path()
 
 from pyspark.statcounter import StatCounter
@@ -28,24 +29,39 @@ class PStatCounter(object):
     """
     A wrapper around StatCounter which collects stats for multiple columns
     """
-    counters = dict()
 
-    def __init__(self, values=[]):
-        for value in values:
-            self.merge(value)
+    def __init__(self, dataframes = [], columns = []):
+        """
+        Creates a stats counter for the provided data frames
+        computing the stats for all of the columns in columns.
+        Parameters
+        ----------
+        dataframes: list of dataframes, containing the values to compute stats on
+        columns: list of strs, list of columns to compute the stats on
+        """
+        self._columns = columns
+        self._counters = {column: StatCounter() for column in columns}
+ 
+        for df in dataframes:
+            self.merge(df)
+
 
     def merge(self, frame):
         """
         Add another DataFrame to the PStatCounter
+        >>> import pandas
+        >>> from pandaspark.pstatcounter import PStatCounter
+        >>> input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
+        >>> df = pandas.DataFrame(data = input, columns = ['a', 'b'])
+        >>> PStatCounter([df], columns=['b'])
+        (field: b,  counters: (count: 3, mean: 20.0, stdev: 8.16496580928, max: 30, min: 10))
         """
         for column, values in frame.iteritems():
-            counter = None
-            try:
-                counter = self._counters.get(column)
-                for value in values:
+            # Temporary hack, fix later
+            counter = self._counters.get(column)
+            for value in values:
+                if counter is not None:
                     counter.merge(value)
-            except KeyError:
-                self._counters[column] = StatCounter(values)
 
     def merge_pstats(self, other):
         """
@@ -54,11 +70,20 @@ class PStatCounter(object):
         if not isinstance(other, PStatCounter):
             raise Exception("Can only merge PStatcounters!")
 
-        for column, counter in other._conters.items():
-            try:
-                self._counters.get(column).mergeStats(counter)
-            except KeyError:
-                self._counters[column] = counter
+        for column, counter in self._counters.items():
+            other_counter = other._counters.get(column)
+            self._counters[column] = counter.mergeStats(other_counter)
+
+        return self
+
+    def __str__(self):
+        str = ""
+        for column, counter in self._counters.items():
+            str += "(field: %s,  counters: %s)" % (column, counter)
+        return str
+
+    def __repr__(self):
+        return self.__str__()
 
 if __name__ == "__main__":
     run_tests()

@@ -81,10 +81,22 @@ class PRDD:
             return frame_a.append(frame_b)
         return self._rdd.reduce(appendFrames)
 
-    def stats(self):
+    def stats(self, columns = []):
         """
-        Compute the stats for each column
+        Compute the stats for each column provided in columns.
+        Parameters
+        ----------
+        columns : list of str, contains all comuns for which to compute stats on
+        >>> input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
+        >>> prdd = psc.DataFrame(input, columns=['a', 'b'])
+        >>> stats = prdd.stats(columns=['b'])
+        >>> str(stats)
+        '(field: b,  counters: (count: 3, mean: 20.0, stdev: 8.16496580928, max: 30, min: 10))'
         """
+        def reduceFunc(sc1, sc2):
+            return sc1.merge_pstats(sc2)
+
+        return self._rdd.mapPartitions(lambda i: [PStatCounter(dataframes = i, columns = columns)]).reduce(reduceFunc)
 
 if __name__ == "__main__":
     run_tests()
