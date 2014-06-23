@@ -1,12 +1,18 @@
 language: python
 python:
+  - "2.6"
   - "2.7"
 before_install:
- - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then ./setup_for_travis; fi
-# command to install dependencies
+  - sudo pip install conda
 install:
+  # install deps
+  - sudo conda init
+  - sudo conda update conda --yes
+  - deps='pip numpy pandas requests nose numpydoc sphinx'
+  - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
+  - export PATH=$HOME/py/bin:$PATH
+  # install our own package into the environment
   - "pip install ."
-# command to run tests
 script:
   # Download spark 1.0.0
   - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz"
