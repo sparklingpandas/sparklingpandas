@@ -1,5 +1,5 @@
 ![logo](https://github.com/holdenk/pandaspark/raw/master/img/logo.jpg)
-![buildstatus](https://travis-ci.org/holdenk/pandaspark.svg?branch=master)
+![buildstatus](https://travis-ci.org/holdenk/sparklingpandas.svg?branch=master)(https://travis-ci.org/holdenk/sparklingpandas)
 ===========
 PandaSpark
 ===========
