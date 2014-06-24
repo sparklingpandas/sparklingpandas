@@ -40,7 +40,7 @@ class PStatCounter(object):
         columns: list of strs, list of columns to compute the stats on
         """
         self._columns = columns
-        self._counters = {column: StatCounter() for column in columns}
+        self._counters = dict((column, StatCounter()) for column in columns)
  
         for df in dataframes:
             self.merge(df)
