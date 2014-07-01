@@ -45,14 +45,7 @@ class PRDD:
     def applymap(self, f, **kwargs):
         """
         Return a new PRDD by applying a function to each element of each
-        Panda DataFrame
-
-        >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
-        >>> addpandasfunc = (lambda x: "panda" + x)
-        >>> result = prdd.applymap(addpandasfunc).collect()
-        >>> str(result.sort(['magic'])).replace(' ','').replace('\\n','')
-        'magicthing0pandacoffeepandahappiest0pandateapandahappy0pandawaterpandasad...'
+        Panda DataFrame.
         """
         return self.fromRDD(self._rdd.map(lambda data: data.applymap(f), **kwargs))
 
@@ -60,10 +53,7 @@ class PRDD:
         """
         Returns a new PRDD of elements from that key
 
-        >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
-        >>> str(prdd['thing'].collect()).replace(' ','').replace('\\n','')
-        '0happy0sad0happiestName:thing,dtype:object'
+
         """
         return self.fromRDD(self._rdd.map(lambda x: x[key]))
 
@@ -71,11 +61,6 @@ class PRDD:
         """
         Collect the elements in an PRDD and concatenate the partition
 
-        >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
-        >>> elements = prdd.collect()
-        >>> str(elements.sort(['magic']))
-        '    magic     thing\\n0  coffee  happiest\\n0     tea     happy\\n0   water       sad...'
         """
         def appendFrames(frame_a, frame_b):
             return frame_a.append(frame_b)
@@ -87,11 +72,6 @@ class PRDD:
         Parameters
         ----------
         columns : list of str, contains all comuns for which to compute stats on
-        >>> input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
-        >>> prdd = psc.DataFrame(input, columns=['a', 'b'])
-        >>> stats = prdd.stats(columns=['b'])
-        >>> str(stats)
-        '(field: b,  counters: (count: 3, mean: 20.0, stdev: 8.16496580928, max: 30, min: 10))'
         """
         def reduceFunc(sc1, sc2):
             return sc1.merge_pstats(sc2)

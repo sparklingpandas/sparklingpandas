@@ -61,14 +61,7 @@ class PSparkContext():
 
     def DataFrame(self, elements, *args, **kwargs):
         """
-        Wraps the pandas.DataFrame operation
-        >>> input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        >>> prdd = psc.DataFrame(input, columns=['magic', 'thing'])
-        >>> elements = prdd.collect()
-        >>> len(elements)
-        3
-        >>> sorted(elements['magic'])
-        ['coffee', 'tea', 'water']
+        Wraps the pandas.DataFrame operation.
         """
         return PRDD.fromRDD(self.sc.parallelize(elements).map(
             lambda element: pandas.DataFrame(data = [element], *args, **kwargs)))

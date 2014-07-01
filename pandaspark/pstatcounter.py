@@ -48,13 +48,7 @@ class PStatCounter(object):
 
     def merge(self, frame):
         """
-        Add another DataFrame to the PStatCounter
-        >>> import pandas
-        >>> from pandaspark.pstatcounter import PStatCounter
-        >>> input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
-        >>> df = pandas.DataFrame(data = input, columns = ['a', 'b'])
-        >>> PStatCounter([df], columns=['b'])
-        (field: b,  counters: (count: 3, mean: 20.0, stdev: 8.16496580928, max: 30, min: 10))
+        Add another DataFrame to the PStatCounter.
         """
         for column, values in frame.iteritems():
             # Temporary hack, fix later
