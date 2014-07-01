@@ -18,4 +18,5 @@ script:
   - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz"
   - "tar -xvf spark-1.0.0-bin-hadoop2.tgz"
   # Run the tests
-  - "SPARK_HOME=./spark-1.0.0-bin-hadoop2/ ./run-tests"
+  - "export SPARK_HOME=./spark-1.0.0-bin-hadoop2/"
+  - "nosetests --logging-level=INFO --detailed-errors"

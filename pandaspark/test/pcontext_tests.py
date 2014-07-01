@@ -1,5 +1,6 @@
-#!/usr/bin/env bash
-
+"""
+Test methods in pcontext
+"""
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -17,32 +18,13 @@
 # limitations under the License.
 #
 
-FAILED=0
+from pandaspark.test.pandasparktestcase import PandaSparkTestCase
 
-rm -f unit-tests.log
+class PContext_Tests(PandaSparkTestCase):
 
-function run_test() {
-    python $1 2>&1 | tee -a  unit-tests.log
-    FAILED=$((PIPESTATUS[0]||$FAILED))
-
-    # Fail and exit on the first test failure.
-    if [[ $FAILED != 0 ]]; then
-        cat unit-tests.log | grep -v "^[0-9][0-9]*" # filter all lines starting with a number.
-        echo -en "\033[31m"  # Red
-        echo "Had test failures; see logs."
-        echo -en "\033[0m"  # No color
-        exit -1
-    fi
-
-}
-
-run_test "./pandaspark/pcontext.py"
-run_test "./pandaspark/pstatcounter.py"
-run_test "./pandaspark/prdd.py"
-run_test "./pandaspark/test/dataloadtests.py"
-
-if [[ $FAILED == 0 ]]; then
-    echo -en "\033[32m"  # Green
-    echo "Tests passed."
-    echo -en "\033[0m"  # No color
-fi
+    def test_dataframe_construction(self):
+        input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
+        prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
+        elements = prdd.collect()
+        assert len(elements) == 3
+        assert sorted(elements['magic']) == ['coffee', 'tea', 'water']
