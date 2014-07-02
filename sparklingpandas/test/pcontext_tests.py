@@ -18,9 +18,9 @@ Test methods in pcontext
 # limitations under the License.
 #
 
-from pandaspark.test.pandasparktestcase import PandaSparkTestCase
+from sparklingpandas.test.sparklingpandastestcase import SparklingPandasTestCase
 
-class PContext_Tests(PandaSparkTestCase):
+class PContext_Tests(SparklingPandasTestCase):
 
     def test_dataframe_construction(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]

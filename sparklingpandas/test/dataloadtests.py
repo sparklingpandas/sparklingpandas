@@ -21,12 +21,12 @@ Test all of the methods for loading data into PandaSpark
 import pandas
 
 from tempfile import NamedTemporaryFile
-from pandaspark.test.pandasparktestcase import PandaSparkTestCase
+from sparklingpandas.test.sparklingpandastestcase import SparklingPandasTestCase
 import pandas
 import sys
 import unittest
 
-class DataLoad(PandaSparkTestCase):
+class DataLoad(SparklingPandasTestCase):
     """
     Class of data loading tests.
     """

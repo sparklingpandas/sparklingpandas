@@ -18,12 +18,12 @@ Provide a way to work with panda data frames in Spark
 # limitations under the License.
 #
 
-from pandaspark.utils import add_pyspark_path, run_tests
+from sparklingpandas.utils import add_pyspark_path, run_tests
 add_pyspark_path()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
 from pyspark.rdd import RDD
-from pandaspark.pstatcounter import PStatCounter
+from sparklingpandas.pstatcounter import PStatCounter
 import pandas
 
 class PRDD:

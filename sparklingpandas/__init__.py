@@ -21,8 +21,8 @@ PandaSpark provides support for Pandas on Spark. The primary classes one should
  look at are L{PRDD} and L{PSparkContext}.
 """
 
-"""from pandaspark.prdd import PRDD
-from pandaspark.pcontext import PSparkContext
+"""from sparklingpandas.prdd import PRDD
+from sparklingpandas.pcontext import PSparkContext
 
 __all__ = ["PRDD", "PSparkContext"]
 """

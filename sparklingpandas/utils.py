@@ -1,5 +1,5 @@
 """
-Simple common utils shared between the pandaspark modules
+Simple common utils shared between the sparklingpandas modules
 """
 
 def add_pyspark_path():
@@ -22,7 +22,7 @@ def run_tests():
     Setup and run the doc tests.
     """
     import doctest
-    from pandaspark.pcontext import PSparkContext
+    from sparklingpandas.pcontext import PSparkContext
     globs = globals().copy()
     # The small batch size here ensures that we see multiple batches,
     # even in these small test examples:

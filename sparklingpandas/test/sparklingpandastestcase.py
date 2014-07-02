@@ -19,16 +19,16 @@
 This module provides some common test case base for PandaSparkTestCases
 """
 
-from pandaspark.utils import add_pyspark_path
+from sparklingpandas.utils import add_pyspark_path
 add_pyspark_path()
-from pandaspark.pcontext import PSparkContext
-from pandaspark.prdd import PRDD
+from sparklingpandas.pcontext import PSparkContext
+from sparklingpandas.prdd import PRDD
 import unittest
 import sys
 
-class PandaSparkTestCase(unittest.TestCase):
+class SparklingPandasTestCase(unittest.TestCase):
     """
-    Basic PandaSparkTestCase, inheret from this class to get a PSparkContext as sc
+    Basic SparklingPandasTestCase, inherit from this class to get a PSparkContext as sc
     """
     def setUp(self):
         """
