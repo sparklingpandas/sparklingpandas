@@ -19,7 +19,7 @@ Look at the stats() method on PRDD for more info.
 # limitations under the License.
 #
 
-from pandaspark.utils import add_pyspark_path, run_tests
+from sparklingpandas.utils import add_pyspark_path, run_tests
 import pandas
 add_pyspark_path()
 

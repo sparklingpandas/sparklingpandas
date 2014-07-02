@@ -18,12 +18,12 @@ Provide an easy interface for loading data into L{PRDD}s for Spark.
 # limitations under the License.
 #
 
-from pandaspark.utils import add_pyspark_path, run_tests
+from sparklingpandas.utils import add_pyspark_path, run_tests
 add_pyspark_path()
 import pandas
 from StringIO import StringIO
 from pyspark.context import SparkContext
-from pandaspark.prdd import PRDD
+from sparklingpandas.prdd import PRDD
 
 class PSparkContext():
     """

@@ -18,12 +18,12 @@ Test methods in prdd
 # limitations under the License.
 #
 
-from pandaspark.test.pandasparktestcase import PandaSparkTestCase
+from sparklingpandas.test.sparklingpandastestcase import SparklingPandasTestCase
 
 import pandas as pd
 import numpy.testing as np_tests
 
-class PContext_Tests(PandaSparkTestCase):
+class PContext_Tests(SparklingPandasTestCase):
 
     def test_apply_map(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]

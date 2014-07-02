@@ -1,11 +1,11 @@
 from distutils.core import setup
 
 setup(
-    name='pandaspark',
+    name='sparklingpandas',
     version='0.0.1',
     author='Holden Karau',
     author_email='holden@pigscanfly.ca',
-    packages=['pandaspark', 'pandaspark.test'],
+    packages=['sparklingpandas', 'sparklingpandas.test'],
     url='https://github.com/holdenk/PandaSpark',
     license='LICENSE.txt',
     description='Enable Pandas on PySpark',
