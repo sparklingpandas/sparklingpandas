@@ -9,7 +9,7 @@ Provide an easy interface for loading data into L{PRDD}s for Spark.
 # (the "License"); you may not use this file except in compliance with
 # the License.  You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +19,13 @@ Provide an easy interface for loading data into L{PRDD}s for Spark.
 #
 
 from sparklingpandas.utils import add_pyspark_path, run_tests
+
 add_pyspark_path()
 import pandas
 from StringIO import StringIO
 from pyspark.context import SparkContext
 from sparklingpandas.prdd import PRDD
+
 
 class PSparkContext():
     """
@@ -36,23 +38,29 @@ class PSparkContext():
 
     @classmethod
     def simple(cls, *args, **kwargs):
-        """Takes the same arguments as SparkContext and constructs a PSparkContext"""
+        """
+        Takes the same arguments as SparkContext and constructs a PSparkContext
+        """
         return PSparkContext(SparkContext(*args, **kwargs))
 
-    def csvfile(self, name, useWholeFile=True, *args, **kwargs):
+    def csvfile(self, name, use_whole_file=True, *args, **kwargs):
         """
         Read a CSV file in and parse it into panda data frames. Note this uses
         wholeTextFiles by default underneath the hood so as to support
-        multi-line CSV records so many small input files are prefered.
+        multi-line CSV records so many small input files are preferred.
         All additional parameters are passed to the read_csv function
         """
         # TODO(holden): string IO stuff
+
         def csv_file(contents, *args, **kwargs):
-            return pandas.read_csv(StringIO(contents), *args, header=0,**kwargs)
+            return pandas.read_csv(StringIO(contents), *args, header=0,
+                                   **kwargs)
+
         def csv_rows(rows, *args, **kwargs):
             for row in rows:
                 yield pandas.read_csv(StringIO(row), *args, header=0, **kwargs)
-        if useWholeFile:
+
+        if use_whole_file:
             return PRDD.fromRDD(self.sc.wholeTextFiles(name).map(
                 lambda (name, contents): csv_file(contents, *args, **kwargs)))
         else:
@@ -64,13 +72,14 @@ class PSparkContext():
         Wraps the pandas.DataFrame operation.
         """
         return PRDD.fromRDD(self.sc.parallelize(elements).map(
-            lambda element: pandas.DataFrame(data = [element], *args, **kwargs)))
+            lambda element: pandas.DataFrame(data=[element], *args, **kwargs)))
 
     def stop(self):
         """
         Stop the underlying SparkContext
         """
         self.sc.stop()
+
 
 if __name__ == "__main__":
     run_tests()

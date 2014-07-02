@@ -8,7 +8,7 @@ install:
   # install deps
   - sudo conda init
   - sudo conda update conda --yes
-  - deps='pip numpy pandas requests nose numpydoc sphinx'
+  - deps='pip numpy pandas requests nose numpydoc sphinx pep8'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   # install our own package into the environment
@@ -20,3 +20,4 @@ script:
   # Run the tests
   - "export SPARK_HOME=./spark-1.0.0-bin-hadoop2/"
   - "nosetests --logging-level=INFO --detailed-errors"
+  - "pep8 sparklingpandas/"

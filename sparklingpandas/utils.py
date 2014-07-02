@@ -2,12 +2,14 @@
 Simple common utils shared between the sparklingpandas modules
 """
 
+
 def add_pyspark_path():
     """
     Add PySpark to the library path based on the value of SPARK_HOME
     """
     import sys
     import os
+
     try:
         sys.path.append(os.environ['SPARK_HOME'] + "/python")
         sys.path.append(os.environ['SPARK_HOME'] +
@@ -17,12 +19,14 @@ def add_pyspark_path():
         SPARK_HOME='/home/...' ./bin/pyspark [program]"""
         exit(-1)
 
+
 def run_tests():
     """
     Setup and run the doc tests.
     """
     import doctest
     from sparklingpandas.pcontext import PSparkContext
+
     globs = globals().copy()
     # The small batch size here ensures that we see multiple batches,
     # even in these small test examples:
@@ -34,6 +38,7 @@ def run_tests():
     try:
         # My kingdom for the letter u
         from termcolor import colored
+
         if failure_count:
             msg = colored(msg, 'red')
         else:
@@ -47,6 +52,7 @@ def run_tests():
         print msg + '\033[0m'
     if failure_count:
         exit(-1)
+
 
 if __name__ == "__main__":
     run_tests()
