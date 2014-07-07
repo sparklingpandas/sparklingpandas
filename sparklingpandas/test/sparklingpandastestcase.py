@@ -32,7 +32,6 @@ from pandas.util.testing import assert_frame_equal
 
 
 class SparklingPandasTestCase(unittest2.TestCase):
-
     """
     Basic SparklingPandasTestCase, inherit from this class to get a
     PSparkContext as sc.

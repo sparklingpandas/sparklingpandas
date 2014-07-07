@@ -121,6 +121,17 @@ class PContextTests(SparklingPandasTestCase):
         assert self.numericpframe.shape == self.numericframe.shape
         assert self.mixedpframe.shape == self.mixedframe.shape
 
+    def test_to_spark_sql(self):
+        input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
+        prdd = self.psc.DataFrame(input, columns=['a', 'b'])
+        sparkSqlRDD = prdd.to_spark_sql()
+        sqlCtx = self.psc._get_sql_ctx()
+        schemaRDD = sqlCtx.inferSchema(sparkSqlRDD)
+        schemaRDD.registerAsTable("magic")
+        magic = sqlCtx.sql("SELECT a FROM magic WHERE b = 10")
+        collected = magic.collect()
+        assert collected == [{'a': 'magic'}]
+
 
 if __name__ == "__main__":
     unittest2.main()

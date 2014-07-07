@@ -1,6 +1,4 @@
-"""
-Provide a way to work with panda data frames in Spark
-"""
+"""Provide a way to work with panda data frames in Spark"""
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -35,39 +33,43 @@ class PRDD:
     It is an RDD containing Panda dataframes and provides special methods that
     are aware of this. You can access the underlying RDD at _rdd, but be
     careful doing so.
-    Note: RDDs are lazy, so you operations are not performed until required.
-    """
+    Note: RDDs are lazy, so you operations are not performed until required."""
 
     def __init__(self, rdd):
         self._rdd = rdd
 
     @classmethod
     def fromRDD(cls, rdd):
-        """Construct a PRDD from an RDD. No checking or validation occurs"""
+        """Construct a PRDD from an RDD. No checking or validation occurs."""
         return PRDD(rdd)
 
+    def to_spark_sql(self):
+        """A Sparkling Pandas specific function to turn a DDF into
+        something that Spark SQL can query. To use the result you will
+        need to call sqlCtx.inferSchema(rdd) and then register the result
+        as a table. Once Spark 1.1 is released this function may be deprecated
+        and replacted with to_spark_sql_schema_rdd."""
+        def frame_to_spark_sql(frame):
+            """Convert a Panda's DataFrame into Spark SQL Rows"""
+            return map((lambda x: x[1].to_dict()), frame.iterrows())
+        return self._rdd.flatMap(frame_to_spark_sql)
+
     def applymap(self, f, **kwargs):
-        """
-        Return a new PRDD by applying a function to each element of each
-        Panda DataFrame.
-        """
+        """Return a new PRDD by applying a function to each element of each
+        Panda DataFrame."""
         return self.fromRDD(
             self._rdd.map(lambda data: data.applymap(f), **kwargs))
 
     def __getitem__(self, key):
-        """
-        Returns a new PRDD of elements from that key
-        """
+        """Returns a new PRDD of elements from that key."""
         return self.fromRDD(self._rdd.map(lambda x: x[key]))
 
     def groupby(self, *args, **kwargs):
-        """
-        Takes the same parameters as groupby on DataFrame.
+        """Takes the same parameters as groupby on DataFrame.
         Like with groupby on DataFrame disabling sorting will result in an
         even larger performance improvement. This returns a Sparkling Pandas
         L{GroupBy} object which supports many of the same operations as regular
-        GroupBy but not all.
-        """
+        GroupBy but not all."""
         from sparklingpandas.groupby import GroupBy
         return GroupBy(self._rdd, *args, **kwargs)
 
@@ -152,9 +154,7 @@ class PRDD:
                 .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
     def collect(self):
-        """
-        Collect the elements in an PRDD and concatenate the partition.
-        """
+        """Collect the elements in an PRDD and concatenate the partition."""
         # The order of the frame order appends is based on the implementation
         # of reduce which calls our function with
         # f(valueToBeAdded, accumulator) so we do our reduce implementation.
@@ -163,14 +163,12 @@ class PRDD:
         return self._custom_rdd_reduce(appendFrames)
 
     def _custom_rdd_reduce(self, f):
-        """
-        Provides a custom RDD reduce which perserves ordering if the RDD has
+        """Provides a custom RDD reduce which perserves ordering if the RDD has
         been sorted. This is useful for us becuase we need this functionality
         as many panda operations support sorting the results. The standard
         reduce in PySpark does not have this property.  Note that when PySpark
         no longer does partition reduces locally this code will also need to
-        be updated.
-        """
+        be updated."""
         def func(iterator):
             acc = None
             for obj in iterator:
@@ -184,8 +182,7 @@ class PRDD:
         return reduce(f, vals)
 
     def stats(self, columns):
-        """
-        Compute the stats for each column provided in columns.
+        """Compute the stats for each column provided in columns.
         Parameters
         ----------
         columns : list of str, contains all columns to compute stats on.
