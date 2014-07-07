@@ -32,7 +32,7 @@ class PStatCounter(object):
     A wrapper around StatCounter which collects stats for multiple columns
     """
 
-    def __init__(self, dataframes=[], columns=[]):
+    def __init__(self, dataframes, columns):
         """
         Creates a stats counter for the provided data frames
         computing the stats for all of the columns in columns.
@@ -42,6 +42,11 @@ class PStatCounter(object):
                 on.
         columns: list of strs, list of columns to compute the stats on.
         """
+        assert (not isinstance(columns, basestring)), "columns should be a " \
+                                                      "list of strs,  " \
+                                                      "not a str!"
+        assert isinstance(columns, list), "columns should be a list!"
+
         self._columns = columns
         self._counters = dict((column, StatCounter()) for column in columns)
 

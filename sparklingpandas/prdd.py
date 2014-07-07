@@ -72,7 +72,7 @@ class PRDD:
 
         return self._rdd.reduce(appendFrames)
 
-    def stats(self, columns=[]):
+    def stats(self, columns):
         """
         Compute the stats for each column provided in columns.
         Parameters
