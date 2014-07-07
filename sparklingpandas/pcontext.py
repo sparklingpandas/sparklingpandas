@@ -43,29 +43,49 @@ class PSparkContext():
         """
         return PSparkContext(SparkContext(*args, **kwargs))
 
-    def csvfile(self, name, use_whole_file=True, *args, **kwargs):
+    def read_csv(self, name, use_whole_file=False, names=None, skiprows=0,
+                 *args, **kwargs):
         """
-        Read a CSV file in and parse it into panda data frames. Note this uses
-        wholeTextFiles by default underneath the hood so as to support
-        multi-line CSV records so many small input files are preferred.
+        Read a CSV file in and parse it into panda data frames.
+        header: row #s to be used 
         All additional parameters are passed to the read_csv function
         """
-        # TODO(holden): string IO stuff
+        def csv_file(partitionNumber, files):
+            file_count = 0
+            for filename, contents in files:
+                # Only skip lines on the first file
+                if partitionNumber == 0 and file_count == 0 and skiprows > 0:
+                    yield pandas.read_csv(StringIO(contents), *args, header=None,
+                                          skiprows = skiprows, **kwargs)
+                else:
+                    file_count += 1
+                    yield pandas.read_csv(StringIO(contents), *args, header=None,
+                                          **kwargs)
 
-        def csv_file(contents, *args, **kwargs):
-            return pandas.read_csv(StringIO(contents), *args, header=0,
-                                   **kwargs)
-
-        def csv_rows(rows, *args, **kwargs):
+        def csv_rows(partitionNumber, rows):
+            rc = 0
             for row in rows:
-                yield pandas.read_csv(StringIO(row), *args, header=0, **kwargs)
+                # Skip the first rows from the first partition if requested
+                if partitionNumber != 0 or rc >= skiprows:
+                    yield pandas.read_csv(StringIO(row), *args, header=None, **kwargs)
+                else:
+                    rc += 1
 
-        if use_whole_file:
-            return PRDD.fromRDD(self.sc.wholeTextFiles(name).map(
-                lambda (name, contents): csv_file(contents, *args, **kwargs)))
+        # Determine the names of the columns in the input
+        mynames=None
+        if names:
+            mynames=names
         else:
-            return PRDD.fromRDD(self.sc.textFile(name).mapPartitions(
-                lambda x: csv_rows(x, *args, **kwargs)))
+            first_line = self.sc.textFile(name).first()
+            frame = pandas.read_csv(StringIO(first_line))
+            mynames = list(frame.columns.values)
+            skiprows += 1
+
+        # Do the actual load
+        if use_whole_file:
+            return PRDD.fromRDD(self.sc.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
+        else:
+            return PRDD.fromRDD(self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
 
     def DataFrame(self, elements, *args, **kwargs):
         """

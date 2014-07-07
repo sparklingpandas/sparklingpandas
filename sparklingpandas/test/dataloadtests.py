@@ -42,19 +42,42 @@ class DataLoad(SparklingPandasTestCase):
         collectedframe = pframe.collect().sort(['magic'])
         shouldeq = pandas.DataFrame(input, columns=['magic', 'thing']).sort(
             ['magic'])
-        self.assertEqual(str(shouldeq.all()), str(collectedframe.all()))
+        self.assertEqual(str(shouldeq), str(collectedframe))
 
     def test_from_csv_record_whole_file(self):
         x = "hi,i,like,coffee\n"
         temp_file = NamedTemporaryFile()
         temp_file.write(x)
         temp_file.flush()
-        data = self.psc.csvfile("file://" + temp_file.name,
+        data = self.psc.read_csv("file://" + temp_file.name,
                                 use_whole_file=True,
                                 names=["1", "2", "3", "4"]).collect()
         expected = pandas.DataFrame(data=[["hi", "i", "like", "coffee"]],
                                     columns=["1", "2", "3", "4"])
-        self.assertEqual(str(data.all()), str(expected.all()))
+        self.assertEqual(str(expected), str(data))
+
+    def test_from_csv_record(self):
+        x = "hi,i,like,coffee\n"
+        temp_file = NamedTemporaryFile()
+        temp_file.write(x)
+        temp_file.flush()
+        data = self.psc.read_csv("file://" + temp_file.name,
+                                use_whole_file=False,
+                                names=["1", "2", "3", "4"]).collect()
+        expected = pandas.DataFrame(data=[["hi", "i", "like", "coffee"]],
+                                    columns=["1", "2", "3", "4"])
+        self.assertEqual(str(expected), str(data))
+
+    def test_from_csv_record_adv(self):
+        x = "person,coffee,tea\nholden,20,2\npanda,1,1"
+        temp_file = NamedTemporaryFile()
+        temp_file.write(x)
+        temp_file.flush()
+        data = self.psc.read_csv("file://" + temp_file.name,
+                                use_whole_file=False,
+                                ).collect()
+        expected = pandas.read_csv(temp_file.name)
+        self.assertEqual(str(expected), "fail"+str(data))
 
 
 if __name__ == "__main__":
