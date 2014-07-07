@@ -99,15 +99,14 @@ class ColumnStatCounters(object):
         computing the stats for all of the columns in columns.
         Parameters
         ----------
-        dataframes: list of dataframes, containing the values to compute stats on
-        columns: list of strs, list of columns to compute the stats on
+        dataframes: list of dataframes, containing the values to compute stats
+        on columns: list of strs, list of columns to compute the stats on
         """
         self._column_stats = {column_name: StatCounter() for column_name in
                               columns}
 
         for df in dataframes:
             self.merge(df)
-
 
     def merge(self, frame):
         """
@@ -119,7 +118,7 @@ class ColumnStatCounters(object):
         for column_name, counter in self._column_stats.items():
             data_arr = frame[[column_name]].values
             count, min_max_tup, mean, unbiased_var, skew, kurt = \
-                    scistats.describe(data_arr)
+                scistats.describe(data_arr)
             stats_counter = StatCounter()
             stats_counter.n = count
             stats_counter.mu = mean
@@ -143,7 +142,6 @@ class ColumnStatCounters(object):
             self._column_stats[column_name] = self._column_stats[column_name] \
                 .mergeStats(other_col_counters._column_stats[column_name])
         return self
-
 
     def __str__(self):
         str = ""
