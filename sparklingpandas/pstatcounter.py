@@ -102,8 +102,8 @@ class ColumnStatCounters(object):
         dataframes: list of dataframes, containing the values to compute stats
         on columns: list of strs, list of columns to compute the stats on
         """
-        self._column_stats = {column_name: StatCounter() for column_name in
-                              columns}
+        self._column_stats = dict((column_name, StatCounter()) for
+                                  column_name in columns)
 
         for df in dataframes:
             self.merge(df)
