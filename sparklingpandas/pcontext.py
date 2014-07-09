@@ -47,17 +47,20 @@ class PSparkContext():
                  *args, **kwargs):
         """
         Read a CSV file in and parse it into panda data frames.
-        header: row #s to be used 
+        If no names is provided uses the first row for the names
+        header=0 is the default unless names is provided in which case
+        header=None is the default.
+        No other values of header is supported.
         All additional parameters are passed to the read_csv function
         """
         def csv_file(partitionNumber, files):
             file_count = 0
             for filename, contents in files:
                 # Only skip lines on the first file
-                if partitionNumber == 0 and file_count == 0 and skiprows > 0:
+                if partitionNumber == 0 and file_count == 0 and _skiprows > 0:
                     yield pandas.read_csv(StringIO(contents), *args, header=None,
                                           names = mynames,
-                                          skiprows = skiprows, **kwargs)
+                                          skiprows = _skiprows, **kwargs)
                 else:
                     file_count += 1
                     yield pandas.read_csv(StringIO(contents), *args, header=None,
@@ -68,20 +71,22 @@ class PSparkContext():
             rc = 0
             for row in rows:
                 # Skip the first rows from the first partition if requested
-                if partitionNumber != 0 or rc >= skiprows:
-                    yield pandas.read_csv(StringIO(row), *args, header=None, names=names, **kwargs)
+                if partitionNumber != 0 or rc >= _skiprows:
+                    yield pandas.read_csv(StringIO(row), *args, header=None, names=mynames, **kwargs)
                 else:
                     rc += 1
 
-        # Determine the names of the columns in the input
+        # If we need to peak at the first partition and determine the column names
         mynames=None
+        _skiprows = skiprows
         if names:
             mynames=names
         else:
+            # In the future we could avoid this expensive call.
             first_line = self.sc.textFile(name).first()
             frame = pandas.read_csv(StringIO(first_line))
             mynames = list(frame.columns.values)
-            skiprows += 1
+            _skiprows += 1
 
         # Do the actual load
         if use_whole_file:
