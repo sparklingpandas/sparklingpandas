@@ -56,4 +56,7 @@ docs/_build/
 *.idea
 
 # emacs stuff
+
+# Autoenv
+.env
 *~
