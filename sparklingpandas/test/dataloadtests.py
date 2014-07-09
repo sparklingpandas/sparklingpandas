@@ -26,6 +26,7 @@ from sparklingpandas.test.sparklingpandastestcase import \
 import pandas
 import sys
 import unittest
+from pandas.util.testing import assert_frame_equal
 
 
 class DataLoad(SparklingPandasTestCase):
@@ -52,8 +53,7 @@ class DataLoad(SparklingPandasTestCase):
         data = self.psc.read_csv("file://" + temp_file.name,
                                 use_whole_file=True,
                                 names=["1", "2", "3", "4"]).collect()
-        expected = pandas.DataFrame(data=[["hi", "i", "like", "coffee"]],
-                                    columns=["1", "2", "3", "4"])
+        expected = pandas.read_csv(temp_file.name, names=["1", "2", "3", "4"], header=None)
         self.assertEqual(str(expected), str(data))
 
     def test_from_csv_record(self):
@@ -64,8 +64,7 @@ class DataLoad(SparklingPandasTestCase):
         data = self.psc.read_csv("file://" + temp_file.name,
                                 use_whole_file=False,
                                 names=["1", "2", "3", "4"]).collect()
-        expected = pandas.DataFrame(data=[["hi", "i", "like", "coffee"]],
-                                    columns=["1", "2", "3", "4"])
+        expected = pandas.read_csv(temp_file.name, names=["1", "2", "3", "4"], header=None)
         self.assertEqual(str(expected), str(data))
 
     def test_from_csv_record_adv(self):
@@ -77,7 +76,7 @@ class DataLoad(SparklingPandasTestCase):
                                 use_whole_file=False,
                                 ).collect()
         expected = pandas.read_csv(temp_file.name)
-        self.assertEqual(str(expected), "fail"+str(data))
+        assert_frame_equal(expected, data)
 
 
 if __name__ == "__main__":

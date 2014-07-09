@@ -56,10 +56,12 @@ class PSparkContext():
                 # Only skip lines on the first file
                 if partitionNumber == 0 and file_count == 0 and skiprows > 0:
                     yield pandas.read_csv(StringIO(contents), *args, header=None,
+                                          names = mynames,
                                           skiprows = skiprows, **kwargs)
                 else:
                     file_count += 1
                     yield pandas.read_csv(StringIO(contents), *args, header=None,
+                                          names = mynames,
                                           **kwargs)
 
         def csv_rows(partitionNumber, rows):
@@ -67,7 +69,7 @@ class PSparkContext():
             for row in rows:
                 # Skip the first rows from the first partition if requested
                 if partitionNumber != 0 or rc >= skiprows:
-                    yield pandas.read_csv(StringIO(row), *args, header=None, **kwargs)
+                    yield pandas.read_csv(StringIO(row), *args, header=None, names=names, **kwargs)
                 else:
                     rc += 1
 
