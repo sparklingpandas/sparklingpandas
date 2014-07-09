@@ -18,7 +18,8 @@ Provide a way to work with panda data frames in Spark
 # limitations under the License.
 #
 
-from sparklingpandas.utils import add_pyspark_path, run_tests
+from sparklingpandas.utils import add_pyspark_path
+from functools import reduce
 
 add_pyspark_path()
 from pyspark.join import python_join, python_left_outer_join, \
@@ -29,6 +30,7 @@ import pandas
 
 
 class PRDD:
+
     """
     A Panda Resilient Distributed Dataset (PRDD), is an extension of the RDD.
     It is an RDD containing Panda dataframes and provides special methods that
@@ -56,21 +58,51 @@ class PRDD:
     def __getitem__(self, key):
         """
         Returns a new PRDD of elements from that key
-
-
         """
         return self.fromRDD(self._rdd.map(lambda x: x[key]))
+
+    def groupby(self, *args, **kwargs):
+        """
+        Takes the same parameters as groupby on DataFrame.
+        Like with groupby on DataFrame disabling sorting will result in an
+        even larger performance improvement. This returns a Sparkling Pandas
+        L{Groupby} object which supports many of the same operations as regular
+        Groupby but not all.
+        """
+        from sparklingpandas.groupby import Groupby
+        return Groupby(self._rdd, *args, **kwargs)
 
     def collect(self):
         """
         Collect the elements in an PRDD and concatenate the partition.
-
         """
-
+        # The order of the frame order appends is based on the implementation
+        # of reduce which calls our function with
+        # f(valueToBeAdded, accumulator) so we do our reduce implementation.
         def appendFrames(frame_a, frame_b):
             return frame_a.append(frame_b)
+        return self._custom_rdd_reduce(appendFrames)
 
-        return self._rdd.reduce(appendFrames)
+    def _custom_rdd_reduce(self, f):
+        """
+        Provides a custom RDD reduce which perserves ordering if the RDD has
+        been sorted. This is useful for us becuase we need this functionality
+        as many panda operations support sorting the results. The standard
+        reduce in PySpark does not have this property.  Note that when PySpark
+        no longer does partition reduces locally this code will also need to
+        be updated.
+        """
+        def func(iterator):
+            acc = None
+            for obj in iterator:
+                if acc is None:
+                    acc = obj
+                else:
+                    acc = f(acc, obj)
+            if acc is not None:
+                yield acc
+        vals = self._rdd.mapPartitions(func).collect()
+        return reduce(f, vals)
 
     def stats(self, columns):
         """
@@ -79,6 +111,12 @@ class PRDD:
         ----------
         columns : list of str, contains all columns to compute stats on.
         """
+        def reduceFunc(sc1, sc2):
+            return sc1.merge_pstats(sc2)
+
+        return self._rdd.mapPartitions(
+            lambda i: [PStatCounter(dataframes=i, columns=columns)]).reduce(
+            reduceFunc)
 
         def reduce_func(sc1, sc2):
             return sc1.merge_pstats(sc2)
@@ -86,6 +124,3 @@ class PRDD:
         return self._rdd.mapPartitions(
             lambda i: [PStatCounter(dataframes=i, columns=columns)]).reduce(
                 reduce_func)
-
-if __name__ == "__main__":
-    run_tests()

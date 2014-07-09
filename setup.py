@@ -13,5 +13,11 @@ setup(
     install_requires=[
         # Note: we also need PySpark but that has to be installed manually.
         'pandas >= 0.13',
+        'openpyxl>=1.6.1,<=2.0.0'
+    ],
+    test_requires=[
+        'nose',
+        'coverage',
+        'unittest2'
     ],
 )

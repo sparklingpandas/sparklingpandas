@@ -25,10 +25,14 @@ from sparklingpandas.test.sparklingpandastestcase import \
     SparklingPandasTestCase
 import pandas
 import sys
-import unittest
+import unittest2
+from pandas.util.testing import assert_frame_equal
+from pandas.core.api import DataFrame
+import numpy as np
 
 
 class DataLoad(SparklingPandasTestCase):
+
     """
     Class of data loading tests.
     """
@@ -39,10 +43,10 @@ class DataLoad(SparklingPandasTestCase):
         """
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
         pframe = self.psc.DataFrame(input, columns=['magic', 'thing'])
-        collectedframe = pframe.collect().sort(['magic'])
-        shouldeq = pandas.DataFrame(input, columns=['magic', 'thing']).sort(
+        data = pframe.collect().sort(['magic'])
+        expected = pandas.DataFrame(input, columns=['magic', 'thing']).sort(
             ['magic'])
-        self.assertEqual(str(shouldeq.all()), str(collectedframe.all()))
+        assert_frame_equal(data, expected)
 
     def test_from_csv_record_whole_file(self):
         x = "hi,i,like,coffee\n"
@@ -52,10 +56,26 @@ class DataLoad(SparklingPandasTestCase):
         data = self.psc.csvfile("file://" + temp_file.name,
                                 use_whole_file=True,
                                 names=["1", "2", "3", "4"]).collect()
-        expected = pandas.DataFrame(data=[["hi", "i", "like", "coffee"]],
-                                    columns=["1", "2", "3", "4"])
-        self.assertEqual(str(data.all()), str(expected.all()))
+        expected = pandas.read_csv(
+            temp_file.name,
+            names=[
+                "1",
+                "2",
+                "3",
+                "4"],
+            header=0)
+        assert_frame_equal(data, expected)
 
+    def test_load_from_data_frame(self):
+        df = DataFrame({'A': ['foo', 'bar', 'foo', 'bar',
+                              'foo', 'bar', 'foo', 'foo'],
+                        'B': ['one', 'one', 'two', 'three',
+                              'two', 'two', 'one', 'three'],
+                        'C': np.random.randn(8),
+                        'D': np.random.randn(8)})
+        ddf = self.psc.from_data_frame(df)
+        ddfc = ddf.collect()
+        assert_frame_equal(ddfc, df)
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest2.main()

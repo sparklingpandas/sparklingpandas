@@ -26,6 +26,7 @@ import numpy.testing as np_tests
 
 
 class PContextTests(SparklingPandasTestCase):
+
     def test_apply_map(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
         prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])

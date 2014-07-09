@@ -19,7 +19,7 @@ Look at the stats() method on PRDD for more info.
 # limitations under the License.
 #
 
-from sparklingpandas.utils import add_pyspark_path, run_tests
+from sparklingpandas.utils import add_pyspark_path
 import pandas
 
 add_pyspark_path()
@@ -28,6 +28,7 @@ from pyspark.statcounter import StatCounter
 
 
 class PStatCounter(object):
+
     """
     A wrapper around StatCounter which collects stats for multiple columns
     """
@@ -89,6 +90,7 @@ class PStatCounter(object):
 
 
 class ColumnStatCounters(object):
+
     """
     A wrapper around StatCounter which collects stats for multiple columns
     """
@@ -151,7 +153,3 @@ class ColumnStatCounters(object):
 
     def __repr__(self):
         return self.__str__()
-
-
-if __name__ == "__main__":
-    run_tests()
