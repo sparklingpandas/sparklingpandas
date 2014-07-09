@@ -72,6 +72,22 @@ class PRDD:
         from sparklingpandas.groupby import GroupBy
         return GroupBy(self._rdd, *args, **kwargs)
 
+    @property
+    def dtypes(self):
+        """
+        Return the dtypes associated with this object
+        Uses the types from the frame.
+        """
+        return self._rdd.first().dtypes
+
+    @property
+    def ftypes(self):
+        """
+        Return the ftypes associated with this object
+        Uses the types from the frame.
+        """
+        return self._rdd.first().ftypes
+
     def collect(self):
         """
         Collect the elements in an PRDD and concatenate the partition.

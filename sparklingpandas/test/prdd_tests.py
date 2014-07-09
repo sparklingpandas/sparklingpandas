@@ -23,6 +23,10 @@ from sparklingpandas.test.sparklingpandastestcase import \
 
 import pandas as pd
 import numpy.testing as np_tests
+import unittest2
+from pandas.util.testing import (assert_almost_equal,
+                                 assert_series_equal,
+                                 assert_frame_equal)
 
 
 class PContextTests(SparklingPandasTestCase):
@@ -74,3 +78,16 @@ class PContextTests(SparklingPandasTestCase):
         np_tests.assert_almost_equal(b_col_stat_counter.stdev(), 8.16496580928)
         np_tests.assert_almost_equal(b_col_stat_counter.max(), 30)
         np_tests.assert_almost_equal(b_col_stat_counter.min(), 10)
+
+    def test_dtypes(self):
+        assert_series_equal(self.basicpframe.dtypes, self.basicframe.dtypes)
+        assert_series_equal(self.numericpframe.dtypes, self.numericframe.dtypes)
+
+
+    def test_ftypes(self):
+        assert_series_equal(self.basicpframe.ftypes, self.basicframe.ftypes)
+        assert_series_equal(self.numericpframe.ftypes, self.numericframe.ftypes)
+
+if __name__ == "__main__":
+    unittest2.main()
+
