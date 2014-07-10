@@ -34,8 +34,21 @@ class PSparkContext():
     PySpark which makes it easy to load data into L{PRDD}s.
     """
 
-    def __init__(self, sparkcontext):
+    def __init__(self, sparkcontext, sqlcontext=None, hivecontext=None):
         self.sc = sparkcontext
+        self.sql_ctx = sqlcontext
+        self.hive_ctx = hivecontext
+
+    def _get_sql_ctx(self):
+        """
+        Return the sql context or construct if needed
+        """
+        if self.sql_ctx:
+            return self.sql_ctx
+        else:
+            from pyspark.sql import SQLContext
+            self.sql_ctx = SQLContext(self.sc)
+            return self.sql_ctx
 
     @classmethod
     def simple(cls, *args, **kwargs):
@@ -95,11 +108,37 @@ class PSparkContext():
         rdd = self.sc.parallelize(indexedData).mapPartitions(loadFromKeyRow)
         return PRDD.fromRDD(rdd)
 
+    def sql(self, query):
+        """
+        Perform a SQL query and create a L{PRDD} of the result
+        """
+        return PRDD.fromRDD(self.from_schema_rdd(self._get_sqlctx().sql(query)))
+
+    def from_schema_rdd(self, schemaRDD):
+        """
+        Convert a schema RDD to a L{PRDD}.
+        """
+        def _load_kv_partitions(partition):
+            """
+            Convert a partition where each row is key/value data
+            """
+            partitionList = list(partition)
+            if len(partitionList) > 0:
+                return iter([
+                    pandas.DataFrame(data=partitionList)
+                    ])
+            else:
+                return iter([])
+        return PRDD.fromRDD(schemaRDD.mapPartitions(_load_kv_partitions))
+
     def DataFrame(self, elements, *args, **kwargs):
         """
         Wraps the pandas.DataFrame operation.
         """
-        def loadPartitions(partition):
+        def _load_partitions(partition):
+            """
+            Convert partitions of tuples
+            """
             partitionList = list(partition)
             if len(partitionList) > 0:
                 (indices, elements) = zip(*partitionList)
@@ -120,10 +159,11 @@ class PSparkContext():
         elementsWithIndex = zip(index, elements)
         return PRDD.fromRDD(
             self.sc.parallelize(elementsWithIndex).mapPartitions(
-                loadPartitions))
+                _load_partitions))
 
     def stop(self):
         """
         Stop the underlying SparkContext
         """
         self.sc.stop()
+
