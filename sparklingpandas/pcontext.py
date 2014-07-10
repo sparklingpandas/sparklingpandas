@@ -112,7 +112,9 @@ class PSparkContext():
         """
         Perform a SQL query and create a L{PRDD} of the result
         """
-        return PRDD.fromRDD(self.from_schema_rdd(self._get_sqlctx().sql(query)))
+        return PRDD.fromRDD(
+            self.from_schema_rdd(
+                self._get_sqlctx().sql(query)))
 
     def from_schema_rdd(self, schemaRDD):
         """
@@ -126,7 +128,7 @@ class PSparkContext():
             if len(partitionList) > 0:
                 return iter([
                     pandas.DataFrame(data=partitionList)
-                    ])
+                ])
             else:
                 return iter([])
         return PRDD.fromRDD(schemaRDD.mapPartitions(_load_kv_partitions))
@@ -166,4 +168,3 @@ class PSparkContext():
         Stop the underlying SparkContext
         """
         self.sc.stop()
-

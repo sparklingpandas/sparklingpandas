@@ -30,6 +30,7 @@ from pandas.util.testing import assert_frame_equal
 from pandas.core.api import DataFrame
 import numpy as np
 
+
 class DataLoad(SparklingPandasTestCase):
 
     """
@@ -81,10 +82,17 @@ class DataLoad(SparklingPandasTestCase):
         Test our SparkSQL integration
         """
         # Expected frame
-        df = DataFrame([(6, "holden"), (0, "tubepanda")], columns = ["coffees", "name"])
+        df = DataFrame(
+            [(6, "holden"),
+             (0, "tubepanda")],
+            columns=["coffees", "name"])
         # Create an in memory table for us to query
         input = [("holden", 6), ("tubepanda", 0)]
-        rdd = self.psc.sc.parallelize(input).map(lambda x: {"name": x[0], "coffees": int(x[1])})
+        rdd = self.psc.sc.parallelize(input).map(
+            lambda x: {
+                "name": x[0],
+                "coffees": int(
+                    x[1])})
         sql_ctx = self.psc._get_sql_ctx()
         coffee_table = sql_ctx.inferSchema(rdd)
         coffee_table.registerAsTable("coffee")
