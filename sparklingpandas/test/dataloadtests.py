@@ -92,6 +92,9 @@ class DataLoad(SparklingPandasTestCase):
         schema_rdd = sql_ctx.sql("SELECT * FROM coffee")
         ddf = self.psc.from_schema_rdd(schema_rdd)
         assert_frame_equal(ddf.collect().reset_index(drop=True), df)
+        # Query with the sql method on psc
+        ddf2 = self.psc.sql("SELECT * FROM coffee")
+        assert_frame_equal(ddf2.collect().reset_index(drop=True), df)
 
 if __name__ == "__main__":
     unittest2.main()
