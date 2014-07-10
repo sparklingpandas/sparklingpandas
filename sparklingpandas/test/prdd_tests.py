@@ -26,7 +26,8 @@ import numpy.testing as np_tests
 import unittest2
 from pandas.util.testing import (assert_almost_equal,
                                  assert_series_equal,
-                                 assert_frame_equal)
+                                 assert_frame_equal,
+                                 assert_index_equal)
 
 
 class PContextTests(SparklingPandasTestCase):
@@ -83,10 +84,33 @@ class PContextTests(SparklingPandasTestCase):
         assert_series_equal(self.basicpframe.dtypes, self.basicframe.dtypes)
         assert_series_equal(self.numericpframe.dtypes, self.numericframe.dtypes)
 
-
     def test_ftypes(self):
         assert_series_equal(self.basicpframe.ftypes, self.basicframe.ftypes)
         assert_series_equal(self.numericpframe.ftypes, self.numericframe.ftypes)
+
+    def test_get_dtype_counts(self):
+        assert_series_equal(self.basicpframe.get_dtype_counts(), self.basicframe.get_dtype_counts())
+        assert_series_equal(self.numericpframe.get_dtype_counts(), self.numericframe.get_dtype_counts())
+        assert_series_equal(self.mixedpframe.get_dtype_counts(), self.mixedframe.get_dtype_counts())
+
+    def test_get_ftype_counts(self):
+        assert_series_equal(self.basicpframe.get_ftype_counts(), self.basicframe.get_ftype_counts())
+        assert_series_equal(self.numericpframe.get_ftype_counts(), self.numericframe.get_ftype_counts())
+        assert_series_equal(self.mixedpframe.get_ftype_counts(), self.mixedframe.get_ftype_counts())
+
+    def test_axes(self):
+        def assert_axes_eq(ax1, ax2):
+            assert_index_equal(ax1[0], ax2[0])
+            assert_index_equal(ax1[1], ax2[1])
+        assert_axes_eq(self.basicpframe.axes, self.basicframe.axes)
+        assert_axes_eq(self.numericpframe.axes, self.numericframe.axes)
+        assert_axes_eq(self.mixedpframe.axes, self.mixedframe.axes)
+
+    def test_shape(self):
+        assert self.basicpframe.shape == self.basicframe.shape
+        assert self.numericpframe.shape == self.numericframe.shape
+        assert self.mixedpframe.shape == self.mixedframe.shape
+
 
 if __name__ == "__main__":
     unittest2.main()
