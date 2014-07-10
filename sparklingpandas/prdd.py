@@ -76,7 +76,7 @@ class PRDD:
     def dtypes(self):
         """
         Return the dtypes associated with this object
-        Uses the types from the frame.
+        Uses the types from the first frame.
         """
         return self._rdd.first().dtypes
 
@@ -84,9 +84,31 @@ class PRDD:
     def ftypes(self):
         """
         Return the ftypes associated with this object
-        Uses the types from the frame.
+        Uses the types from the first frame.
         """
         return self._rdd.first().ftypes
+
+    def get_dtype_counts(self):
+        """
+        Return the counts of dtypes in this object
+        Uses the information from the first frame
+        """
+        return self._rdd.first().get_dtype_counts()
+
+    def get_ftype_counts(self):
+        """
+        Return the counts of ftypes in this object
+        Uses the information from the first frame
+        """
+        return self._rdd.first().get_ftype_counts()
+
+    @property
+    def axes(self):
+        return self._rdd.map(lambda frame: frame.axes).reduce(lambda xy,ab: [xy[0].append(ab[0]), xy[1]])
+
+    @property
+    def shape(self):
+        return self._rdd.map(lambda frame: frame.shape).reduce(lambda xy,ab: (xy[0] + ab[0], xy[1]))
 
     def collect(self):
         """
