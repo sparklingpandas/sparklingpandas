@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+if [ -z "$SPARK_HOME" ]; then
+   echo "$(tput setaf 1)Error: SPARK_HOME is not set, can not run the sparkling panda shell.$(tput sgr0)"
+   exit -1
+fi
+PYTHONSTARTUP=./sparklingpandas/shell.py PYTHON_PATH=`pwd`:$PTHYON_PATH $SPARK_HOME/bin/pyspark
