@@ -30,6 +30,7 @@ from pandas.util.testing import assert_frame_equal
 
 
 class DataLoad(SparklingPandasTestCase):
+
     """
     Class of data loading tests.
     """
@@ -51,9 +52,16 @@ class DataLoad(SparklingPandasTestCase):
         temp_file.write(x)
         temp_file.flush()
         data = self.psc.read_csv("file://" + temp_file.name,
-                                use_whole_file=whole_file,
-                                names=["1", "2", "3", "4"]).collect()
-        expected = pandas.read_csv(temp_file.name, names=["1", "2", "3", "4"], header=None)
+                                 use_whole_file=whole_file,
+                                 names=["1", "2", "3", "4"]).collect()
+        expected = pandas.read_csv(
+            temp_file.name,
+            names=[
+                "1",
+                "2",
+                "3",
+                "4"],
+            header=None)
         self.assertEqual(str(expected), str(data))
 
     def test_from_csv_record_whole_file(self):
@@ -65,8 +73,8 @@ class DataLoad(SparklingPandasTestCase):
         temp_file.write(x)
         temp_file.flush()
         data = self.psc.read_csv("file://" + temp_file.name,
-                                use_whole_file=whole_file,
-                                ).collect()
+                                 use_whole_file=whole_file,
+                                 ).collect()
         # Reset the index for comparision.
         data = data.reset_index(drop=True)
         expected = pandas.read_csv(temp_file.name)

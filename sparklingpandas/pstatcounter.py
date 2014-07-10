@@ -28,6 +28,7 @@ from pyspark.statcounter import StatCounter
 
 
 class PStatCounter(object):
+
     """
     A wrapper around StatCounter which collects stats for multiple columns
     """
@@ -89,6 +90,7 @@ class PStatCounter(object):
 
 
 class ColumnStatCounters(object):
+
     """
     A wrapper around StatCounter which collects stats for multiple columns
     """

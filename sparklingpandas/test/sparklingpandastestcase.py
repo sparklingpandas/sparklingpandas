@@ -29,6 +29,7 @@ import sys
 
 
 class SparklingPandasTestCase(unittest.TestCase):
+
     """
     Basic SparklingPandasTestCase, inherit from this class to get a
     PSparkContext as sc.

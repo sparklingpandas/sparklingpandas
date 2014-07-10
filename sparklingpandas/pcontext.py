@@ -28,6 +28,7 @@ from sparklingpandas.prdd import PRDD
 
 
 class PSparkContext():
+
     """
     This is a thin wrapper around SparkContext from
     PySpark which makes it easy to load data into L{PRDD}s.
@@ -59,12 +60,12 @@ class PSparkContext():
                 # Only skip lines on the first file
                 if partitionNumber == 0 and file_count == 0 and _skiprows > 0:
                     yield pandas.read_csv(StringIO(contents), *args, header=None,
-                                          names = mynames,
-                                          skiprows = _skiprows, **kwargs)
+                                          names=mynames,
+                                          skiprows=_skiprows, **kwargs)
                 else:
                     file_count += 1
                     yield pandas.read_csv(StringIO(contents), *args, header=None,
-                                          names = mynames,
+                                          names=mynames,
                                           **kwargs)
 
         def csv_rows(partitionNumber, rows):
@@ -76,11 +77,12 @@ class PSparkContext():
                 else:
                     rc += 1
 
-        # If we need to peak at the first partition and determine the column names
-        mynames=None
+        # If we need to peak at the first partition and determine the column
+        # names
+        mynames = None
         _skiprows = skiprows
         if names:
-            mynames=names
+            mynames = names
         else:
             # In the future we could avoid this expensive call.
             first_line = self.sc.textFile(name).first()
@@ -90,9 +92,11 @@ class PSparkContext():
 
         # Do the actual load
         if use_whole_file:
-            return PRDD.fromRDD(self.sc.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
+            return PRDD.fromRDD(
+                self.sc.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
         else:
-            return PRDD.fromRDD(self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
+            return PRDD.fromRDD(
+                self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
 
     def DataFrame(self, elements, *args, **kwargs):
         """
