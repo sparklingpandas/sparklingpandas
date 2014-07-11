@@ -35,8 +35,7 @@ class Groupby:
     # in groupby
 
     def __init__(self, rdd, *args, **kwargs):
-        """
-        Construct a groupby object providing the functions on top of the
+        """Construct a groupby object providing the functions on top of the
         provided RDD. We keep the base RDD so if someone calls aggregate we
         do things more inteligently
         """
@@ -58,43 +57,39 @@ class Groupby:
         self._mykwargs = kwargs
 
     def _sortIfNeeded(self, rdd):
-        """Sort by key if we need to"""
+        """Sort by key if we need to."""
         if self._sort:
             return rdd.sortByKey()
         else:
             return rdd
 
     def _groupRDD(self, rdd):
-        """Group together the values with the same key"""
+        """Group together the values with the same key."""
         return rdd.reduceByKey(lambda x, y: x.append(y))
 
     def _cache(self):
-        """
-        Cache the grouped RDD. This is useful if you have multiple computations
-        to run on the result. This is a SparklingPandas extension
+        """Cache the grouped RDD. This is useful if you have multiple
+        computations to run on the result. This is a SparklingPandas
+        extension.
         """
         self._groupedrdd.cache()
 
     def __len__(self):
-        """Number of groups"""
+        """Number of groups."""
         return self._groupedrdd.count()
 
     def get_group(self, name):
-        """
-        Returns a concrete DataFrame for provided group name
-        """
+        """Returns a concrete DataFrame for provided group name."""
         self._groupedrdd.lookup(name)
 
     def __iter__(self):
-        """
-        Groupby iterator returns a sequence of (name, object) for each group.
-        Note: this brings the entire result back to your driver program
+        """Groupby iterator returns a sequence of (name, object) for each
+        group. Note: this brings the entire result back to your driver program.
         """
         return self._groupedrdd.collect().__iter__()
 
     def collect(self):
-        """
-        Return a list of the elements. This is a SparklingPanda extension
+        """ Return a list of the elements. This is a SparklingPanda extension
         because Spark gives us back a list we convert to an iterator in
         __iter__ so it allows us to skip the round trip through iterators.
         """
@@ -102,7 +97,7 @@ class Groupby:
 
     @property
     def groups(self):
-        """ dict {group name -> group labels} """
+        """Returns dict {group name -> group labels}."""
         return self._groupedrdd.map(
             lambda
             key_frame:
@@ -111,12 +106,12 @@ class Groupby:
 
     @property
     def ngroups(self):
-        """ Number of groups """
+        """Number of groups."""
         return self._groupedrdd.count()
 
     @property
     def indices(self):
-        """ dict {group name -> group indices} """
+        """Returns dict {group name -> group indices}."""
         return self._groupedrdd.map(
             lambda
             key_frame1:
@@ -124,10 +119,9 @@ class Groupby:
              key_frame1[1].index)).collectAsMap()
 
     def median(self):
-        """
-        Compute median of groups, excluding missing values
+        """Compute median of groups, excluding missing values.
 
-        For multiple groupings, the result index will be a MultiIndex
+        For multiple groupings, the result index will be a MultiIndex.
         """
         # TODO(holden): use stats counter
         return PRDD.fromRDD(
@@ -135,10 +129,9 @@ class Groupby:
                 lambda x: x.median()))
 
     def mean(self):
-        """
-        Compute mean of groups, excluding missing values
+        """Compute mean of groups, excluding missing values.
 
-        For multiple groupings, the result index will be a MultiIndex
+        For multiple groupings, the result index will be a MultiIndex.
         """
         # TODO(holden): use stats counter
         return PRDD.fromRDD(
@@ -146,10 +139,9 @@ class Groupby:
                 lambda x: x.mean()))
 
     def var(self, ddof=1):
-        """
-        Compute standard deviation of groups, excluding missing values
+        """Compute standard deviation of groups, excluding missing values.
 
-        For multiple groupings, the result index will be a MultiIndex
+        For multiple groupings, the result index will be a MultiIndex.
         """
         # TODO(holden): use stats counter
         return PRDD.fromRDD(
@@ -158,9 +150,7 @@ class Groupby:
                     ddof=ddof)))
 
     def sum(self):
-        """
-        Compute the sum for each group
-        """
+        """Compute the sum for each group."""
         myargs = self._myargs
         mykwargs = self._mykwargs
 
@@ -179,9 +169,7 @@ class Groupby:
         return PRDD.fromRDD(rddOfSum)
 
     def min(self):
-        """
-        Compute the min for each group
-        """
+        """Compute the min for each group."""
         myargs = self._myargs
         mykwargs = self._mykwargs
 
@@ -200,9 +188,7 @@ class Groupby:
         return PRDD.fromRDD(rddOfMin)
 
     def max(self):
-        """
-        Compute the max for each group
-        """
+        """Compute the max for each group."""
         myargs = self._myargs
         mykwargs = self._mykwargs
 
@@ -222,7 +208,8 @@ class Groupby:
 
     def first(self):
         """
-        Pull out the first
+        Pull out the first from each group. Note: this is different than
+        Spark's first.
         """
         myargs = self._myargs
         mykwargs = self._mykwargs
@@ -243,9 +230,7 @@ class Groupby:
         return PRDD.fromRDD(rddOfFirst)
 
     def last(self):
-        """
-        Pull out the last
-        """
+        """Pull out the last from each group."""
         myargs = self._myargs
         mykwargs = self._mykwargs
 
@@ -265,8 +250,7 @@ class Groupby:
         return PRDD.fromRDD(rddOfLast)
 
     def _regroup_groupedrdd(self):
-        """
-        A common pattern is we want to call groupby again on the dataframes
+        """A common pattern is we want to call groupby again on the dataframes
         so we can use the groupby functions.
         """
         myargs = self._myargs
@@ -277,9 +261,7 @@ class Groupby:
         return self._groupedrdd.mapValues(regroup)
 
     def nth(self, n, dropna=None):
-        """
-        Take the nth element of each grouby.
-        """
+        """Take the nth element of each grouby."""
         # TODO: Stop collecting the entire frame for each key.
         myargs = self._myargs
         mykwargs = self._mykwargs
@@ -290,9 +272,8 @@ class Groupby:
         return PRDD.fromRDD(nthRDD)
 
     def aggregate(self, f):
-        """
-        Apply the aggregation function.
-        Note: This implementation does note take advantage of partail
+        """Apply the aggregation function.
+        Note: This implementation does note take advantage of partial
         aggregation.
         """
         return PRDD.fromRDD(
@@ -303,15 +284,13 @@ class Groupby:
         return self.aggregate(f)
 
     def apply(self, func, *args, **kwargs):
-        """
-        Apply the provided function and combine the results together in the
+        """Apply the provided function and combine the results together in the
         same way as apply from groupby in pandas.
 
         This returns a PRDD.
         """
         def key_by_index(data):
-            """
-            Key each row by its index
+            """Key each row by its index.
             """
             # TODO: Is there a better way to do this?
             for key, row in data.iterrows():
