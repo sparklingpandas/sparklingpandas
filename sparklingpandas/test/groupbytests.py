@@ -1,6 +1,4 @@
-"""
-Test our groupby support
-"""
+"""Test our groupby support"""
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -29,33 +27,26 @@ import numpy as np
 
 class Groupby(SparklingPandasTestCase):
 
-    """
-    Test groupby functionality. Uses the standard dataframe from
+    """Test groupby functionality. Uses the standard dataframe from
     L{pandasparktestcase}.
     """
 
     def test_basic_groupby(self):
-        """
-        Test groupby with out sorting
-        """
+        """Test groupby with out sorting."""
         groupedFrame = self.basicframe.groupby('magic', sort=False)
         distributedGroupedFrame = self.basicpframe.groupby('magic', sort=False)
         distributedGroupedFrame._cache()
         self._compare_groupby_results(groupedFrame, distributedGroupedFrame)
 
     def test_basic_groupby_numeric(self):
-        """
-        Test groupby with out sorting
-        """
+        """Test groupby with out sorting."""
         groupedFrame = self.numericframe.groupby('a', sort=False)
         distributedGroupedFrame = self.numericpframe.groupby('a', sort=False)
         distributedGroupedFrame._cache()
         self._compare_groupby_results(groupedFrame, distributedGroupedFrame)
 
     def test_sorted_groupby(self):
-        """
-        Test groupby with sorting
-        """
+        """Test groupby with sorting."""
         groupedFrame = self.basicframe.groupby('magic', sort=True)
         distributedGroupedFrame = self.basicpframe.groupby('magic', sort=True)
         distributedGroupedFrame._cache()
@@ -63,9 +54,7 @@ class Groupby(SparklingPandasTestCase):
                                       distributedGroupedFrame, order=True)
 
     def test_twocol_groupby(self):
-        """
-        Test to make sure that groupby works in two columns mode
-        """
+        """Test to make sure that groupby works in two columns mode."""
         groupedFrame = self.basicframe.groupby(['magic', 'thing'], sort=True)
         distributedGroupedFrame = self.basicpframe.groupby(
             ['magic', 'thing'], sort=True)
@@ -74,9 +63,7 @@ class Groupby(SparklingPandasTestCase):
                                       distributedGroupedFrame, order=True)
 
     def test_numeric_groupby(self):
-        """
-        Test to make sure that groupby works with numeric data
-        """
+        """Test to make sure that groupby works with numeric data."""
         numericGroupedFrame = self.numericframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
@@ -86,9 +73,8 @@ class Groupby(SparklingPandasTestCase):
             order=True)
 
     def test_groups(self):
-        """
-        Test to make sure we get the same groups back from distributed
-        and local
+        """Test to make sure we get the same groups back from distributed
+        and local.
         """
         groupedFrame = self.basicframe.groupby(['magic', 'thing'], sort=True)
         distributedGroupedFrame = self.basicpframe.groupby(
@@ -97,9 +83,8 @@ class Groupby(SparklingPandasTestCase):
                           distributedGroupedFrame.groups)
 
     def test_ngroups(self):
-        """
-        Test to make sure we get the same number of groups back from
-        distributed and local
+        """Test to make sure we get the same number of groups back from
+        distributed and local.
         """
         groupedFrame = self.basicframe.groupby(['magic', 'thing'], sort=True)
         distributedGroupedFrame = self.basicpframe.groupby(
@@ -108,8 +93,7 @@ class Groupby(SparklingPandasTestCase):
             groupedFrame.ngroups, distributedGroupedFrame.ngroups)
 
     def test_indices(self):
-        """
-        Test to make sure we get the same group indices back from distributed
+        """Test to make sure we get the same group indices back from distributed
         and local
         """
         groupedFrame = self.basicframe.groupby(['magic', 'thing'], sort=True)
@@ -119,9 +103,7 @@ class Groupby(SparklingPandasTestCase):
                           distributedGroupedFrame.indices)
 
     def test_sum(self):
-        """
-        Test that sum works on a numeric data frame
-        """
+        """Test that sum works on a numeric data frame."""
         numericGroupedFrame = self.numericframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
@@ -129,9 +111,7 @@ class Groupby(SparklingPandasTestCase):
                                 distributedNumericGroupedFrame.sum().collect())
 
     def test_median(self):
-        """
-        Test that median works on a numeric data frame
-        """
+        """Test that median works on a numeric data frame."""
         numericGroupedFrame = self.numericframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
@@ -140,9 +120,7 @@ class Groupby(SparklingPandasTestCase):
             distributedNumericGroupedFrame.median().collect())
 
     def test_mean(self):
-        """
-        Test that mean works on a numeric data frame
-        """
+        """Test that mean works on a numeric data frame."""
         numericGroupedFrame = self.numericframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
@@ -151,9 +129,7 @@ class Groupby(SparklingPandasTestCase):
             distributedNumericGroupedFrame.mean().collect())
 
     def test_var(self):
-        """
-        Test that var works on a numeric data frame
-        """
+        """Test that var works on a numeric data frame."""
         numericGroupedFrame = self.numericframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
@@ -161,9 +137,7 @@ class Groupby(SparklingPandasTestCase):
                                 distributedNumericGroupedFrame.var().collect())
 
     def test_sum_three_col(self):
-        """
-        Test that sum works on three column numeric data frame
-        """
+        """Test that sum works on three column numeric data frame."""
         numericGroupedFrame = self.numericthreeframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericthreepframe.groupby(
             'a', sort=True)
@@ -171,9 +145,7 @@ class Groupby(SparklingPandasTestCase):
                                 distributedNumericGroupedFrame.sum().collect())
 
     def test_min(self):
-        """
-        Test that min works on a numeric data frame
-        """
+        """Test that min works on a numeric data frame."""
         numericGroupedFrame = self.numericframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
@@ -181,9 +153,7 @@ class Groupby(SparklingPandasTestCase):
                                 distributedNumericGroupedFrame.min().collect())
 
     def test_apply(self):
-        """
-        Test that apply works on a numeric data frame
-        """
+        """Test that apply works on a numeric data frame."""
         numericGroupedFrame = self.numericframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
@@ -193,8 +163,7 @@ class Groupby(SparklingPandasTestCase):
                 lambda x: x).collect())
 
     def _compare_groupby_results(self, gr1, gr2, order=False):
-        """
-        Compare the results of two groupbys. By default sorts the results
+        """ Compare the results of two groupbys. By default sorts the results
         before comparing. Specify order=True to check that the results are
         in the same order.
         """
