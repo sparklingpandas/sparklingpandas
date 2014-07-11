@@ -37,7 +37,7 @@ class Groupby:
     def __init__(self, rdd, *args, **kwargs):
         """Construct a groupby object providing the functions on top of the
         provided RDD. We keep the base RDD so if someone calls aggregate we
-        do things more inteligently
+        do things more intelligently.
         """
         def extractKeys(groupedFrame):
             for key, group in groupedFrame:
