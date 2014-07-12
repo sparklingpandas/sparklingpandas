@@ -3,4 +3,10 @@ if [ -z "$SPARK_HOME" ]; then
    echo "$(tput setaf 1)Error: SPARK_HOME is not set, can not run the sparkling panda shell.$(tput sgr0)"
    exit -1
 fi
-PYTHONSTARTUP=./sparklingpandas/shell.py PYTHON_PATH=`pwd`:$PTHYON_PATH $SPARK_HOME/bin/pyspark
+if [ ! -e "sparkle_dist.zip" ]; then
+    zip -r sparkle_dist.zip ./sparklingpandas
+fi
+set -x
+SPARK_EXECUTOR_MEMORY=${SPARK_EXECUTOR_MEMORY-"2000m"}
+SPARK_JAVA_OPTS=${SPARK_JAVA_OPTS-"-Dspark.executor.memory=$SPARK_EXECUTOR_MEMORY"}
+PYTHONSTARTUP=./sparklingpandas/shell.py PYTHON_PATH=`pwd`:$PTHYON_PATH $SPARK_HOME/bin/pyspark $@
