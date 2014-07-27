@@ -29,8 +29,6 @@ class Groupby:
     An RDD with key value pairs, where each value is a dataframe and the key is
     the result of the group.
     """
-    # TODO(HOLDEN): finish implement the rest of the non "protected" functions
-    # in groupby
 
     def __init__(self, rdd, *args, **kwargs):
         """Construct a groupby object providing the functions on top of the
@@ -43,6 +41,7 @@ class Groupby:
 
         def group_and_extract(frame):
             return extract_keys(frame.groupby(*args, **kwargs))
+
         prereducedRDD = rdd.flatMap(group_and_extract)
         groupedRDD = self._groupRDD(prereducedRDD)
         self._sort = kwargs.get("sort", True)
@@ -158,6 +157,7 @@ class Groupby:
 
         def merge_combiner(x, y):
             return x + y
+
         rddOfSum = self._sortIfNeeded(self._prereducedrdd.combineByKey(
             create_combiner,
             merge_value,
@@ -177,6 +177,7 @@ class Groupby:
 
         def merge_combiner(x, y):
             return x.append(y).min(level=0)
+
         rddOfMin = self._sortIfNeeded(self._prereducedrdd.combineByKey(
             create_combiner,
             merge_value,
@@ -196,6 +197,7 @@ class Groupby:
 
         def merge_combiner(x, y):
             return x.append(y).max(level=0)
+
         rddOfMax = self._sortIfNeeded(self._prereducedrdd.combineByKey(
             create_combiner,
             merge_value,
@@ -254,6 +256,7 @@ class Groupby:
 
         def regroup(df):
             return df.groupby(*myargs, **mykwargs)
+
         return self._groupedrdd.mapValues(regroup)
 
     def nth(self, n, *args, **kwargs):
