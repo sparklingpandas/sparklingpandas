@@ -37,12 +37,12 @@ class Groupby:
         provided RDD. We keep the base RDD so if someone calls aggregate we
         do things more intelligently.
         """
-        def extractKeys(groupedFrame):
+        def extract_keys(groupedFrame):
             for key, group in groupedFrame:
                 yield (key, group)
 
         def group_and_extract(frame):
-            return extractKeys(frame.groupby(*args, **kwargs))
+            return extract_keys(frame.groupby(*args, **kwargs))
         prereducedRDD = rdd.flatMap(group_and_extract)
         groupedRDD = self._groupRDD(prereducedRDD)
         self._sort = kwargs.get("sort", True)
@@ -152,18 +152,18 @@ class Groupby:
         myargs = self._myargs
         mykwargs = self._mykwargs
 
-        def createCombiner(x):
+        def create_combiner(x):
             return x.groupby(*myargs, **mykwargs).sum()
 
-        def mergeValue(x, y):
-            return pandas.concat([x, createCombiner(y)])
+        def merge_value(x, y):
+            return pandas.concat([x, create_combiner(y)])
 
-        def mergeCombiner(x, y):
+        def merge_combiner(x, y):
             return x + y
         rddOfSum = self._sortIfNeeded(self._prereducedrdd.combineByKey(
-            createCombiner,
-            mergeValue,
-            mergeCombiner)).values()
+            create_combiner,
+            merge_value,
+            merge_combiner)).values()
         return PRDD.fromRDD(rddOfSum)
 
     def min(self):
@@ -171,18 +171,18 @@ class Groupby:
         myargs = self._myargs
         mykwargs = self._mykwargs
 
-        def createCombiner(x):
+        def create_combiner(x):
             return x.groupby(*myargs, **mykwargs).min()
 
-        def mergeValue(x, y):
-            return x.append(createCombiner(y)).min()
+        def merge_value(x, y):
+            return x.append(create_combiner(y)).min()
 
-        def mergeCombiner(x, y):
+        def merge_combiner(x, y):
             return x.append(y).min(level=0)
         rddOfMin = self._sortIfNeeded(self._prereducedrdd.combineByKey(
-            createCombiner,
-            mergeValue,
-            mergeCombiner)).values()
+            create_combiner,
+            merge_value,
+            merge_combiner)).values()
         return PRDD.fromRDD(rddOfMin)
 
     def max(self):
@@ -190,18 +190,18 @@ class Groupby:
         myargs = self._myargs
         mykwargs = self._mykwargs
 
-        def createCombiner(x):
+        def create_combiner(x):
             return x.groupby(*myargs, **mykwargs).max()
 
-        def mergeValue(x, y):
-            return x.append(createCombiner(y)).max()
+        def merge_value(x, y):
+            return x.append(create_combiner(y)).max()
 
-        def mergeCombiner(x, y):
+        def merge_combiner(x, y):
             return x.append(y).max(level=0)
         rddOfMax = self._sortIfNeeded(self._prereducedrdd.combineByKey(
-            createCombiner,
-            mergeValue,
-            mergeCombiner)).values()
+            create_combiner,
+            merge_value,
+            merge_combiner)).values()
         return PRDD.fromRDD(rddOfMax)
 
     def first(self):
@@ -212,19 +212,19 @@ class Groupby:
         myargs = self._myargs
         mykwargs = self._mykwargs
 
-        def createCombiner(x):
+        def create_combiner(x):
             return x.groupby(*myargs, **mykwargs).first()
 
-        def mergeValue(x, y):
-            return createCombiner(x)
+        def merge_value(x, y):
+            return create_combiner(x)
 
-        def mergeCombiner(x, y):
+        def merge_combiner(x, y):
             return x
 
         rddOfFirst = self._sortIfNeeded(self._prereducedrdd.combineByKey(
-            createCombiner,
-            mergeValue,
-            mergeCombiner)).values()
+            create_combiner,
+            merge_value,
+            merge_combiner)).values()
         return PRDD.fromRDD(rddOfFirst)
 
     def last(self):
@@ -232,19 +232,19 @@ class Groupby:
         myargs = self._myargs
         mykwargs = self._mykwargs
 
-        def createCombiner(x):
+        def create_combiner(x):
             return x.groupby(*myargs, **mykwargs).last()
 
-        def mergeValue(x, y):
-            return createCombiner(y)
+        def merge_value(x, y):
+            return create_combiner(y)
 
-        def mergeCombiner(x, y):
+        def merge_combiner(x, y):
             return y
 
         rddOfLast = self._sortIfNeeded(self._prereducedrdd.combineByKey(
-            createCombiner,
-            mergeValue,
-            mergeCombiner)).values()
+            create_combiner,
+            merge_value,
+            merge_combiner)).values()
         return PRDD.fromRDD(rddOfLast)
 
     def _regroup_groupedrdd(self):
