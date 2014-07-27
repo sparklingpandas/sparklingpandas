@@ -81,8 +81,7 @@ class Groupby:
         self._groupedrdd.lookup(name)
 
     def __iter__(self):
-        """Groupby iterator returns a sequence of (name, object) for each
-        group. Note: this brings the entire result back to your driver program.
+        """ Returns an iterator of (name, dataframe) to the local machine.
         """
         return self._groupedrdd.collect().__iter__()
 
@@ -121,7 +120,6 @@ class Groupby:
 
         For multiple groupings, the result index will be a MultiIndex.
         """
-        # TODO(holden): use stats counter
         return PRDD.fromRDD(
             self._regroup_groupedrdd().values().map(
                 lambda x: x.median()))
