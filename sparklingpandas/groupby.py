@@ -81,12 +81,12 @@ class Groupby:
         self._groupedrdd.lookup(name)
 
     def __iter__(self):
-        """ Returns an iterator of (name, dataframe) to the local machine.
+        """Returns an iterator of (name, dataframe) to the local machine.
         """
         return self._groupedrdd.collect().__iter__()
 
     def collect(self):
-        """ Return a list of the elements. This is a SparklingPanda extension
+        """Return a list of the elements. This is a SparklingPanda extension
         because Spark gives us back a list we convert to an iterator in
         __iter__ so it allows us to skip the round trip through iterators.
         """
