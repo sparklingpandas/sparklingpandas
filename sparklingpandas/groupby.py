@@ -258,15 +258,14 @@ class Groupby:
             return df.groupby(*myargs, **mykwargs)
         return self._groupedrdd.mapValues(regroup)
 
-    def nth(self, n, dropna=None):
+    def nth(self, n, *args, **kwargs):
         """Take the nth element of each grouby."""
         # TODO: Stop collecting the entire frame for each key.
         myargs = self._myargs
         mykwargs = self._mykwargs
         nthRDD = self._regroup_groupedrdd().mapValues(
             lambda r: r.nth(
-                n,
-                dropna=dropna)).values()
+                n, *args, **kwargs)).values()
         return PRDD.fromRDD(nthRDD)
 
     def aggregate(self, f):

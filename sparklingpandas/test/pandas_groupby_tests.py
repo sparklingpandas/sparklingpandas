@@ -184,7 +184,8 @@ class PandasGroupby(SparklingPandasTestCase):
         assert_frame_equal(nth, expected)
 
     def test_agg_api(self):
-
+        # Note: needs a very recent version of pandas to pass
+        # TODO(holden): Pass this test if local fails
         # GH 6337
         # http://stackoverflow.com/questions/21706030/pandas-groupby-agg-function-column-dtype-error
         # different api for agg when passed custom function with mixed frame
