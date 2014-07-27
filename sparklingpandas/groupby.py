@@ -47,6 +47,7 @@ class Groupby:
         self._sort = kwargs.get("sort", True)
         if self._sort:
             groupedRDD = groupedRDD.sortByKey()
+
         self._baserdd = rdd
         self._prereducedrdd = prereducedRDD
         self._groupedrdd = groupedRDD
