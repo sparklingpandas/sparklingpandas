@@ -43,16 +43,16 @@ class Groupby:
 
         def group_and_extract(frame):
             return extract_keys(frame.groupby(*args, **kwargs))
-        prereducedRDD = rdd.flatMap(group_and_extract)
-        groupedRDD = self._groupRDD(prereducedRDD)
-        self._sort = kwargs.get("sort", True)
-        if self._sort:
-            groupedRDD = groupedRDD.sortByKey()
-        self._baserdd = rdd
-        self._prereducedrdd = prereducedRDD
-        self._groupedrdd = groupedRDD
-        self._myargs = args
-        self._mykwargs = kwargs
+            prereducedRDD = rdd.flatMap(group_and_extract)
+            groupedRDD = self._groupRDD(prereducedRDD)
+            self._sort = kwargs.get("sort", True)
+            if self._sort:
+                groupedRDD = groupedRDD.sortByKey()
+                self._baserdd = rdd
+                self._prereducedrdd = prereducedRDD
+                self._groupedrdd = groupedRDD
+                self._myargs = args
+                self._mykwargs = kwargs
 
     def _sortIfNeeded(self, rdd):
         """Sort by key if we need to."""
@@ -158,11 +158,11 @@ class Groupby:
 
         def merge_combiner(x, y):
             return x + y
-        rddOfSum = self._sortIfNeeded(self._prereducedrdd.combineByKey(
-            create_combiner,
-            merge_value,
-            merge_combiner)).values()
-        return PRDD.fromRDD(rddOfSum)
+            rddOfSum = self._sortIfNeeded(self._prereducedrdd.combineByKey(
+                create_combiner,
+                merge_value,
+                merge_combiner)).values()
+            return PRDD.fromRDD(rddOfSum)
 
     def min(self):
         """Compute the min for each group."""
@@ -177,11 +177,11 @@ class Groupby:
 
         def merge_combiner(x, y):
             return x.append(y).min(level=0)
-        rddOfMin = self._sortIfNeeded(self._prereducedrdd.combineByKey(
-            create_combiner,
-            merge_value,
-            merge_combiner)).values()
-        return PRDD.fromRDD(rddOfMin)
+            rddOfMin = self._sortIfNeeded(self._prereducedrdd.combineByKey(
+                create_combiner,
+                merge_value,
+                merge_combiner)).values()
+            return PRDD.fromRDD(rddOfMin)
 
     def max(self):
         """Compute the max for each group."""
@@ -196,11 +196,11 @@ class Groupby:
 
         def merge_combiner(x, y):
             return x.append(y).max(level=0)
-        rddOfMax = self._sortIfNeeded(self._prereducedrdd.combineByKey(
-            create_combiner,
-            merge_value,
-            merge_combiner)).values()
-        return PRDD.fromRDD(rddOfMax)
+            rddOfMax = self._sortIfNeeded(self._prereducedrdd.combineByKey(
+                create_combiner,
+                merge_value,
+                merge_combiner)).values()
+            return PRDD.fromRDD(rddOfMax)
 
     def first(self):
         """
@@ -254,7 +254,7 @@ class Groupby:
 
         def regroup(df):
             return df.groupby(*myargs, **mykwargs)
-        return self._groupedrdd.mapValues(regroup)
+            return self._groupedrdd.mapValues(regroup)
 
     def nth(self, n, *args, **kwargs):
         """Take the nth element of each grouby."""
