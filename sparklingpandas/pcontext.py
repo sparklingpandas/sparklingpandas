@@ -29,27 +29,22 @@ from sparklingpandas.prdd import PRDD
 
 class PSparkContext():
 
-    """
-    This is a thin wrapper around SparkContext from
-    PySpark which makes it easy to load data into L{PRDD}s.
-    """
+    """This is a thin wrapper around SparkContext from PySpark which makes it
+    easy to load data into L{PRDD}s."""
 
     def __init__(self, sparkcontext):
         self.sc = sparkcontext
 
     @classmethod
     def simple(cls, *args, **kwargs):
-        """
-        Takes the same arguments as SparkContext and constructs a PSparkContext
-        """
+        """Takes the same arguments as SparkContext and constructs a PSparkContext"""
         return PSparkContext(SparkContext(*args, **kwargs))
 
     def csvfile(self, name, use_whole_file=True, *args, **kwargs):
-        """
-        Read a CSV file in and parse it into panda data frames. Note this uses
+        """Read a CSV file in and parse it into panda data frames. Note this uses
         wholeTextFiles by default underneath the hood so as to support
         multi-line CSV records so many small input files are preferred.
-        All additional parameters are passed to the read_csv function
+        All additional parameters are passed to the read_csv function.
         """
         # TODO(holden): Figure out what the deal with indexing will be for this
         # issue #12
@@ -73,10 +68,8 @@ class PSparkContext():
                 lambda x: csv_rows(x, *args, **kwargs)))
 
     def from_data_frame(self, df):
-        """
-        Make a distributed dataframe from a local dataframe. Intend use is
-        mostly for testing. Note: dtypes are re-infered, so they may not match.
-        """
+        """Make a distributed dataframe from a local dataframe. The intend use
+        is for testing. Note: dtypes are re-infered, so they may not match."""
         mydtype = df.dtypes
         mycols = df.columns
 

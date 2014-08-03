@@ -66,11 +66,11 @@ class PRDD:
         Takes the same parameters as groupby on DataFrame.
         Like with groupby on DataFrame disabling sorting will result in an
         even larger performance improvement. This returns a Sparkling Pandas
-        L{Groupby} object which supports many of the same operations as regular
-        Groupby but not all.
+        L{GroupBy} object which supports many of the same operations as regular
+        GroupBy but not all.
         """
-        from sparklingpandas.groupby import Groupby
-        return Groupby(self._rdd, *args, **kwargs)
+        from sparklingpandas.groupby import GroupBy
+        return GroupBy(self._rdd, *args, **kwargs)
 
     def collect(self):
         """

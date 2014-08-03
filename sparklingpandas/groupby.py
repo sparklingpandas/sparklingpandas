@@ -23,12 +23,10 @@ import pandas
 import numpy as np
 
 
-class Groupby:
+class GroupBy:
 
-    """
-    An RDD with key value pairs, where each value is a dataframe and the key is
-    the result of the group.
-    """
+    """An RDD with key value pairs, where each value is a Panda's dataframe and the key is
+    the result of the group. Supports many of the same operations as a Panda's GroupBy."""
 
     def __init__(self, rdd, *args, **kwargs):
         """Construct a groupby object providing the functions on top of the
@@ -42,15 +40,12 @@ class Groupby:
         def group_and_extract(frame):
             return extract_keys(frame.groupby(*args, **kwargs))
 
-        prereducedRDD = rdd.flatMap(group_and_extract)
-        groupedRDD = self._groupRDD(prereducedRDD)
         self._sort = kwargs.get("sort", True)
-        if self._sort:
-            groupedRDD = groupedRDD.sortByKey()
 
-        self._baserdd = rdd
-        self._prereducedrdd = prereducedRDD
-        self._groupedrdd = groupedRDD
+        self._baseRDD = rdd
+        self._distributedRDD = rdd.flatMap(group_and_extract)
+        self._mergedRDD = self._sortIfNeeded(
+            self._group(self._distributedRDD))
         self._myargs = args
         self._mykwargs = kwargs
 
@@ -61,7 +56,7 @@ class Groupby:
         else:
             return rdd
 
-    def _groupRDD(self, rdd):
+    def _group(self, rdd):
         """Group together the values with the same key."""
         return rdd.reduceByKey(lambda x, y: x.append(y))
 
@@ -70,50 +65,46 @@ class Groupby:
         computations to run on the result. This is a SparklingPandas
         extension.
         """
-        self._groupedrdd.cache()
+        self._mergedRDD.cache()
 
     def __len__(self):
         """Number of groups."""
-        return self._groupedrdd.count()
+        return self._mergedRDD.count()
 
     def get_group(self, name):
         """Returns a concrete DataFrame for provided group name."""
-        self._groupedrdd.lookup(name)
+        self._mergedRDD.lookup(name)
 
     def __iter__(self):
         """Returns an iterator of (name, dataframe) to the local machine.
         """
-        return self._groupedrdd.collect().__iter__()
+        return self._mergedRDD.collect().__iter__()
 
     def collect(self):
         """Return a list of the elements. This is a SparklingPanda extension
         because Spark gives us back a list we convert to an iterator in
         __iter__ so it allows us to skip the round trip through iterators.
         """
-        return self._groupedrdd.collect()
+        return self._mergedRDD.collect()
 
     @property
     def groups(self):
         """Returns dict {group name -> group labels}."""
-        return self._groupedrdd.map(
-            lambda
-            key_frame:
-            (key_frame[0],
-             key_frame[1].index.values)).collectAsMap()
+        def extract_group_labels(frame):
+            return (frame[0], frame[1].index.values)
+        return self._mergedRDD.map(extract_group_labels).collectAsMap()
 
     @property
     def ngroups(self):
         """Number of groups."""
-        return self._groupedrdd.count()
+        return self._mergedRDD.count()
 
     @property
     def indices(self):
         """Returns dict {group name -> group indices}."""
-        return self._groupedrdd.map(
-            lambda
-            key_frame1:
-            (key_frame1[0],
-             key_frame1[1].index)).collectAsMap()
+        def extract_group_indices(frame):
+            return (frame[0], frame[1].index)
+        return self._mergedRDD.map(extract_group_indices).collectAsMap()
 
     def median(self):
         """Compute median of groups, excluding missing values.
@@ -121,7 +112,7 @@ class Groupby:
         For multiple groupings, the result index will be a MultiIndex.
         """
         return PRDD.fromRDD(
-            self._regroup_groupedrdd().values().map(
+            self._regroup_mergedRDD().values().map(
                 lambda x: x.median()))
 
     def mean(self):
@@ -131,7 +122,7 @@ class Groupby:
         """
         # TODO(holden): use stats counter
         return PRDD.fromRDD(
-            self._regroup_groupedrdd().values().map(
+            self._regroup_mergedRDD().values().map(
                 lambda x: x.mean()))
 
     def var(self, ddof=1):
@@ -141,7 +132,7 @@ class Groupby:
         """
         # TODO(holden): use stats counter
         return PRDD.fromRDD(
-            self._regroup_groupedrdd().values().map(
+            self._regroup_mergedRDD().values().map(
                 lambda x: x.var(
                     ddof=ddof)))
 
@@ -159,7 +150,7 @@ class Groupby:
         def merge_combiner(x, y):
             return x + y
 
-        rddOfSum = self._sortIfNeeded(self._prereducedrdd.combineByKey(
+        rddOfSum = self._sortIfNeeded(self._distributedRDD.combineByKey(
             create_combiner,
             merge_value,
             merge_combiner)).values()
@@ -179,7 +170,7 @@ class Groupby:
         def merge_combiner(x, y):
             return x.append(y).min(level=0)
 
-        rddOfMin = self._sortIfNeeded(self._prereducedrdd.combineByKey(
+        rddOfMin = self._sortIfNeeded(self._distributedRDD.combineByKey(
             create_combiner,
             merge_value,
             merge_combiner)).values()
@@ -199,7 +190,7 @@ class Groupby:
         def merge_combiner(x, y):
             return x.append(y).max(level=0)
 
-        rddOfMax = self._sortIfNeeded(self._prereducedrdd.combineByKey(
+        rddOfMax = self._sortIfNeeded(self._distributedRDD.combineByKey(
             create_combiner,
             merge_value,
             merge_combiner)).values()
@@ -222,7 +213,7 @@ class Groupby:
         def merge_combiner(x, y):
             return x
 
-        rddOfFirst = self._sortIfNeeded(self._prereducedrdd.combineByKey(
+        rddOfFirst = self._sortIfNeeded(self._distributedRDD.combineByKey(
             create_combiner,
             merge_value,
             merge_combiner)).values()
@@ -242,13 +233,13 @@ class Groupby:
         def merge_combiner(x, y):
             return y
 
-        rddOfLast = self._sortIfNeeded(self._prereducedrdd.combineByKey(
+        rddOfLast = self._sortIfNeeded(self._distributedRDD.combineByKey(
             create_combiner,
             merge_value,
             merge_combiner)).values()
         return PRDD.fromRDD(rddOfLast)
 
-    def _regroup_groupedrdd(self):
+    def _regroup_mergedRDD(self):
         """A common pattern is we want to call groupby again on the dataframes
         so we can use the groupby functions.
         """
@@ -258,14 +249,14 @@ class Groupby:
         def regroup(df):
             return df.groupby(*myargs, **mykwargs)
 
-        return self._groupedrdd.mapValues(regroup)
+        return self._mergedRDD.mapValues(regroup)
 
     def nth(self, n, *args, **kwargs):
         """Take the nth element of each grouby."""
         # TODO: Stop collecting the entire frame for each key.
         myargs = self._myargs
         mykwargs = self._mykwargs
-        nthRDD = self._regroup_groupedrdd().mapValues(
+        nthRDD = self._regroup_mergedRDD().mapValues(
             lambda r: r.nth(
                 n, *args, **kwargs)).values()
         return PRDD.fromRDD(nthRDD)
@@ -276,7 +267,7 @@ class Groupby:
         aggregation.
         """
         return PRDD.fromRDD(
-            self._regroup_groupedrdd().values().map(
+            self._regroup_mergedRDD().values().map(
                 lambda g: g.aggregate(f)))
 
     def agg(self, f):
@@ -298,7 +289,7 @@ class Groupby:
 
         myargs = self._myargs
         mykwargs = self._mykwargs
-        regroupedRDD = self._prereducedrdd.mapValues(
+        regroupedRDD = self._distributedRDD.mapValues(
             lambda data: data.groupby(*myargs, **mykwargs))
         appliedRDD = regroupedRDD.map(
             lambda key_data: key_data[1].apply(func, *args, **kwargs))
