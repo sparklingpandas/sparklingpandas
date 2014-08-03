@@ -44,7 +44,7 @@ class DataLoad(SparklingPandasTestCase):
         collectedframe = pframe.collect().sort(['magic'])
         shouldeq = pandas.DataFrame(input, columns=['magic', 'thing']).sort(
             ['magic'])
-        self.assertEqual(str(shouldeq), str(collectedframe))
+        assert_frame_equal(shouldeq, collectedframe)
 
     def test_from_csv_record(self, whole_file=False):
         x = "hi,i,like,coffee\n"
@@ -62,10 +62,10 @@ class DataLoad(SparklingPandasTestCase):
                 "3",
                 "4"],
             header=None)
-        self.assertEqual(str(expected), str(data))
+        assert_frame_equal(expected, data)
 
     def test_from_csv_record_whole_file(self):
-        self.test_from_csv_record(True)
+        self.test_from_csv_record(whole_file=True)
 
     def test_from_csv_record_adv(self, whole_file=False):
         x = "person,coffee,tea\nholden,20,2\npanda,1,1"
@@ -81,7 +81,7 @@ class DataLoad(SparklingPandasTestCase):
         assert_frame_equal(expected, data)
 
     def test_from_csv_record_adv_whole_file(self):
-        self.test_from_csv_record_adv(True)
+        self.test_from_csv_record_adv(whole_file=True)
 
 if __name__ == "__main__":
     unittest.main()

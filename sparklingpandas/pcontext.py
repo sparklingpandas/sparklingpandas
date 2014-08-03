@@ -46,13 +46,16 @@ class PSparkContext():
 
     def read_csv(self, name, use_whole_file=False, names=None, skiprows=0,
                  *args, **kwargs):
-        """
-        Read a CSV file in and parse it into panda data frames.
-        If no names is provided uses the first row for the names
+        """Read a CSV file in and parse it into Pandas DataFrames.
+        If no names is provided we use the first row for the names.
         header=0 is the default unless names is provided in which case
         header=None is the default.
+        skiprows indicates how many rows of input to skip. This will
+        only be applied to the first partition of the data (so if
+        #skiprows > #row in first partition this will not work). Generally
+        this shouldn't be an issue for small values of skiprows.
         No other values of header is supported.
-        All additional parameters are passed to the read_csv function
+        All additional parameters are passed to the read_csv function.
         """
         def csv_file(partitionNumber, files):
             file_count = 0
@@ -71,14 +74,15 @@ class PSparkContext():
                                           **kwargs)
 
         def csv_rows(partitionNumber, rows):
-            rc = 0
-            for row in rows:
-                # Skip the first rows from the first partition if requested
-                if partitionNumber != 0 or rc >= _skiprows:
-                    yield pandas.read_csv(StringIO(row), *args, header=None,
-                                          names=mynames, **kwargs)
-                else:
-                    rc += 1
+            rowCount = 0
+            inputStr = "\n".join(rows)
+            if partitionNumber == 0:
+                return pandas.read_csv(StringIO(row), *args, header=None,
+                                      names=mynames, skiprows=_skiprows, **kwargs)
+            else:
+                return pandas.read_csv(StringIO(row), *args, header=None,
+                                      names=mynames, **kwargs)
+
 
         # If we need to peak at the first partition and determine the column
         # names
