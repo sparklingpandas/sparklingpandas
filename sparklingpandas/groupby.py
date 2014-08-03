@@ -25,8 +25,9 @@ import numpy as np
 
 class GroupBy:
 
-    """An RDD with key value pairs, where each value is a Panda's dataframe and the key is
-    the result of the group. Supports many of the same operations as a Panda's GroupBy."""
+    """An RDD with key value pairs, where each value is a Panda's dataframe and
+    the key is the result of the group. Supports many of the same operations
+    as a Panda's GroupBy."""
 
     def __init__(self, rdd, *args, **kwargs):
         """Construct a groupby object providing the functions on top of the

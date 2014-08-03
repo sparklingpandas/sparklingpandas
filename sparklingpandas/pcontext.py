@@ -37,7 +37,8 @@ class PSparkContext():
 
     @classmethod
     def simple(cls, *args, **kwargs):
-        """Takes the same arguments as SparkContext and constructs a PSparkContext"""
+        """Takes the same arguments as SparkContext and constructs a
+        PSparkContext"""
         return PSparkContext(SparkContext(*args, **kwargs))
 
     def csvfile(self, name, use_whole_file=True, *args, **kwargs):
