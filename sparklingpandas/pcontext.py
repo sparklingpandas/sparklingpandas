@@ -78,11 +78,11 @@ class PSparkContext():
             inputStr = "\n".join(rows)
             if partitionNumber == 0:
                 return pandas.read_csv(StringIO(row), *args, header=None,
-                                      names=mynames, skiprows=_skiprows, **kwargs)
+                                       names=mynames, skiprows=_skiprows,
+                                       **kwargs)
             else:
                 return pandas.read_csv(StringIO(row), *args, header=None,
-                                      names=mynames, **kwargs)
-
+                                       names=mynames, **kwargs)
 
         # If we need to peak at the first partition and determine the column
         # names
