@@ -16,4 +16,4 @@ n_iters = 1000
 for command in commands:
     command_timer = timeit.Timer(command, setup_str)
     print "Time to execute: '{}'".format(command)
-    print command_timer.timeit(n_iters)/n_iters
+    print command_timer.timeit(n_iters) / n_iters

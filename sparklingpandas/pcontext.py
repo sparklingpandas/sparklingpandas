@@ -18,7 +18,7 @@ Provide an easy interface for loading data into L{PRDD}s for Spark.
 # limitations under the License.
 #
 
-from sparklingpandas.utils import add_pyspark_path, run_tests
+from sparklingpandas.utils import add_pyspark_path
 
 add_pyspark_path()
 import pandas
@@ -28,30 +28,27 @@ from sparklingpandas.prdd import PRDD
 
 
 class PSparkContext():
-    """
-    This is a thin wrapper around SparkContext from
-    PySpark which makes it easy to load data into L{PRDD}s.
-    """
+
+    """This is a thin wrapper around SparkContext from PySpark which makes it
+    easy to load data into L{PRDD}s."""
 
     def __init__(self, sparkcontext):
         self.sc = sparkcontext
 
     @classmethod
     def simple(cls, *args, **kwargs):
-        """
-        Takes the same arguments as SparkContext and constructs a PSparkContext
-        """
+        """Takes the same arguments as SparkContext and constructs a
+        PSparkContext"""
         return PSparkContext(SparkContext(*args, **kwargs))
 
     def csvfile(self, name, use_whole_file=True, *args, **kwargs):
-        """
-        Read a CSV file in and parse it into panda data frames. Note this uses
+        """Read a CSV file in and parse it into panda data frames. Note this uses
         wholeTextFiles by default underneath the hood so as to support
         multi-line CSV records so many small input files are preferred.
-        All additional parameters are passed to the read_csv function
+        All additional parameters are passed to the read_csv function.
         """
-        # TODO(holden): string IO stuff
-
+        # TODO(holden): Figure out what the deal with indexing will be for this
+        # issue #12
         def csv_file(contents, *args, **kwargs):
             return pandas.read_csv(StringIO(contents), *args, header=0,
                                    **kwargs)
@@ -61,25 +58,66 @@ class PSparkContext():
                 yield pandas.read_csv(StringIO(row), *args, header=0, **kwargs)
 
         if use_whole_file:
-            return PRDD.fromRDD(self.sc.wholeTextFiles(name).map(
-                lambda (name, contents): csv_file(contents, *args, **kwargs)))
+            return PRDD.fromRDD(
+                self.sc.wholeTextFiles(name).map(
+                    lambda
+                    name_contents:
+                    csv_file(name_contents[1],
+                             *args, **kwargs)))
         else:
             return PRDD.fromRDD(self.sc.textFile(name).mapPartitions(
                 lambda x: csv_rows(x, *args, **kwargs)))
+
+    def from_data_frame(self, df):
+        """Make a distributed dataframe from a local dataframe. The intend use
+        is for testing. Note: dtypes are re-infered, so they may not match."""
+        mydtype = df.dtypes
+        mycols = df.columns
+
+        def loadFromKeyRow(partition):
+            pll = list(partition)
+            if len(pll) > 0:
+                index, data = zip(*pll)
+                return [
+                    pandas.DataFrame(
+                        list(data),
+                        columns=mycols,
+                        index=index)]
+            else:
+                return []
+        indexedData = zip(df.index, df.itertuples(index=False))
+        rdd = self.sc.parallelize(indexedData).mapPartitions(loadFromKeyRow)
+        return PRDD.fromRDD(rdd)
 
     def DataFrame(self, elements, *args, **kwargs):
         """
         Wraps the pandas.DataFrame operation.
         """
-        return PRDD.fromRDD(self.sc.parallelize(elements).map(
-            lambda element: pandas.DataFrame(data=[element], *args, **kwargs)))
+        def loadPartitions(partition):
+            partitionList = list(partition)
+            if len(partitionList) > 0:
+                (indices, elements) = zip(*partitionList)
+                return [
+                    pandas.DataFrame(
+                        data=list(elements),
+                        index=list(indices),
+                        *args,
+                        **kwargs)]
+            else:
+                return []
+        # Zip with the index so we have consistent indexing as if it was
+        # operated on locally
+        index = range(len(elements))
+        # TODO(holden): test this issue #13
+        if 'index' in kwargs:
+            index = kwargs['index']
+        elementsWithIndex = zip(index, elements)
+        return PRDD.fromRDD(
+            self.sc.parallelize(elementsWithIndex).mapPartitions(
+                loadPartitions))
 
     def stop(self):
         """
         Stop the underlying SparkContext
         """
         self.sc.stop()
-
-
-if __name__ == "__main__":
-    run_tests()

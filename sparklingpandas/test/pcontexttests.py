@@ -23,6 +23,7 @@ from sparklingpandas.test.sparklingpandastestcase import \
 
 
 class PContextTests(SparklingPandasTestCase):
+
     def test_dataframe_construction(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
         prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
