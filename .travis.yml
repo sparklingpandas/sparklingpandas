@@ -3,7 +3,7 @@ python:
   - "2.6"
   - "2.7"
 before_install:
-  - sudo pip install conda
+  - sudo pip install --upgrade conda
 install:
   # install deps
   - sudo conda init
@@ -11,6 +11,7 @@ install:
   - deps='pip numpy pandas requests nose numpydoc sphinx pep8'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
+  - pip install unittest2
   # install our own package into the environment
   - "pip install ."
 script:
@@ -19,5 +20,5 @@ script:
   - "tar -xvf spark-1.0.0-bin-hadoop2.tgz"
   # Run the tests
   - "export SPARK_HOME=./spark-1.0.0-bin-hadoop2/"
-  - "nosetests --logging-level=INFO --detailed-errors"
+  - "./run-tests"
   - "pep8 sparklingpandas/"
