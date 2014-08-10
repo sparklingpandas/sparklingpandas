@@ -25,6 +25,7 @@ import pandas as pd
 import numpy.testing as np_tests
 from pandas.util.testing import assert_frame_equal
 
+
 class PContextTests(SparklingPandasTestCase):
 
     def test_apply_map(self):
