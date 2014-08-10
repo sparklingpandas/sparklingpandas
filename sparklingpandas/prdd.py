@@ -143,11 +143,11 @@ class PRDD:
 
     @property
     def axes(self):
-        return self._rdd.map(lambda frame: frame.axes).reduce(lambda xy,ab: [xy[0].append(ab[0]), xy[1]])
+        return self._rdd.map(lambda frame: frame.axes).reduce(lambda xy, ab: [xy[0].append(ab[0]), xy[1]])
 
     @property
     def shape(self):
-        return self._rdd.map(lambda frame: frame.shape).reduce(lambda xy,ab: (xy[0] + ab[0], xy[1]))
+        return self._rdd.map(lambda frame: frame.shape).reduce(lambda xy, ab: (xy[0] + ab[0], xy[1]))
 
     def collect(self):
         """
