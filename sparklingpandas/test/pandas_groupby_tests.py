@@ -183,8 +183,20 @@ class PandasGroupby(SparklingPandasTestCase):
         expected = expected.sort_index()
         assert_frame_equal(nth, expected)
 
-    def test_agg_api(self):
+    def test_var_on_multiplegroups(self):
+        df = DataFrame({'data1': np.random.randn(5),
+                        'data2': np.random.randn(5),
+                        'data3': np.random.randn(5),
+                        'key1': ['a', 'a', 'b', 'b', 'a'],
+                        'key2': ['one', 'two', 'one', 'two', 'one']})
+        ddf = self.psc.from_data_frame(df)
+        dgrouped = ddf.groupby(['key1', 'key2'])
+        grouped = df.groupby(['key1', 'key2'])
+        assert_frame_equal(dgrouped.var().collect(), grouped.var())
 
+    def test_agg_api(self):
+        # Note: needs a very recent version of pandas to pass
+        # TODO(holden): Pass this test if local fails
         # GH 6337
         # http://stackoverflow.com/questions/21706030/pandas-groupby-agg-function-column-dtype-error
         # different api for agg when passed custom function with mixed frame
