@@ -55,6 +55,9 @@ class PRDD:
         return self.fromRDD(
             self._rdd.map(lambda data: data.applymap(f), **kwargs))
 
+    def query(self, query):
+        return self.fromRDD(self._rdd.map(lambda x: x.query(query)))
+
     def __getitem__(self, key):
         """
         Returns a new PRDD of elements from that key

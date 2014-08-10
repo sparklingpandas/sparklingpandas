@@ -23,7 +23,7 @@ from sparklingpandas.test.sparklingpandastestcase import \
 
 import pandas as pd
 import numpy.testing as np_tests
-
+from pandas.util.testing import assert_frame_equal
 
 class PContextTests(SparklingPandasTestCase):
 
@@ -74,3 +74,10 @@ class PContextTests(SparklingPandasTestCase):
         np_tests.assert_almost_equal(b_col_stat_counter.stdev(), 8.16496580928)
         np_tests.assert_almost_equal(b_col_stat_counter.max(), 30)
         np_tests.assert_almost_equal(b_col_stat_counter.min(), 10)
+
+    def test_idx(self):
+        input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
+        local = pd.DataFrame(input, columns=['a', 'b'])
+        prdd = self.psc.DataFrame(input, columns=['a', 'b'])
+        idxed = prdd.query("b > 10")
+        assert_frame_equal(idxed.collect(), local.query("b > 10"))
