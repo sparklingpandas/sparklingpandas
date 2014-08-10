@@ -1,6 +1,4 @@
-"""
-Provide a way to work with panda data frames in Spark
-"""
+"""Provide a way to work with panda data frames in Spark"""
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -57,7 +55,7 @@ class PRDD:
         def frame_to_spark_sql(frame):
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             return map((lambda x: x[1].to_dict()), frame.iterrows())
-        return self._rdd.flatMap(frameToSparkSQL)
+        return self._rdd.flatMap(frame_to_spark_sql)
 
     def applymap(self, f, **kwargs):
         """

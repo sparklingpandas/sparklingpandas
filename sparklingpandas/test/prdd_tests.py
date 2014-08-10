@@ -82,6 +82,6 @@ class PContextTests(SparklingPandasTestCase):
         sqlCtx = self.psc._get_sql_ctx()
         schemaRDD = sqlCtx.inferSchema(sparkSqlRDD)
         schemaRDD.registerAsTable("magic")
-        magic = sqlContext.sql("SELECT b FROM magic WHERE a == \"magic\"")
+        magic = sqlCtx.sql("SELECT a FROM magic WHERE b = 10")
         collected = magic.collect()
-        assert collected == []
+        assert collected == [{'a': 'magic'}]
