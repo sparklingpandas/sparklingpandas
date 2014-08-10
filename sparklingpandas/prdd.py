@@ -31,8 +31,7 @@ import pandas
 
 class PRDD:
 
-    """
-    A Panda Resilient Distributed Dataset (PRDD), is an extension of the RDD.
+    """A Panda Resilient Distributed Dataset (PRDD), is an extension of the RDD.
     It is an RDD containing Panda dataframes and provides special methods that
     are aware of this. You can access the underlying RDD at _rdd, but be
     careful doing so.
@@ -104,11 +103,13 @@ class PRDD:
 
     @property
     def axes(self):
-        return self._rdd.map(lambda frame: frame.axes).reduce(lambda xy,ab: [xy[0].append(ab[0]), xy[1]])
+        return (self._rdd.map(lambda frame: frame.axes)
+                .reduce(lambda xy, ab: [xy[0].append(ab[0]), xy[1]]))
 
     @property
     def shape(self):
-        return self._rdd.map(lambda frame: frame.shape).reduce(lambda xy,ab: (xy[0] + ab[0], xy[1]))
+        return (self._rdd.map(lambda frame: frame.shape)
+                .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
     def collect(self):
         """

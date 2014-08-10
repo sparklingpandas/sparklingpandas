@@ -81,22 +81,32 @@ class PContextTests(SparklingPandasTestCase):
         np_tests.assert_almost_equal(b_col_stat_counter.min(), 10)
 
     def test_dtypes(self):
-        assert_series_equal(self.basicpframe.dtypes, self.basicframe.dtypes)
-        assert_series_equal(self.numericpframe.dtypes, self.numericframe.dtypes)
+        assert_series_equal(self.basicpframe.dtypes,
+                            self.basicframe.dtypes)
+        assert_series_equal(self.numericpframe.dtypes,
+                            self.numericframe.dtypes)
 
     def test_ftypes(self):
-        assert_series_equal(self.basicpframe.ftypes, self.basicframe.ftypes)
-        assert_series_equal(self.numericpframe.ftypes, self.numericframe.ftypes)
+        assert_series_equal(self.basicpframe.ftypes,
+                            self.basicframe.ftypes)
+        assert_series_equal(self.numericpframe.ftypes,
+                            self.numericframe.ftypes)
 
     def test_get_dtype_counts(self):
-        assert_series_equal(self.basicpframe.get_dtype_counts(), self.basicframe.get_dtype_counts())
-        assert_series_equal(self.numericpframe.get_dtype_counts(), self.numericframe.get_dtype_counts())
-        assert_series_equal(self.mixedpframe.get_dtype_counts(), self.mixedframe.get_dtype_counts())
+        assert_series_equal(self.basicpframe.get_dtype_counts(),
+                            self.basicframe.get_dtype_counts())
+        assert_series_equal(self.numericpframe.get_dtype_counts(),
+                            self.numericframe.get_dtype_counts())
+        assert_series_equal(self.mixedpframe.get_dtype_counts(),
+                            self.mixedframe.get_dtype_counts())
 
     def test_get_ftype_counts(self):
-        assert_series_equal(self.basicpframe.get_ftype_counts(), self.basicframe.get_ftype_counts())
-        assert_series_equal(self.numericpframe.get_ftype_counts(), self.numericframe.get_ftype_counts())
-        assert_series_equal(self.mixedpframe.get_ftype_counts(), self.mixedframe.get_ftype_counts())
+        assert_series_equal(self.basicpframe.get_ftype_counts(),
+                            self.basicframe.get_ftype_counts())
+        assert_series_equal(self.numericpframe.get_ftype_counts(),
+                            self.numericframe.get_ftype_counts())
+        assert_series_equal(self.mixedpframe.get_ftype_counts(),
+                            self.mixedframe.get_ftype_counts())
 
     def test_axes(self):
         def assert_axes_eq(ax1, ax2):
@@ -114,4 +124,3 @@ class PContextTests(SparklingPandasTestCase):
 
 if __name__ == "__main__":
     unittest2.main()
-

@@ -77,9 +77,11 @@ class SparklingPandasTestCase(unittest2.TestCase):
             self.numericthreeinput, columns=['a', 'b', 'c'])
         self.numericthreeframe = pandas.DataFrame(
             self.numericthreeinput, columns=['a', 'b', 'c'])
-        self.mixedinput = [(1,2, "coffee"), (4, 5, "cheese")]
-        self.mixedpframe = self.psc.DataFrame(self.mixedinput, columns=['a', 'b', 'c'])
-        self.mixedframe = pandas.DataFrame(self.mixedinput, columns=['a', 'b', 'c'])
+        self.mixedinput = [(1, 2, "coffee"), (4, 5, "cheese")]
+        self.mixedpframe = self.psc.DataFrame(self.mixedinput,
+                                              columns=['a', 'b', 'c'])
+        self.mixedframe = pandas.DataFrame(self.mixedinput,
+                                           columns=['a', 'b', 'c'])
 
     def tearDown(self):
         """
