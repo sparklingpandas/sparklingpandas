@@ -74,3 +74,14 @@ class PContextTests(SparklingPandasTestCase):
         np_tests.assert_almost_equal(b_col_stat_counter.stdev(), 8.16496580928)
         np_tests.assert_almost_equal(b_col_stat_counter.max(), 30)
         np_tests.assert_almost_equal(b_col_stat_counter.min(), 10)
+
+    def test_to_spark_sql(self):
+        input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
+        prdd = self.psc.DataFrame(input, columns=['a', 'b'])
+        sparkSqlRDD = prdd.to_spark_sql()
+        sqlCtx = self.psc._get_sql_ctx()
+        schemaRDD = sqlCtx.inferSchema(sparkSqlRDD)
+        schemaRDD.registerAsTable("magic")
+        magic = sqlContext.sql("SELECT b FROM magic WHERE a == \"magic\"")
+        collected = magic.collect()
+        assert collected == []
