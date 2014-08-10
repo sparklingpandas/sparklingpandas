@@ -45,7 +45,6 @@ class PRDD:
         """Construct a PRDD from an RDD. No checking or validation occurs"""
         return PRDD(rdd)
 
-    
     def to_spark_sql(self):
         """A Sparkling Pandas specific function to turn a DDF into
         something that Spark SQL can query. To use the result you will
