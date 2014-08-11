@@ -1,5 +1,4 @@
-"""
-Provide an easy interface for loading data into L{PRDD}s for Spark.
+"""Provide an easy interface for loading data into L{PRDD}s for Spark.
 """
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -38,9 +37,7 @@ class PSparkContext():
         self.hive_ctx = hivecontext
 
     def _get_sql_ctx(self):
-        """
-        Return the sql context or construct if needed
-        """
+        """Return the sql context or construct it if needed."""
         if self.sql_ctx:
             return self.sql_ctx
         else:
@@ -58,8 +55,7 @@ class PSparkContext():
         """Read a CSV file in and parse it into panda data frames. Note this uses
         wholeTextFiles by default underneath the hood so as to support
         multi-line CSV records so many small input files are preferred.
-        All additional parameters are passed to the read_csv function.
-        """
+        All additional parameters are passed to the read_csv function."""
         # TODO(holden): Figure out what the deal with indexing will be for this
         # issue #12
         def csv_file(contents, *args, **kwargs):
@@ -103,21 +99,15 @@ class PSparkContext():
         return PRDD.fromRDD(rdd)
 
     def sql(self, query):
-        """
-        Perform a SQL query and create a L{PRDD} of the result
-        """
+        """Perform a SQL query and create a L{PRDD} of the result."""
         return PRDD.fromRDD(
             self.from_schema_rdd(
                 self._get_sqlctx().sql(query)))
 
     def from_schema_rdd(self, schemaRDD):
-        """
-        Convert a schema RDD to a L{PRDD}.
-        """
+        """Convert a schema RDD to a L{PRDD}."""
         def _load_kv_partitions(partition):
-            """
-            Convert a partition where each row is key/value data
-            """
+            """Convert a partition where each row is key/value data."""
             partitionList = list(partition)
             if len(partitionList) > 0:
                 return iter([
@@ -128,13 +118,9 @@ class PSparkContext():
         return PRDD.fromRDD(schemaRDD.mapPartitions(_load_kv_partitions))
 
     def DataFrame(self, elements, *args, **kwargs):
-        """
-        Wraps the pandas.DataFrame operation.
-        """
+        """Wraps the pandas.DataFrame operation."""
         def _load_partitions(partition):
-            """
-            Convert partitions of tuples
-            """
+            """Convert partitions of tuples."""
             partitionList = list(partition)
             if len(partitionList) > 0:
                 (indices, elements) = zip(*partitionList)
@@ -158,7 +144,6 @@ class PSparkContext():
                 _load_partitions))
 
     def stop(self):
-        """
-        Stop the underlying SparkContext
+        """Stop the underlying SparkContext
         """
         self.sc.stop()
