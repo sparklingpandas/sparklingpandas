@@ -77,5 +77,32 @@ class DataLoad(SparklingPandasTestCase):
         ddfc = ddf.collect()
         assert_frame_equal(ddfc, df)
 
+    def test_basic_sparksql(self):
+        """
+        Test our SparkSQL integration
+        """
+        # Expected frame
+        df = DataFrame(
+            [(6, "holden"),
+             (0, "tubepanda")],
+            columns=["coffees", "name"])
+        # Create an in memory table for us to query
+        input = [("holden", 6), ("tubepanda", 0)]
+        rdd = self.psc.sc.parallelize(input).map(
+            lambda x: {
+                "name": x[0],
+                "coffees": int(
+                    x[1])})
+        sql_ctx = self.psc._get_sql_ctx()
+        coffee_table = sql_ctx.inferSchema(rdd)
+        coffee_table.registerAsTable("coffee")
+        # Query it
+        schema_rdd = sql_ctx.sql("SELECT * FROM coffee")
+        ddf = self.psc.from_schema_rdd(schema_rdd)
+        assert_frame_equal(ddf.collect().reset_index(drop=True), df)
+        # Query with the sql method on psc
+        ddf2 = self.psc.sql("SELECT * FROM coffee")
+        assert_frame_equal(ddf2.collect().reset_index(drop=True), df)
+
 if __name__ == "__main__":
     unittest2.main()
