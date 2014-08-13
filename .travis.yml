@@ -12,6 +12,8 @@ install:
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install unittest2
+  - pip install wheel
+  - pip install --upgrade pandas
   # install our own package into the environment
   - "pip install ."
 script:
