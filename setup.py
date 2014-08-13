@@ -14,7 +14,8 @@ setup(
         # Note: we also need PySpark but that has to be installed manually.
         'pandas >= 0.13',
         'openpyxl>=1.6.1,<=2.0.0',
-        'py4j'
+        'py4j',
+        'numexpr'
     ],
     test_requires=[
         'nose',

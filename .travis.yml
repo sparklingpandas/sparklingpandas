@@ -8,7 +8,7 @@ install:
   # install deps
   - sudo conda init
   - sudo conda update conda --yes
-  - deps='pip numpy pandas requests nose numpydoc sphinx pep8'
+  - deps='pip numpy pandas requests nose numpydoc sphinx pep8 numexpr'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install unittest2
