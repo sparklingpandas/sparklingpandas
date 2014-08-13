@@ -3,6 +3,8 @@ python:
   - "2.6"
   - "2.7"
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install gfortran gcc
   - sudo pip install --upgrade conda
 install:
   # install deps
@@ -12,9 +14,7 @@ install:
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install unittest2
-  - pip install wheel
-  - pip install --upgrade pandas
-  - pip install --upgrade cython
+  - conda update pandas
   # install our own package into the environment
   - "pip install ."
 script:
