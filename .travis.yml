@@ -22,7 +22,7 @@ install:
   # install deps
   - deps='pip numpy pandas requests nose numpydoc sphinx pep8 numexpr cython'
   - conda create -n test-env --yes $deps "python=$TRAVIS_PYTHON_VERSION"
-  - source active test-env
+  - source activate test-env
   - pip install unittest2
   - conda update pandas
   # install our own package into the environment
