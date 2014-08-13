@@ -5,14 +5,24 @@ python:
 before_install:
   - sudo apt-get update
   - sudo apt-get install gfortran gcc
-  - sudo pip install --upgrade conda
+  # You may want to periodically update this, although the conda update
+  # conda line below will keep everything up-to-date.
+  # This saves us some downloading for this version
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget http://repo.continuum.io/miniconda/Miniconda-3.4.2-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget http://repo.continuum.io/miniconda/Miniconda3-3.4.2-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update conda
+  - conda info -a
 install:
   # install deps
-  - sudo conda init
-  - sudo conda update conda --yes
   - deps='pip numpy pandas requests nose numpydoc sphinx pep8 numexpr cython'
-  - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
-  - export PATH=$HOME/py/bin:$PATH
+  - conda create -n test-env --yes $deps "python=$TRAVIS_PYTHON_VERSION"
+  - source active test-env
   - pip install unittest2
   - conda update pandas
   # install our own package into the environment
