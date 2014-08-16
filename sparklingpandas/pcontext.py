@@ -28,7 +28,6 @@ from sparklingpandas.prdd import PRDD
 
 class PSparkContext():
 
-
     """This is a thin wrapper around SparkContext from PySpark which makes it
     easy to load data into L{PRDD}s."""
 
