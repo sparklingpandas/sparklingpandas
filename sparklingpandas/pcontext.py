@@ -112,13 +112,13 @@ class PSparkContext():
             pll = list(partition)
             if len(pll) > 0:
                 index, data = zip(*pll)
-                return [
+                return iter([
                     pandas.DataFrame(
                         list(data),
                         columns=mycols,
-                        index=index)]
+                        index=index)])
             else:
-                return []
+                return iter([])
         indexedData = zip(df.index, df.itertuples(index=False))
         rdd = self.sc.parallelize(indexedData).mapPartitions(loadFromKeyRow)
         return PRDD.fromRDD(rdd)
@@ -131,14 +131,14 @@ class PSparkContext():
             partitionList = list(partition)
             if len(partitionList) > 0:
                 (indices, elements) = zip(*partitionList)
-                return [
+                return iter([
                     pandas.DataFrame(
                         data=list(elements),
                         index=list(indices),
                         *args,
-                        **kwargs)]
+                        **kwargs)])
             else:
-                return []
+                return iter([])
         # Zip with the index so we have consistent indexing as if it was
         # operated on locally
         index = range(len(elements))

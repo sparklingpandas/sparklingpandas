@@ -31,8 +31,7 @@ import pandas
 
 class PRDD:
 
-    """
-    A Panda Resilient Distributed Dataset (PRDD), is an extension of the RDD.
+    """A Panda Resilient Distributed Dataset (PRDD), is an extension of the RDD.
     It is an RDD containing Panda dataframes and provides special methods that
     are aware of this. You can access the underlying RDD at _rdd, but be
     careful doing so.
@@ -71,6 +70,86 @@ class PRDD:
         """
         from sparklingpandas.groupby import GroupBy
         return GroupBy(self._rdd, *args, **kwargs)
+
+    @property
+    def dtypes(self):
+        """
+        Return the dtypes associated with this object
+        Uses the types from the first frame.
+        """
+        return self._rdd.first().dtypes
+
+    @property
+    def ftypes(self):
+        """
+        Return the ftypes associated with this object
+        Uses the types from the first frame.
+        """
+        return self._rdd.first().ftypes
+
+    def get_dtype_counts(self):
+        """
+        Return the counts of dtypes in this object
+        Uses the information from the first frame
+        """
+        return self._rdd.first().get_dtype_counts()
+
+    def get_ftype_counts(self):
+        """
+        Return the counts of ftypes in this object
+        Uses the information from the first frame
+        """
+        return self._rdd.first().get_ftype_counts()
+
+    @property
+    def axes(self):
+        return (self._rdd.map(lambda frame: frame.axes)
+                .reduce(lambda xy, ab: [xy[0].append(ab[0]), xy[1]]))
+
+    @property
+    def shape(self):
+        return (self._rdd.map(lambda frame: frame.shape)
+                .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
+
+    @property
+    def dtypes(self):
+        """
+        Return the dtypes associated with this object
+        Uses the types from the first frame.
+        """
+        return self._rdd.first().dtypes
+
+    @property
+    def ftypes(self):
+        """
+        Return the ftypes associated with this object
+        Uses the types from the first frame.
+        """
+        return self._rdd.first().ftypes
+
+    def get_dtype_counts(self):
+        """
+        Return the counts of dtypes in this object
+        Uses the information from the first frame
+        """
+        return self._rdd.first().get_dtype_counts()
+
+    def get_ftype_counts(self):
+        """
+        Return the counts of ftypes in this object
+        Uses the information from the first frame
+        """
+        return self._rdd.first().get_ftype_counts()
+
+    @property
+    def axes(self):
+        return (self._rdd.map(lambda frame: frame.axes)
+                .reduce(lambda xy, ab: [xy[0].append(ab[0]), xy[1]]))
+
+    @property
+    def shape(self):
+        return (self._rdd.map(lambda frame: frame.shape)
+                .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
     def collect(self):
         """
