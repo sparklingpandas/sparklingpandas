@@ -15,9 +15,7 @@
 # limitations under the License.
 #
 
-"""
-This module provides some common test case base for PandaSparkTestCases
-"""
+"""This module provides some common test case base for PandaSparkTestCases"""
 
 from sparklingpandas.utils import add_pyspark_path
 import pandas
@@ -32,16 +30,13 @@ from pandas.util.testing import assert_frame_equal
 
 
 class SparklingPandasTestCase(unittest2.TestCase):
-    """
-    Basic SparklingPandasTestCase, inherit from this class to get a
-    PSparkContext as sc.
-    """
+
+    """Basic SparklingPandasTestCase, inherit from this class to get a
+    PSparkContext as sc."""
 
     def setUp(self):
-        """
-        Setup the basic panda spark test case. This right now just creates a
-        PSparkContext.
-        """
+        """Setup the basic panda spark test case. This right now just creates a
+        PSparkContext."""
         self._old_sys_path = list(sys.path)
         class_name = self.__class__.__name__
         self.psc = PSparkContext.simple('local[4]', class_name, batchSize=2)
