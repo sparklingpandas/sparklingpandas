@@ -21,7 +21,7 @@ from sparklingpandas.utils import add_pyspark_path
 
 add_pyspark_path()
 import pandas
-#from cStringIO import StringIO as sio
+# from cStringIO import StringIO as sio
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
 from sparklingpandas.prdd import PRDD
@@ -86,11 +86,12 @@ class PSparkContext():
             inputStr = "\n".join(rows)
             if partitionNumber == 0:
                 return iter([pandas.read_csv(sio(inputStr), *args, header=None,
-                                       names=mynames, skiprows=_skiprows,
-                                       **kwargs)])
+                                             names=mynames, skiprows=_skiprows,
+                                             **kwargs)])
             else:
+                # could use .iterows instead?
                 return iter([pandas.read_csv(sio(inputStr), *args, header=None,
-                                       names=mynames, **kwargs)]) #.iterrows()
+                                             names=mynames, **kwargs)])
 
         # If we need to peak at the first partition and determine the column
         # names
@@ -124,10 +125,9 @@ class PSparkContext():
             if len(pll) > 0:
                 index, data = zip(*pll)
                 return iter([
-                    pandas.DataFrame(
-                        list(data),
-                        columns=mycols,
-                        index=index)])
+                    pandas.DataFrame(list(data),
+                                     columns=mycols,
+                                     index=index)])
             else:
                 return iter([])
         indexedData = zip(df.index, df.itertuples(index=False))
