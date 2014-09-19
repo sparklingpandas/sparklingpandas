@@ -36,7 +36,7 @@ class PRDD:
     Note: RDDs are lazy, so you operations are not performed until required."""
 
     def __init__(self, rdd):
-        self._rdd = rdd
+        self._rdd = rdd.cache()
 
     @classmethod
     def fromRDD(cls, rdd):
