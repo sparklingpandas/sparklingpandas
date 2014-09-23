@@ -21,7 +21,6 @@ from sparklingpandas.utils import add_pyspark_path
 
 add_pyspark_path()
 import pandas
-# from cStringIO import StringIO as sio
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
 from sparklingpandas.prdd import PRDD
