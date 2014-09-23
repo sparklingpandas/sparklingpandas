@@ -21,7 +21,7 @@ from sparklingpandas.utils import add_pyspark_path
 
 add_pyspark_path()
 import pandas
-from StringIO import StringIO
+from StringIO import StringIO as sio
 from pyspark.context import SparkContext
 from sparklingpandas.prdd import PRDD
 
@@ -69,13 +69,13 @@ class PSparkContext():
             for filename, contents in files:
                 # Only skip lines on the first file
                 if partitionNumber == 0 and file_count == 0 and _skiprows > 0:
-                    yield pandas.read_csv(StringIO(contents), *args,
+                    yield pandas.read_csv(sio(contents), *args,
                                           header=None,
                                           names=mynames,
                                           skiprows=_skiprows, **kwargs)
                 else:
                     file_count += 1
-                    yield pandas.read_csv(StringIO(contents), *args,
+                    yield pandas.read_csv(sio(contents), *args,
                                           header=None,
                                           names=mynames,
                                           **kwargs)
@@ -84,12 +84,13 @@ class PSparkContext():
             rowCount = 0
             inputStr = "\n".join(rows)
             if partitionNumber == 0:
-                return pandas.read_csv(StringIO(row), *args, header=None,
-                                       names=mynames, skiprows=_skiprows,
-                                       **kwargs)
+                return iter([pandas.read_csv(sio(inputStr), *args, header=None,
+                                             names=mynames, skiprows=_skiprows,
+                                             **kwargs)])
             else:
-                return pandas.read_csv(StringIO(row), *args, header=None,
-                                       names=mynames, **kwargs)
+                # could use .iterows instead?
+                return iter([pandas.read_csv(sio(inputStr), *args, header=None,
+                                             names=mynames, **kwargs)])
 
         # If we need to peak at the first partition and determine the column
         # names
@@ -100,7 +101,7 @@ class PSparkContext():
         else:
             # In the future we could avoid this expensive call.
             first_line = self.sc.textFile(name).first()
-            frame = pandas.read_csv(StringIO(first_line))
+            frame = pandas.read_csv(sio(first_line), **kwargs)
             mynames = list(frame.columns.values)
             _skiprows += 1
 
@@ -123,10 +124,9 @@ class PSparkContext():
             if len(pll) > 0:
                 index, data = zip(*pll)
                 return iter([
-                    pandas.DataFrame(
-                        list(data),
-                        columns=mycols,
-                        index=index)])
+                    pandas.DataFrame(list(data),
+                                     columns=mycols,
+                                     index=index)])
             else:
                 return iter([])
         indexedData = zip(df.index, df.itertuples(index=False))
