@@ -76,6 +76,12 @@ class SparklingPandasTestCase(unittest2.TestCase):
                                               columns=['a', 'b', 'c'])
         self.mixedframe = pandas.DataFrame(self.mixedinput,
                                            columns=['a', 'b', 'c'])
+        # Mixed NA frame
+        self.mixednainput = [(1, 2, "coffee", None), (4, 5, "cheese", None)]
+        self.mixednapframe = self.psc.DataFrame(self.mixednainput,
+                                                columns=['a', 'b', 'c', 'd'])
+        self.mixednaframe = pandas.DataFrame(self.mixednainput,
+                                             columns=['a', 'b', 'c', 'd'])
 
     def tearDown(self):
         """
