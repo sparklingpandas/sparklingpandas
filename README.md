@@ -31,4 +31,4 @@ This is in early development and should not be considered usable.
 Support
 =========
 
-There isn't really a mailing list, but if you want to use please feel free to e-mail me ( holden@pigscanfly.ca ) with any questions.
+Check out our Google group at https://groups.google.com/forum/#!forum/sparklingpandas
