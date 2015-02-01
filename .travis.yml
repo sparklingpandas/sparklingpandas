@@ -14,10 +14,10 @@ install:
   # install our own package into the environment
   - "pip install ."
 script:
-  # Download spark 1.0.0
-  - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz"
-  - "tar -xvf spark-1.0.0-bin-hadoop2.tgz"
+  # Download spark 1.2.0
+  - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.2.0-bin-hadoop2.4.tgz"
+  - "tar -xvf spark-1.2.0-bin-hadoop2.4.tgz"
   # Run the tests
-  - "export SPARK_HOME=./spark-1.0.0-bin-hadoop2/"
+  - "export SPARK_HOME=./spark-1.2.0-bin-hadoop2.4/"
   - "./run-tests"
   - "pep8 sparklingpandas/"
