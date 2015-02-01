@@ -7,7 +7,6 @@ before_install:
 install:
   # install deps
   - sudo conda init
-  - sudo conda update conda --yes
   - deps='pip numpy pandas requests nose numpydoc sphinx pep8'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
