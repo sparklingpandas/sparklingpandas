@@ -49,10 +49,8 @@ class PRDD:
         need to call sqlCtx.inferSchema(rdd) and then register the result
         as a table. Once Spark 1.1 is released this function may be deprecated
         and replacted with to_spark_sql_schema_rdd."""
-        def frame_to_spark_sql(frame):
-            """Convert a Panda's DataFrame into Spark SQL Rows"""
-            return map((lambda x: x[1].to_dict()), frame.iterrows())
-        return self._rdd.flatMap(frame_to_spark_sql)
+        raise NotImplementedError("Method deprecated, please use "
+                                  "to_spark_sql_schema_rdd instead!")
 
     def applymap(self, f, **kwargs):
         """Return a new PRDD by applying a function to each element of each
