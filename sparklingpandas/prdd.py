@@ -52,7 +52,6 @@ class PRDD:
         raise NotImplementedError("Method deprecated, please use "
                                   "to_spark_sql_schema_rdd instead!")
 
-
     def applymap(self, f, **kwargs):
         """Return a new PRDD by applying a function to each element of each
         Panda DataFrame."""
