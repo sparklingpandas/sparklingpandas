@@ -1,10 +1,14 @@
 from setuptools import setup
 
 try:
-    import pypandoc
-    readme = pypandoc.convert('README.md', 'rest')
-except (ImportError, IOError):
-    print "Failed to import pypandoc or failed to load README. Using empty readme"
+    try:
+        import pypandoc
+        readme = pypandoc.convert('README.md', 'rest')
+    except (ImportError, OSError):
+        print "Failed to import pypandoc, using markdown README"
+        readme = open('README.md').read()
+except (IOError):
+    print "Failed to load README, using empty README"
     readme = ""
 setup(
     name='sparklingpandas',
