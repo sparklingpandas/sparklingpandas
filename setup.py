@@ -24,8 +24,7 @@ setup(
         # Note: we also need PySpark 1.2 but that has to be installed manually.
         'pandas >= 0.13',
         'openpyxl>=1.6.1,<=2.0.0',
-        'py4j',
-        'pypandoc'
+        'py4j'
     ],
     test_requires=[
         'nose',
