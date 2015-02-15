@@ -2,9 +2,9 @@
 
 [![buildstatus](https://travis-ci.org/holdenk/sparklingpandas.svg?branch=master)](https://travis-ci.org/holdenk/sparklingpandas)
 
-===========
+==============
 SparklingPandas
-===========
+==============
 
 SparklingPandas aims to make it easy to use the distributed computing power
 of PySpark to scale your data analysis with Pandas.
