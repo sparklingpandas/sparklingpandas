@@ -1,6 +1,7 @@
-![logo](https://github.com/holdenk/sparklingpandas/raw/master/img/logo.jpg)
-![buildstatus](https://travis-ci.org/holdenk/sparklingpandas.svg?branch=master)(https://travis-ci.org/holdenk/sparklingpandas)
-===========
+![logo](img/sparkling_panda.jpg)
+
+[![buildstatus](https://travis-ci.org/holdenk/sparklingpandas.svg?branch=master)](https://travis-ci.org/holdenk/sparklingpandas)
+
 SparklingPandas
 ===========
 
