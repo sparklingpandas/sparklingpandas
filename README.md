@@ -2,7 +2,6 @@
 
 [![buildstatus](https://travis-ci.org/holdenk/sparklingpandas.svg?branch=master)](https://travis-ci.org/holdenk/sparklingpandas)
 
-===========
 SparklingPandas
 ===========
 
