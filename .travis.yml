@@ -20,4 +20,4 @@ script:
   # Run the tests
   - "export SPARK_HOME=./spark-1.2.0-bin-hadoop2.4/"
   - "./run-tests"
-  - "pep8 sparklingpandas/"
+  - "pep8 --ignore=E402 sparklingpandas/"
