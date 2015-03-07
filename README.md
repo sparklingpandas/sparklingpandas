@@ -17,7 +17,7 @@ None (right now). You can find some slides in the slides/ directory
 Requirements
 =========
 
-The primary requirement of SparklingPandas is that you have a recent (v1.2
+The primary requirement of SparklingPandas is that you have a recent (v1.3
 currently) version of Spark installed - <http://spark.apache.org>
 
 Using
