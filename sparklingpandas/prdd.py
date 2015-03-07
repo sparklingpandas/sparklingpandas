@@ -29,19 +29,16 @@ import pandas
 
 class PRDD:
 
-    """A Panda Resilient Distributed Dataset (PRDD), is an extension of the RDD.
-    It is an RDD containing Panda dataframes and provides special methods that
-    are aware of this. You can access the underlying RDD at _rdd, but be
-    careful doing so.
+    """A Panda Resilient Distributed Dataset (PRDD), is an extension of the SchemaRDD.
     Note: RDDs are lazy, so you operations are not performed until required."""
 
-    def __init__(self, rdd):
-        self._rdd = rdd
+    def __init__(self, schema_rdd):
+        self._schema_rdd = schema_rdd
 
     @classmethod
-    def fromRDD(cls, rdd):
+    def fromRDD(cls, schema_rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs."""
-        return PRDD(rdd)
+        return PRDD(schema_rdd)
 
     def to_spark_sql(self):
         """A Sparkling Pandas specific function to turn a DDF into
@@ -49,8 +46,7 @@ class PRDD:
         need to call sqlCtx.inferSchema(rdd) and then register the result
         as a table. Once Spark 1.1 is released this function may be deprecated
         and replacted with to_spark_sql_schema_rdd."""
-        raise NotImplementedError("Method deprecated, please use "
-                                  "to_spark_sql_schema_rdd instead!")
+        return self._schema_rdd
 
     def applymap(self, f, **kwargs):
         """Return a new PRDD by applying a function to each element of each
@@ -60,7 +56,7 @@ class PRDD:
 
     def __getitem__(self, key):
         """Returns a new PRDD of elements from that key."""
-        return self.fromRDD(self._rdd.map(lambda x: x[key]))
+        return self.fromRDD(self._schema_rdd[key])
 
     def groupby(self, *args, **kwargs):
         """Takes the same parameters as groupby on DataFrame.
@@ -68,8 +64,7 @@ class PRDD:
         even larger performance improvement. This returns a Sparkling Pandas
         L{GroupBy} object which supports many of the same operations as regular
         GroupBy but not all."""
-        from sparklingpandas.groupby import GroupBy
-        return GroupBy(self._rdd, *args, **kwargs)
+        return self.fromRDD(self._schema_rdd.groupBy(*args))
 
     @property
     def dtypes(self):

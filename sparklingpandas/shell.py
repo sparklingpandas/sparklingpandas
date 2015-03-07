@@ -22,5 +22,7 @@ This file is designed to be launched by bin/pyspark
 """
 
 from sparklingpandas.pcontext import PSparkContext
-psc = PSparkContext(sc)
+from pyspark.sql import SQLContext
+sqlCtx = SQLContext(sc)
+psc = PSparkContext(sc, sqlCtx)
 print("Sparkling Pandas context is available as psc\n")
