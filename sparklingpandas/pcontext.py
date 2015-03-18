@@ -31,9 +31,9 @@ class PSparkContext():
     """This is a thin wrapper around SparkContext from PySpark which makes it
     easy to load data into L{PRDD}s."""
 
-    def __init__(self, sparkcontext, sqlcontext=None, hivecontext=None):
+    def __init__(self, sparkcontext, sqlCtx=None, hivecontext=None):
         self.sc = sparkcontext
-        self.sql_ctx = sqlcontext
+        self.sql_ctx = sqlCtx
         self.hive_ctx = hivecontext
 
     def _get_sql_ctx(self):
@@ -107,76 +107,59 @@ class PSparkContext():
 
         # Do the actual load
         if use_whole_file:
-            return PRDD.fromRDD(
+            return self.from_pandas_RDD(
                 self.sc.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
         else:
-            return PRDD.fromRDD(
+            return self.from_pandas_RDD(
                 self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
 
     def from_data_frame(self, df):
-        """Make a distributed dataframe from a local dataframe. The intend use
-        is for testing. Note: dtypes are re-infered, so they may not match."""
-        mydtype = df.dtypes
-        mycols = df.columns
-
-        def loadFromKeyRow(partition):
-            pll = list(partition)
-            if len(pll) > 0:
-                index, data = zip(*pll)
-                return iter([
-                    pandas.DataFrame(list(data),
-                                     columns=mycols,
-                                     index=index)])
-            else:
-                return iter([])
-        indexedData = zip(df.index, df.itertuples(index=False))
-        rdd = self.sc.parallelize(indexedData).mapPartitions(loadFromKeyRow)
-        return PRDD.fromRDD(rdd)
+        return PRDD.from_spark_df(self._get_sqlCtx().createDataFrame(df))
 
     def sql(self, query):
         """Perform a SQL query and create a L{PRDD} of the result."""
-        return PRDD.fromRDD(
-            self.from_schema_rdd(
-                self._get_sqlctx().sql(query)))
+        return PRDD.from_spark_df(self._get_sqlCtx().sql(query))
+
+    def table(self, table):
+        """Returns the provided table as a L{PRDD}"""
+        return PRDD.from_spark_df(self._get_sqlCtx().table(query))
+
 
     def from_schema_rdd(self, schemaRDD):
-        """Convert a schema RDD to a L{PRDD}."""
-        def _load_kv_partitions(partition):
-            """Convert a partition where each row is key/value data."""
-            partitionList = list(partition)
-            if len(partitionList) > 0:
-                return iter([
-                    pandas.DataFrame(data=partitionList)
-                ])
-            else:
-                return iter([])
-        return PRDD.fromRDD(schemaRDD.mapPartitions(_load_kv_partitions))
+        return PRDD.from_spark_df(schemaRDD)
+
+    def from_spark_df(self, schemaRDD):
+        return PRDD.from_spark_df(schemaRDD)
+
 
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
-        def _load_partitions(partition):
-            """Convert partitions of tuples."""
-            partitionList = list(partition)
-            if len(partitionList) > 0:
-                (indices, elements) = zip(*partitionList)
-                return iter([
-                    pandas.DataFrame(
-                        data=list(elements),
-                        index=list(indices),
-                        *args,
-                        **kwargs)])
-            else:
-                return iter([])
-        # Zip with the index so we have consistent indexing as if it was
-        # operated on locally
-        index = range(len(elements))
-        # TODO(holden): test this issue #13
-        if 'index' in kwargs:
-            index = kwargs['index']
-        elementsWithIndex = zip(index, elements)
-        return PRDD.fromRDD(
-            self.sc.parallelize(elementsWithIndex).mapPartitions(
-                _load_partitions))
+        if (not args and not kwargs):
+        else:
+            def _load_partitions(partition):
+                """Convert partitions of tuples."""
+                partitionList = list(partition)
+                if len(partitionList) > 0:
+                    (indices, elements) = zip(*partitionList)
+                    return iter([
+                        pandas.DataFrame(
+                            data=list(elements),
+                            index=list(indices),
+                            *args,
+                            **kwargs)])
+                else:
+                    return iter([])
+                # Zip with the index so we have consistent indexing as if it was
+                # operated on locally
+                index = range(len(elements))
+                # TODO(holden): test this issue #13
+                if 'index' in kwargs:
+                    index = kwargs['index']
+                elementsWithIndex = zip(index, elements)
+                return self.from_pandas_rdd(
+                    self.sc.parallelize(elementsWithIndex).mapPartitions(
+                        _load_partitions))
+    def 
 
     def stop(self):
         """Stop the underlying SparkContext

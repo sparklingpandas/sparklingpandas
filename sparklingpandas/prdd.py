@@ -36,7 +36,7 @@ class PRDD:
         self._schema_rdd = schema_rdd
 
     @classmethod
-    def fromRDD(cls, schema_rdd):
+    def from_spark_df(cls, schema_rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs."""
         return PRDD(schema_rdd)
 
