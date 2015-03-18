@@ -35,6 +35,13 @@ class PRDD:
     def __init__(self, schema_rdd):
         self._schema_rdd = schema_rdd
 
+    def _rdd(self):
+        """Return an RDD of Panda DataFrame objects"""
+        columns = self._schema_rdd.columns
+        def fromRecords(records):
+            return [pandas.DataFrame.from_records(records, columns=columns)]
+        return self._schema_rdd.rdd.flatMap(fromRecords)
+
     @classmethod
     def from_spark_df(cls, schema_rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs."""
@@ -56,7 +63,7 @@ class PRDD:
 
     def __getitem__(self, key):
         """Returns a new PRDD of elements from that key."""
-        return self.fromRDD(self._schema_rdd[key])
+        return self.from_spark_df(self._schema_rdd[key])
 
     def groupby(self, *args, **kwargs):
         """Takes the same parameters as groupby on DataFrame.
@@ -64,7 +71,11 @@ class PRDD:
         even larger performance improvement. This returns a Sparkling Pandas
         L{GroupBy} object which supports many of the same operations as regular
         GroupBy but not all."""
-        return self.fromRDD(self._schema_rdd.groupBy(*args))
+        return self.from_spark_df(self._schema_rdd.groupBy(*args))
+
+    def _first_as_df(self):
+        """Gets the first row as a dataframe. Useful for functions like dtypas & ftypes"""
+        return pandas.from_records([self._schema_rdd.first()], columns = self._schema_rdd.columns)
 
     @property
     def dtypes(self):
@@ -72,7 +83,7 @@ class PRDD:
         Return the dtypes associated with this object
         Uses the types from the first frame.
         """
-        return self._rdd.first().dtypes
+        return self._first_as_df().dtypes
 
     @property
     def ftypes(self):
@@ -80,99 +91,35 @@ class PRDD:
         Return the ftypes associated with this object
         Uses the types from the first frame.
         """
-        return self._rdd.first().ftypes
+        return self._first_as_df.dtypes
 
     def get_dtype_counts(self):
         """
         Return the counts of dtypes in this object
         Uses the information from the first frame
         """
-        return self._rdd.first().get_dtype_counts()
+        return self._first_as_df.get_dtype_counts()
 
     def get_ftype_counts(self):
         """
         Return the counts of ftypes in this object
         Uses the information from the first frame
         """
-        return self._rdd.first().get_ftype_counts()
+        return self._first_as_df.get_ftype_counts()
 
     @property
     def axes(self):
-        return (self._rdd.map(lambda frame: frame.axes)
+        return (self._rdd().map(lambda frame: frame.axes)
                 .reduce(lambda xy, ab: [xy[0].append(ab[0]), xy[1]]))
 
     @property
     def shape(self):
-        return (self._rdd.map(lambda frame: frame.shape)
-                .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
-
-    @property
-    def dtypes(self):
-        """
-        Return the dtypes associated with this object
-        Uses the types from the first frame.
-        """
-        return self._rdd.first().dtypes
-
-    @property
-    def ftypes(self):
-        """
-        Return the ftypes associated with this object
-        Uses the types from the first frame.
-        """
-        return self._rdd.first().ftypes
-
-    def get_dtype_counts(self):
-        """
-        Return the counts of dtypes in this object
-        Uses the information from the first frame
-        """
-        return self._rdd.first().get_dtype_counts()
-
-    def get_ftype_counts(self):
-        """
-        Return the counts of ftypes in this object
-        Uses the information from the first frame
-        """
-        return self._rdd.first().get_ftype_counts()
-
-    @property
-    def axes(self):
-        return (self._rdd.map(lambda frame: frame.axes)
-                .reduce(lambda xy, ab: [xy[0].append(ab[0]), xy[1]]))
-
-    @property
-    def shape(self):
-        return (self._rdd.map(lambda frame: frame.shape)
+        return (self._rdd().map(lambda frame: frame.shape)
                 .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
     def collect(self):
         """Collect the elements in an PRDD and concatenate the partition."""
-        # The order of the frame order appends is based on the implementation
-        # of reduce which calls our function with
-        # f(valueToBeAdded, accumulator) so we do our reduce implementation.
-        def appendFrames(frame_a, frame_b):
-            return frame_a.append(frame_b)
-        return self._custom_rdd_reduce(appendFrames)
-
-    def _custom_rdd_reduce(self, f):
-        """Provides a custom RDD reduce which perserves ordering if the RDD has
-        been sorted. This is useful for us becuase we need this functionality
-        as many panda operations support sorting the results. The standard
-        reduce in PySpark does not have this property.  Note that when PySpark
-        no longer does partition reduces locally this code will also need to
-        be updated."""
-        def func(iterator):
-            acc = None
-            for obj in iterator:
-                if acc is None:
-                    acc = obj
-                else:
-                    acc = f(acc, obj)
-            if acc is not None:
-                yield acc
-        vals = self._rdd.mapPartitions(func).collect()
-        return reduce(f, vals)
+        return self._schema_rdd.toPandas()
 
     def stats(self, columns):
         """Compute the stats for each column provided in columns.

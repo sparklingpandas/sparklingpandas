@@ -63,6 +63,7 @@ class PSparkContext():
         this shouldn't be an issue for small values of skiprows.
         No other values of header is supported.
         All additional parameters are passed to the read_csv function.
+        TODO: Use spark-csv package if the request could be fufilled by it.
         """
         def csv_file(partitionNumber, files):
             file_count = 0
@@ -113,6 +114,17 @@ class PSparkContext():
             return self.from_pandas_RDD(
                 self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
 
+    def parquetFile(self, *paths):
+        """Loads a Parquet file, returning the result as a L{PRDD}.
+        """
+        return self.from_spark_df(self._get_sql_ctx().parquetFile(paths))
+
+    def jsonFile(self, path, schema=None, samplingRatio=1.0):
+        """Loads a text file storing one JSON object per line as a
+        L{PRDD}.
+        """
+        return self.from_spark_df(self._get_sql_ctx().jsonFile(path, schema, samplingRatio))
+
     def from_data_frame(self, df):
         return PRDD.from_spark_df(self._get_sqlCtx().createDataFrame(df))
 
@@ -124,7 +136,6 @@ class PSparkContext():
         """Returns the provided table as a L{PRDD}"""
         return PRDD.from_spark_df(self._get_sqlCtx().table(query))
 
-
     def from_schema_rdd(self, schemaRDD):
         return PRDD.from_spark_df(schemaRDD)
 
@@ -134,32 +145,19 @@ class PSparkContext():
 
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
-        if (not args and not kwargs):
-        else:
-            def _load_partitions(partition):
-                """Convert partitions of tuples."""
-                partitionList = list(partition)
-                if len(partitionList) > 0:
-                    (indices, elements) = zip(*partitionList)
-                    return iter([
-                        pandas.DataFrame(
-                            data=list(elements),
-                            index=list(indices),
-                            *args,
-                            **kwargs)])
-                else:
-                    return iter([])
-                # Zip with the index so we have consistent indexing as if it was
-                # operated on locally
-                index = range(len(elements))
-                # TODO(holden): test this issue #13
-                if 'index' in kwargs:
-                    index = kwargs['index']
-                elementsWithIndex = zip(index, elements)
-                return self.from_pandas_rdd(
-                    self.sc.parallelize(elementsWithIndex).mapPartitions(
-                        _load_partitions))
-    def 
+        return self.from_schema_rdd(self, self._get_sql_ctx().createDataFrame(pandas.DataFrame(
+            elements,
+            *args,
+            **kwargs)]))
+
+    def _from_pandas_rdd_records(self, pandas_rdd_records, schema):
+        """Createa a L{PRDD} from an RDD of records with schema"""
+        return self._get_sql_ctx().createDataFrame(pandas_rdd_records, schema)
+
+    def from_pandas_rdd(self, pandas_rdd):
+        schema = pandas_rdd.map(lambda x: x.columns).first
+        rdd_records = pnadas_rdd.flatMap(lambda x: [r.toList() for r in x.to_records(index=False)])
+        return self._from_pandas_rdd_records(rdd_records, schema)
 
     def stop(self):
         """Stop the underlying SparkContext
