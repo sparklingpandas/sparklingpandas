@@ -178,6 +178,20 @@ class PSparkContext():
             self.sc.parallelize(elementsWithIndex).mapPartitions(
                 _load_partitions))
 
+    def read_json(self, name,
+                  *args, **kwargs):
+        """Read a json file in and parse it into Pandas DataFrames.
+        If no names is provided we use the first row for the names.
+        Currently, it is not possible to skip the first n rows of a file.
+        Headers are provided in the json file and not specified separately.
+        """
+        def json_file(partitionNumber, files):
+            for filename, contents in files:
+                yield pandas.read_json(sio(contents), *args, **kwargs)
+
+        return PRDD.fromRDD(
+            self.sc.wholeTextFiles(name).mapPartitionsWithIndex(json_file))
+
     def stop(self):
         """Stop the underlying SparkContext
         """

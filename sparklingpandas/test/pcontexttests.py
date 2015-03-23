@@ -17,6 +17,9 @@ Test methods in pcontext
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import json
+import os
+import tempfile
 
 from sparklingpandas.test.sparklingpandastestcase import \
     SparklingPandasTestCase
@@ -28,5 +31,22 @@ class PContextTests(SparklingPandasTestCase):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
         prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
         elements = prdd.collect()
+        assert len(elements) == 3
+        assert sorted(elements['magic']) == ['coffee', 'tea', 'water']
+
+    def test_read_json(self):
+        input = [{'magic': 'tea', 'thing': 'happy'},
+                 {'magic': 'water', 'thing': 'sad'},
+                 {'magic': 'coffee', 'thing': 'happiest'}]
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        temp_file.close()
+
+        with open(temp_file.name, 'wb') as f:
+            json.dump(input, f)
+
+        prdd = self.psc.read_json(temp_file.name)
+        elements = prdd.collect()
+        os.unlink(temp_file.name)
+
         assert len(elements) == 3
         assert sorted(elements['magic']) == ['coffee', 'tea', 'water']
