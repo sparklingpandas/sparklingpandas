@@ -145,10 +145,11 @@ class PSparkContext():
 
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
-        return self.from_schema_rdd(self, self._get_sql_ctx().createDataFrame(pandas.DataFrame(
-            elements,
-            *args,
-            **kwargs)]))
+        return self.from_schema_rdd(
+            self._get_sql_ctx().createDataFrame(pandas.DataFrame(
+                elements,
+                *args,
+                **kwargs)))
 
     def _from_pandas_rdd_records(self, pandas_rdd_records, schema):
         """Createa a L{PRDD} from an RDD of records with schema"""
