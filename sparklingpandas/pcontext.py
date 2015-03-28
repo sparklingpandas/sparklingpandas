@@ -31,19 +31,13 @@ class PSparkContext():
     """This is a thin wrapper around SparkContext from PySpark which makes it
     easy to load data into L{PRDD}s."""
 
-    def __init__(self, sparkcontext, sqlCtx=None, hivecontext=None):
+    def __init__(self, sparkcontext, sqlCtx=None):
         self.sc = sparkcontext
-        self.sql_ctx = sqlCtx
-        self.hive_ctx = hivecontext
-
-    def _get_sql_ctx(self):
-        """Return the sql context or construct it if needed."""
-        if self.sql_ctx:
-            return self.sql_ctx
+        if sqlCtx:
+            self.sql_ctx = sqlCtx
         else:
             from pyspark.sql import SQLContext
             self.sql_ctx = SQLContext(self.sc)
-            return self.sql_ctx
 
     @classmethod
     def simple(cls, *args, **kwargs):
@@ -117,24 +111,24 @@ class PSparkContext():
     def parquetFile(self, *paths):
         """Loads a Parquet file, returning the result as a L{PRDD}.
         """
-        return self.from_spark_df(self._get_sql_ctx().parquetFile(paths))
+        return self.from_spark_df(self.sql_ctx.parquetFile(paths))
 
     def jsonFile(self, path, schema=None, samplingRatio=1.0):
         """Loads a text file storing one JSON object per line as a
         L{PRDD}.
         """
-        return self.from_spark_df(self._get_sql_ctx().jsonFile(path, schema, samplingRatio))
+        return self.from_spark_df(self.sql_ctx.jsonFile(path, schema, samplingRatio))
 
     def from_data_frame(self, df):
-        return PRDD.from_spark_df(self._get_sqlCtx().createDataFrame(df))
+        return PRDD.from_spark_df(self.sql_ctx.createDataFrame(df))
 
     def sql(self, query):
         """Perform a SQL query and create a L{PRDD} of the result."""
-        return PRDD.from_spark_df(self._get_sqlCtx().sql(query))
+        return PRDD.from_spark_df(self.sql_ctx.sql(query))
 
     def table(self, table):
         """Returns the provided table as a L{PRDD}"""
-        return PRDD.from_spark_df(self._get_sqlCtx().table(query))
+        return PRDD.from_spark_df(self.sql_ctx.table(query))
 
     def from_schema_rdd(self, schemaRDD):
         return PRDD.from_spark_df(schemaRDD)
@@ -146,14 +140,14 @@ class PSparkContext():
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
         return self.from_schema_rdd(
-            self._get_sql_ctx().createDataFrame(pandas.DataFrame(
+            self.sql_ctx.createDataFrame(pandas.DataFrame(
                 elements,
                 *args,
                 **kwargs)))
 
     def _from_pandas_rdd_records(self, pandas_rdd_records, schema):
         """Createa a L{PRDD} from an RDD of records with schema"""
-        return self._get_sql_ctx().createDataFrame(pandas_rdd_records, schema)
+        return self.sql_ctx.createDataFrame(pandas_rdd_records, schema)
 
     def from_pandas_rdd(self, pandas_rdd):
         schema = pandas_rdd.map(lambda x: x.columns).first

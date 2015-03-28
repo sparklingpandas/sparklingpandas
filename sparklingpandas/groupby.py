@@ -29,7 +29,7 @@ class GroupBy:
     the key is the result of the group. Supports many of the same operations
     as a Panda's GroupBy."""
 
-    def __init__(self, rdd, *args, **kwargs):
+    def __init__(self, prdd, *args, **kwargs):
         """Construct a groupby object providing the functions on top of the
         provided RDD. We keep the base RDD so if someone calls aggregate we
         do things more intelligently.
@@ -42,8 +42,11 @@ class GroupBy:
             return extract_keys(frame.groupby(*args, **kwargs))
 
         self._sort = kwargs.get("sort", True)
+        self._by = kwargs.get("by", args[0])
+        self._prdd = prdd
 
-        self._baseRDD = rdd
+    def prep_old_school(self)
+        self._baseRDD = self._rdd()
         self._distributedRDD = rdd.flatMap(group_and_extract)
         self._mergedRDD = self._sortIfNeeded(
             self._group(self._distributedRDD))
@@ -61,16 +64,10 @@ class GroupBy:
         """Group together the values with the same key."""
         return rdd.reduceByKey(lambda x, y: x.append(y))
 
-    def _cache(self):
-        """Cache the grouped RDD. This is useful if you have multiple
-        computations to run on the result. This is a SparklingPandas
-        extension.
-        """
-        self._mergedRDD.cache()
-
     def __len__(self):
         """Number of groups."""
-        return self._mergedRDD.count()
+        if (self._fast_code)
+        return self.prdd.to_spark_sql.groupby(self._by).count()
 
     def get_group(self, name):
         """Returns a concrete DataFrame for provided group name."""

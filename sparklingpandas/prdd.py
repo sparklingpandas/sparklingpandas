@@ -50,9 +50,22 @@ class PRDD:
         result_rdd = func(source_rdd)
         return self.from_rdd_of_dataframes(result_rdd)
 
-    def from_rdd_of_dataframes(self, result_rdd):
-        """Create a PRDD using an RDD of dataframes as the input"""
+    def from_rdd_of_dataframes(self, rdd):
+        """Take an RDD of dataframes and return a PRDD"""
+        def frame_to_spark_sql(frame):
+            """Convert a Panda's DataFrame into Spark SQL Rows"""
+            return map((lambda x: x[1].to_dict()), frame.iterrows())
+        return PRDD.fromSchemaRDD(rdd.flatMap(frame_to_spark_sql))
         
+    @classmethod
+    def fromSchemaRDD(cls, schemaRdd):
+        """Construct a PRDD from an SchemaRDD. No checking or validation occurs."""
+        return PRDD(schemaRdd)
+    @classmethod
+    def fromDataFrameRDD(cls, rdd):
+        """Construct a PRDD from an RDD of DataFrames. No checking or validation occurs."""
+        result = PRDD(None)
+        return result.from_rdd_of_dataframes(rdd)
 
     @classmethod
     def from_spark_df(cls, schema_rdd):
@@ -71,7 +84,7 @@ class PRDD:
         """Return a new PRDD by applying a function to each element of each
         Panda DataFrame."""
         return self.from_rdd_of_dataframes(
-            self._rdd.map(lambda data: data.applymap(f), **kwargs))
+            self._rdd().map(lambda data: data.applymap(f), **kwargs))
 
     def __getitem__(self, key):
         """Returns a new PRDD of elements from that key."""
@@ -79,11 +92,8 @@ class PRDD:
 
     def groupby(self, by=None, axis=0, level=None, as_index=True, sort=True, group_keys=True, squeeze=False):
         """Returns a groupby on the schema rdd. If our groupby is simple uses underlying SchemaGroupBy"""
-        if isinstance(by, basestring) and axis == 0 and level == None:
-            return PRDD.fromSchemaRDD(self._rdd.groupBy(by))
-        else:
-            from sparklingpandas.groupby import GroupBy
-            return GroupBy(self.to_rdd_of_dataframes(), by, axis, level, as_index, sort, group_keys, squeeze)
+        from sparklingpandas.groupby import GroupBy
+        return GroupBy(self._schema_rdd, by, axis, level, as_index, sort, group_keys, squeeze)
 
 
     def _first_as_df(self):
