@@ -70,7 +70,7 @@ class PRDD:
     def applymap(self, f, **kwargs):
         """Return a new PRDD by applying a function to each element of each
         Panda DataFrame."""
-        return self.fromRDD(
+        return self.from_rdd_of_dataframes(
             self._rdd.map(lambda data: data.applymap(f), **kwargs))
 
     def __getitem__(self, key):
