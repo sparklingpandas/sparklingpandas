@@ -42,6 +42,18 @@ class PRDD:
             return [pandas.DataFrame.from_records(records, columns=columns)]
         return self._schema_rdd.rdd.flatMap(fromRecords)
 
+    def __evil_apply_with_dataframes(self, func):
+        """Convert the underlying SchmeaRDD to an RDD of DataFrames.
+        apply the provide function and convert the result back.
+        This is hella slow."""
+        source_rdd = self._rdd()
+        result_rdd = func(source_rdd)
+        return self.from_rdd_of_dataframes(result_rdd)
+
+    def from_rdd_of_dataframes(self, result_rdd):
+        """Create a PRDD using an RDD of dataframes as the input"""
+        
+
     @classmethod
     def from_spark_df(cls, schema_rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs."""
@@ -65,13 +77,14 @@ class PRDD:
         """Returns a new PRDD of elements from that key."""
         return self.from_spark_df(self._schema_rdd[key])
 
-    def groupby(self, *args, **kwargs):
-        """Takes the same parameters as groupby on DataFrame.
-        Like with groupby on DataFrame disabling sorting will result in an
-        even larger performance improvement. This returns a Sparkling Pandas
-        L{GroupBy} object which supports many of the same operations as regular
-        GroupBy but not all."""
-        return self.from_spark_df(self._schema_rdd.groupBy(*args))
+    def groupby(self, by=None, axis=0, level=None, as_index=True, sort=True, group_keys=True, squeeze=False):
+        """Returns a groupby on the schema rdd. If our groupby is simple uses underlying SchemaGroupBy"""
+        if isinstance(by, basestring) and axis == 0 and level == None:
+            return PRDD.fromSchemaRDD(self._rdd.groupBy(by))
+        else:
+            from sparklingpandas.groupby import GroupBy
+            return GroupBy(self.to_rdd_of_dataframes(), by, axis, level, as_index, sort, group_keys, squeeze)
+
 
     def _first_as_df(self):
         """Gets the first row as a dataframe. Useful for functions like dtypas & ftypes"""
