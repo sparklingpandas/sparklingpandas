@@ -88,7 +88,7 @@ class PRDD:
 
     def __getitem__(self, key):
         """Returns a new PRDD of elements from that key."""
-        return self.from_spark_df(self._schema_rdd[key])
+        return self.from_spark_df(self._schema_rdd.select(key))
 
     def groupby(self, by=None, axis=0, level=None, as_index=True, sort=True, group_keys=True, squeeze=False):
         """Returns a groupby on the schema rdd. If our groupby is simple uses underlying SchemaGroupBy"""
@@ -98,7 +98,7 @@ class PRDD:
 
     def _first_as_df(self):
         """Gets the first row as a dataframe. Useful for functions like dtypas & ftypes"""
-        return pandas.from_records([self._schema_rdd.first()], columns = self._schema_rdd.columns)
+        return pandas.DataFrame.from_records([self._schema_rdd.first()], columns = self._schema_rdd.columns)
 
     @property
     def dtypes(self):
