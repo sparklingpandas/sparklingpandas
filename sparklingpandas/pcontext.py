@@ -147,7 +147,7 @@ class PSparkContext():
 
     def from_pandas_rdd(self, pandas_rdd):
         def _extract_records(data):
-            return r.toList() for r in data.to_records(index=False)
+            return [r.toList() for r in data.to_records(index=False)]
 
         def _from_pandas_rdd_records(pandas_rdd_records, schema):
             """Createa a L{PRDD} from an RDD of records with schema"""
@@ -155,7 +155,7 @@ class PSparkContext():
                 self.sql_ctx.createDataFrame(pandas_rdd_records, schema))
 
         schema = pandas_rdd.map(lambda x: x.columns).first
-        rdd_records = pandas_rdd.map(_extract_records)
+        rdd_records = pandas_rdd.flatMap(_extract_records)
         return _from_pandas_rdd_records(rdd_records, schema)
 
     def stop(self):
