@@ -29,7 +29,9 @@ import pandas
 
 class PRDD:
 
-    """A Panda Resilient Distributed Dataset (PRDD), is an extension of the SchemaRDD.
+    """A Panda Resilient Distributed Dataset (PRDD), is based on
+    Spark SQL's DataFrame (previously known as SchemaRDD). PRDDs aim to
+    provide, as close as reasonable, Panda's compatable inferface.
     Note: RDDs are lazy, so you operations are not performed until required."""
 
     def __init__(self, schema_rdd):
@@ -38,8 +40,10 @@ class PRDD:
     def _rdd(self):
         """Return an RDD of Panda DataFrame objects"""
         columns = self._schema_rdd.columns
+
         def fromRecords(records):
             return [pandas.DataFrame.from_records(records, columns=columns)]
+
         return self._schema_rdd.rdd.flatMap(fromRecords)
 
     def __evil_apply_with_dataframes(self, func):
@@ -56,14 +60,17 @@ class PRDD:
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             return map((lambda x: x[1].to_dict()), frame.iterrows())
         return PRDD.fromSchemaRDD(rdd.flatMap(frame_to_spark_sql))
-        
+
     @classmethod
     def fromSchemaRDD(cls, schemaRdd):
-        """Construct a PRDD from an SchemaRDD. No checking or validation occurs."""
+        """Construct a PRDD from an SchemaRDD.
+        No checking or validation occurs."""
         return PRDD(schemaRdd)
+
     @classmethod
     def fromDataFrameRDD(cls, rdd):
-        """Construct a PRDD from an RDD of DataFrames. No checking or validation occurs."""
+        """Construct a PRDD from an RDD of DataFrames.
+        No checking or validation occurs."""
         result = PRDD(None)
         return result.from_rdd_of_dataframes(rdd)
 
@@ -90,15 +97,21 @@ class PRDD:
         """Returns a new PRDD of elements from that key."""
         return self.from_spark_df(self._schema_rdd.select(key))
 
-    def groupby(self, by=None, axis=0, level=None, as_index=True, sort=True, group_keys=True, squeeze=False):
-        """Returns a groupby on the schema rdd. If our groupby is simple uses underlying SchemaGroupBy"""
+    def groupby(self, by=None, axis=0, level=None, as_index=True, sort=True,
+                group_keys=True, squeeze=False):
+        """Returns a groupby on the schema rdd. This returns a GroupBy object.
+        Note that grouping by a column name will be faster than most other
+        options due to implementation."""
         from sparklingpandas.groupby import GroupBy
-        return GroupBy(self._schema_rdd, by, axis, level, as_index, sort, group_keys, squeeze)
-
+        return GroupBy(self._schema_rdd, by, axis, level, as_index,
+                       sort, group_keys, squeeze)
 
     def _first_as_df(self):
-        """Gets the first row as a dataframe. Useful for functions like dtypas & ftypes"""
-        return pandas.DataFrame.from_records([self._schema_rdd.first()], columns = self._schema_rdd.columns)
+        """Gets the first row as a dataframe. Useful for functions like
+        dtypas & ftypes"""
+        return pandas.DataFrame.from_records(
+            [self._schema_rdd.first()],
+            columns=self._schema_rdd.columns)
 
     @property
     def dtypes(self):

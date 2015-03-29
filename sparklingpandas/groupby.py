@@ -45,7 +45,7 @@ class GroupBy:
         self._by = kwargs.get("by", args[0])
         self._prdd = prdd
 
-    def prep_old_school(self)
+    def prep_old_school(self):
         self._baseRDD = self._rdd()
         self._distributedRDD = rdd.flatMap(group_and_extract)
         self._mergedRDD = self._sortIfNeeded(

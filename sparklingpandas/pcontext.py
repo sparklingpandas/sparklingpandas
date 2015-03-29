@@ -117,7 +117,8 @@ class PSparkContext():
         """Loads a text file storing one JSON object per line as a
         L{PRDD}.
         """
-        return self.from_spark_df(self.sql_ctx.jsonFile(path, schema, samplingRatio))
+        schema_rdd = self.sql_ctx.jsonFile(path, schema, samplingRatio)
+        return self.from_spark_df(schema_rdd)
 
     def from_data_frame(self, df):
         return PRDD.from_spark_df(self.sql_ctx.createDataFrame(df))
@@ -136,7 +137,6 @@ class PSparkContext():
     def from_spark_df(self, schemaRDD):
         return PRDD.from_spark_df(schemaRDD)
 
-
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
         return self.from_schema_rdd(
@@ -145,14 +145,18 @@ class PSparkContext():
                 *args,
                 **kwargs)))
 
-    def _from_pandas_rdd_records(self, pandas_rdd_records, schema):
-        """Createa a L{PRDD} from an RDD of records with schema"""
-        return self.sql_ctx.createDataFrame(pandas_rdd_records, schema)
-
     def from_pandas_rdd(self, pandas_rdd):
+        def _extract_records(data):
+            return r.toList() for r in data.to_records(index=False)
+
+        def _from_pandas_rdd_records(pandas_rdd_records, schema):
+            """Createa a L{PRDD} from an RDD of records with schema"""
+            return PRDD.from_spark_df(
+                self.sql_ctx.createDataFrame(pandas_rdd_records, schema))
+
         schema = pandas_rdd.map(lambda x: x.columns).first
-        rdd_records = pnadas_rdd.flatMap(lambda x: [r.toList() for r in x.to_records(index=False)])
-        return self._from_pandas_rdd_records(rdd_records, schema)
+        rdd_records = pandas_rdd.map(_extract_records)
+        return _from_pandas_rdd_records(rdd_records, schema)
 
     def stop(self):
         """Stop the underlying SparkContext
