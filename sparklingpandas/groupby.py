@@ -35,7 +35,7 @@ class GroupBy:
         do things more intelligently.
         """
         self._sort = kwargs.get("sort", True)
-        self._by = kwargs.get("by", args[0])
+        self._by = kwargs.get("by", None)
         self._prdd = prdd
         self._args = args
         self._kwargs = kwargs
@@ -51,7 +51,7 @@ class GroupBy:
 
     def _prep_new_school(self):
         """Used Spark SQL group approach"""
-        self._grouped_spark_sql = prdd._schema_rdd.groupBy(*args)
+        self._grouped_spark_sql = self._prdd.to_spark_sql().groupBy(self._by)
 
     def _prep_old_school(self):
         """Prepare the old school pandas group by based approach."""
@@ -82,8 +82,11 @@ class GroupBy:
 
     def __len__(self):
         """Number of groups."""
-        if (self._fast_code)
-        return self.prdd.to_spark_sql.groupby(self._by).count()
+        if (self._can_use_new_school()):
+            self._prep_new_school()
+            return self._prdd.to_spark_sql.groupby(self._by).count()
+        self._prep_old_school()
+        return self._mergedRDD.count()
 
     def get_group(self, name):
         """Returns a concrete DataFrame for provided group name."""

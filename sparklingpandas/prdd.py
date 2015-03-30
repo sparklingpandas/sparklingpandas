@@ -104,7 +104,7 @@ class PRDD:
         Note that grouping by a column name will be faster than most other
         options due to implementation."""
         from sparklingpandas.groupby import GroupBy
-        return GroupBy(self._schema_rdd, by=by, axis=axis, level=level, as_index=as_index,
+        return GroupBy(self, by=by, axis=axis, level=level, as_index=as_index,
                        sort=sort, group_keys=group_keys, squeeze=squeeze)
 
     def _first_as_df(self):
