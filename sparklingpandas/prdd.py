@@ -18,13 +18,14 @@
 
 from sparklingpandas.utils import add_pyspark_path
 from functools import reduce
+from itertools import chain, imap
 
 add_pyspark_path()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
 from pyspark.rdd import RDD
-from sparklingpandas.pstatcounter import PStatCounter
 import pandas
+
 
 
 class PRDD:
@@ -103,8 +104,8 @@ class PRDD:
         Note that grouping by a column name will be faster than most other
         options due to implementation."""
         from sparklingpandas.groupby import GroupBy
-        return GroupBy(self._schema_rdd, by, axis, level, as_index,
-                       sort, group_keys, squeeze)
+        return GroupBy(self._schema_rdd, by=by, axis=axis, level=level, as_index=as_index,
+                       sort=sort, group_keys=group_keys, squeeze=squeeze)
 
     def _first_as_df(self):
         """Gets the first row as a dataframe. Useful for functions like
@@ -163,16 +164,24 @@ class PRDD:
         ----------
         columns : list of str, contains all columns to compute stats on.
         """
-        def reduceFunc(sc1, sc2):
-            return sc1.merge_pstats(sc2)
+        assert (not isinstance(columns, basestring)), "columns should be a " \
+                                                      "list of strs,  " \
+                                                      "not a str!"
+        assert isinstance(columns, list), "columns should be a list!"
 
-        return self._rdd.mapPartitions(
-            lambda i: [PStatCounter(dataframes=i, columns=columns)]).reduce(
-            reduceFunc)
+        from pyspark.sql import functions as F
+        functions = [F.min, F.max, F.avg, F.count]
+        aggs = list(_flatmap(lambda column: map(lambda f: f(column), functions),columns))
+        return self.from_spark_df(prdd._schema_rdd.agg(*aggs))
 
-        def reduce_func(sc1, sc2):
-            return sc1.merge_pstats(sc2)
+    def min(self):
+        return self.from_spark_df(prdd._schema_rdd.min())
 
-        return self._rdd.mapPartitions(
-            lambda i: [PStatCounter(dataframes=i, columns=columns)]).reduce(
-                reduce_func)
+    def max(self):
+        return self.from_spark_df(prdd._schema_rdd.max())
+
+    def avg(self):
+        return self.from_spark_df(prdd._schema_rdd.avg())
+
+    def _flatmap(f, items):
+        return chain.from_iterable(imap(f, items))

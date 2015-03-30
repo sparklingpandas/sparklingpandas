@@ -34,18 +34,34 @@ class GroupBy:
         provided RDD. We keep the base RDD so if someone calls aggregate we
         do things more intelligently.
         """
+        self._sort = kwargs.get("sort", True)
+        self._by = kwargs.get("by", args[0])
+        self._prdd = prdd
+        self._args = args
+        self._kwargs = kwargs
+
+    def _can_use_new_school(self):
+        """Determine if we can use new school grouping, depends on the
+        args / kwargs"""
+        # TODO: check the other components for sanity
+        # and add support for doing this with a map function if possible.
+        if (isinstance(self._by, basestring)):
+            return True
+        return False
+
+    def _prep_new_school(self):
+        """Used Spark SQL group approach"""
+        self._grouped_spark_sql = prdd._schema_rdd.groupBy(*args)
+
+    def _prep_old_school(self):
+        """Prepare the old school pandas group by based approach."""
         def extract_keys(groupedFrame):
             for key, group in groupedFrame:
                 yield (key, group)
 
         def group_and_extract(frame):
-            return extract_keys(frame.groupby(*args, **kwargs))
+            return extract_keys(frame.groupby(*self._args, **self._kwargs))
 
-        self._sort = kwargs.get("sort", True)
-        self._by = kwargs.get("by", args[0])
-        self._prdd = prdd
-
-    def prep_old_school(self):
         self._baseRDD = self._rdd()
         self._distributedRDD = rdd.flatMap(group_and_extract)
         self._mergedRDD = self._sortIfNeeded(
@@ -71,11 +87,13 @@ class GroupBy:
 
     def get_group(self, name):
         """Returns a concrete DataFrame for provided group name."""
+        self._prep_old_school()
         self._mergedRDD.lookup(name)
 
     def __iter__(self):
         """Returns an iterator of (name, dataframe) to the local machine.
         """
+        self._prep_old_school()
         return self._mergedRDD.collect().__iter__()
 
     def collect(self):
@@ -83,11 +101,13 @@ class GroupBy:
         because Spark gives us back a list we convert to an iterator in
         __iter__ so it allows us to skip the round trip through iterators.
         """
+        self.prep_old_school()
         return self._mergedRDD.collect()
 
     @property
     def groups(self):
         """Returns dict {group name -> group labels}."""
+        self.prep_old_school()
         def extract_group_labels(frame):
             return (frame[0], frame[1].index.values)
         return self._mergedRDD.map(extract_group_labels).collectAsMap()
@@ -95,11 +115,15 @@ class GroupBy:
     @property
     def ngroups(self):
         """Number of groups."""
+        if self._can_use_new_school():
+            return self._grouped_saprk_sql.count()
+        self._prep_old_school()
         return self._mergedRDD.count()
 
     @property
     def indices(self):
         """Returns dict {group name -> group indices}."""
+        self._prep_old_school()
         def extract_group_indices(frame):
             return (frame[0], frame[1].index)
         return self._mergedRDD.map(extract_group_indices).collectAsMap()
@@ -109,7 +133,8 @@ class GroupBy:
 
         For multiple groupings, the result index will be a MultiIndex.
         """
-        return PRDD.fromRDD(
+        self._prep_old_school()
+        return PRDD.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.median()))
 
@@ -118,8 +143,11 @@ class GroupBy:
 
         For multiple groupings, the result index will be a MultiIndex.
         """
-        # TODO(holden): use stats counter
-        return PRDD.fromRDD(
+        if self._can_use_new_school():
+            self._prep_new_school()
+            return PRDD.fromSchemaRDD(self._grouped_spark_sql.mean())
+        self._prep_old_school()
+        return PRDD.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.mean()))
 
@@ -128,14 +156,18 @@ class GroupBy:
 
         For multiple groupings, the result index will be a MultiIndex.
         """
-        # TODO(holden): use stats counter
-        return PRDD.fromRDD(
+        self._prep_old_school()
+        return PRDD.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.var(
                     ddof=ddof)))
 
     def sum(self):
         """Compute the sum for each group."""
+        if self._can_use_new_school():
+            self._prep_new_school()
+            return PRDD.fromSchemaRDD(self._grouped_spark_sql.sum())
+        self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
 
@@ -156,6 +188,10 @@ class GroupBy:
 
     def min(self):
         """Compute the min for each group."""
+        if self._can_use_new_school():
+            self._prep_new_school()
+            return PRDD.fromSchemaRDD(self._grouped_spark_sql.min())
+        self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
 
@@ -176,6 +212,10 @@ class GroupBy:
 
     def max(self):
         """Compute the max for each group."""
+        if self._can_use_new_school():
+            self._prep_new_school()
+            return PRDD.fromSchemaRDD(self._grouped_spark_sql.max())
+        self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
 
@@ -201,6 +241,7 @@ class GroupBy:
         """
         myargs = self._myargs
         mykwargs = self._mykwargs
+        self._prep_old_school()
 
         def create_combiner(x):
             return x.groupby(*myargs, **mykwargs).first()
@@ -221,6 +262,7 @@ class GroupBy:
         """Pull out the last from each group."""
         myargs = self._myargs
         mykwargs = self._mykwargs
+        self._prep_old_school()
 
         def create_combiner(x):
             return x.groupby(*myargs, **mykwargs).last()
@@ -243,6 +285,7 @@ class GroupBy:
         """
         myargs = self._myargs
         mykwargs = self._mykwargs
+        self._prep_old_school()
 
         def regroup(df):
             return df.groupby(*myargs, **mykwargs)
@@ -252,6 +295,7 @@ class GroupBy:
     def nth(self, n, *args, **kwargs):
         """Take the nth element of each grouby."""
         # TODO: Stop collecting the entire frame for each key.
+        self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
         nthRDD = self._regroup_mergedRDD().mapValues(
@@ -264,7 +308,8 @@ class GroupBy:
         Note: This implementation does note take advantage of partial
         aggregation.
         """
-        return PRDD.fromRDD(
+        self._prep_old_school()
+        return PRDD.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda g: g.aggregate(f)))
 
@@ -277,6 +322,7 @@ class GroupBy:
 
         This returns a PRDD.
         """
+        self._prep_old_school()
         def key_by_index(data):
             """Key each row by its index.
             """
