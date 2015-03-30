@@ -139,11 +139,16 @@ class PSparkContext():
 
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
+        # By specifying a schema of none Spark SQL will use the columns
+        # from the DataFrame as the schema. The samplingRatio of 1
+        # is used so Spark SQL looks at all of the elements (since this
+        # is coming from a local collection there shouldn't be too many
+        # elements).
         return self.from_schema_rdd(
             self.sql_ctx.createDataFrame(pandas.DataFrame(
                 elements,
                 *args,
-                **kwargs)))
+                **kwargs), schema=None, samplingRatio=1))
 
     def from_pandas_rdd(self, pandas_rdd):
         def _extract_records(data):
