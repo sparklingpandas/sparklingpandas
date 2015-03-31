@@ -73,10 +73,11 @@ class PContextTests(SparklingPandasTestCase):
         input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
         prdd = self.psc.DataFrame(input, columns=['a', 'b'])
         stats = prdd.stats(columns=['b'])
-        b_col_stat_counter = stats._counters['b']
+        b_col_stat_counter = stats['b']
         np_tests.assert_almost_equal(b_col_stat_counter.count(), 3)
-        np_tests.assert_almost_equal(b_col_stat_counter.mean(), 20.0)
-        np_tests.assert_almost_equal(b_col_stat_counter.stdev(), 8.16496580928)
+        np_tests.assert_almost_equal(b_col_stat_counter.avg(), 20.0)
+        # TODO(holden OR anyone): Add a stdev aggregation and use it
+        # np_tests.assert_almost_equal(b_col_stat_counter.stdev(), 8.16496580928)
         np_tests.assert_almost_equal(b_col_stat_counter.max(), 30)
         np_tests.assert_almost_equal(b_col_stat_counter.min(), 10)
 

@@ -17,6 +17,7 @@
 #
 
 from sparklingpandas.utils import add_pyspark_path
+from sparklingpandas.pstats import PStats
 from functools import reduce
 from itertools import chain, imap
 
@@ -174,7 +175,7 @@ class PRDD:
         from pyspark.sql import functions as F
         functions = [F.min, F.max, F.avg, F.count]
         aggs = list(self._flatmap(lambda column: map(lambda f: f(column), functions),columns))
-        return self.from_spark_df(self._schema_rdd.agg(*aggs))
+        return PStats(self.fromSchemaRDD(self._schema_rdd.agg(*aggs)))
 
     def min(self):
         return self.from_spark_df(prdd._schema_rdd.min())
