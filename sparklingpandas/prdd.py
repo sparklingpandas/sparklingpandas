@@ -128,21 +128,21 @@ class PRDD:
         Return the ftypes associated with this object
         Uses the types from the first frame.
         """
-        return self._first_as_df.dtypes
+        return self._first_as_df().ftypes
 
     def get_dtype_counts(self):
         """
         Return the counts of dtypes in this object
         Uses the information from the first frame
         """
-        return self._first_as_df.get_dtype_counts()
+        return self._first_as_df().get_dtype_counts()
 
     def get_ftype_counts(self):
         """
         Return the counts of ftypes in this object
         Uses the information from the first frame
         """
-        return self._first_as_df.get_ftype_counts()
+        return self._first_as_df().get_ftype_counts()
 
     @property
     def axes(self):
@@ -171,7 +171,7 @@ class PRDD:
 
         from pyspark.sql import functions as F
         functions = [F.min, F.max, F.avg, F.count]
-        aggs = list(_flatmap(lambda column: map(lambda f: f(column), functions),columns))
+        aggs = list(self._flatmap(lambda column: map(lambda f: f(column), functions),columns))
         return self.from_spark_df(prdd._schema_rdd.agg(*aggs))
 
     def min(self):
@@ -183,5 +183,5 @@ class PRDD:
     def avg(self):
         return self.from_spark_df(prdd._schema_rdd.avg())
 
-    def _flatmap(f, items):
+    def _flatmap(self, f, items):
         return chain.from_iterable(imap(f, items))
