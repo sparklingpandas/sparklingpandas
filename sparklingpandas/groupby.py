@@ -62,7 +62,7 @@ class GroupBy:
         def group_and_extract(frame):
             return extract_keys(frame.groupby(*self._args, **self._kwargs))
 
-        self._baseRDD = self._rdd()
+        self._baseRDD = self._prdd._rdd()
         self._distributedRDD = rdd.flatMap(group_and_extract)
         self._mergedRDD = self._sortIfNeeded(
             self._group(self._distributedRDD))

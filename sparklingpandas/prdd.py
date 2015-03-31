@@ -39,7 +39,9 @@ class PRDD:
         self._schema_rdd = schema_rdd
 
     def _rdd(self):
-        """Return an RDD of Panda DataFrame objects"""
+        """Return an RDD of Panda DataFrame objects. This can be expensive
+        especially if we don't do a narrow transformation after and get it back
+        to Spark SQL land quickly."""
         columns = self._schema_rdd.columns
 
         def fromRecords(records):
@@ -172,7 +174,7 @@ class PRDD:
         from pyspark.sql import functions as F
         functions = [F.min, F.max, F.avg, F.count]
         aggs = list(self._flatmap(lambda column: map(lambda f: f(column), functions),columns))
-        return self.from_spark_df(prdd._schema_rdd.agg(*aggs))
+        return self.from_spark_df(self._schema_rdd.agg(*aggs))
 
     def min(self):
         return self.from_spark_df(prdd._schema_rdd.min())
