@@ -25,6 +25,7 @@ add_pyspark_path()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
 from pyspark.rdd import RDD
+import pyspark
 import pandas
 
 
@@ -38,6 +39,7 @@ class PRDD:
 
     def __init__(self, schema_rdd):
         self._schema_rdd = schema_rdd
+        self._sqlCtx = schema_rdd.sql_ctx
 
     def _rdd(self):
         """Return an RDD of Panda DataFrame objects. This can be expensive
@@ -46,7 +48,10 @@ class PRDD:
         columns = self._schema_rdd.columns
 
         def fromRecords(records):
-            return [pandas.DataFrame.from_records(records, columns=columns)]
+            if not records:
+                return []
+            else:
+                return [pandas.DataFrame.from_records([records], columns=columns)]
 
         return self._schema_rdd.rdd.flatMap(fromRecords)
 
@@ -63,7 +68,7 @@ class PRDD:
         def frame_to_spark_sql(frame):
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             return map((lambda x: x[1].to_dict()), frame.iterrows())
-        return PRDD.fromSchemaRDD(rdd.flatMap(frame_to_spark_sql))
+        return PRDD.fromSchemaRDD(self._sqlCtx.inferSchema(rdd.flatMap(frame_to_spark_sql)))
 
     @classmethod
     def fromSchemaRDD(cls, schemaRdd):
