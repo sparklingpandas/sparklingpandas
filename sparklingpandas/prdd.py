@@ -37,9 +37,9 @@ class PRDD:
     provide, as close as reasonable, Panda's compatable inferface.
     Note: RDDs are lazy, so you operations are not performed until required."""
 
-    def __init__(self, schema_rdd):
+    def __init__(self, schema_rdd, sql_ctx):
         self._schema_rdd = schema_rdd
-        self._sqlCtx = schema_rdd.sql_ctx
+        self.sql_ctx = sql_ctx
 
     def _rdd(self):
         """Return an RDD of Panda DataFrame objects. This can be expensive
@@ -69,25 +69,25 @@ class PRDD:
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             # TODO: Convert to row objects directly?
             return map((lambda x: x[1].to_dict()), frame.iterrows())
-        return PRDD.fromSchemaRDD(self._sqlCtx.inferSchema(rdd.flatMap(frame_to_spark_sql)))
+        return PRDD.fromSchemaRDD(self.sql_ctx.inferSchema(rdd.flatMap(frame_to_spark_sql)))
 
     @classmethod
     def fromSchemaRDD(cls, schemaRdd):
         """Construct a PRDD from an SchemaRDD.
         No checking or validation occurs."""
-        return PRDD(schemaRdd)
+        return PRDD(schemaRdd, schemaRdd.sql_ctx)
 
     @classmethod
-    def fromDataFrameRDD(cls, rdd):
+    def fromDataFrameRDD(cls, rdd, sql_ctx):
         """Construct a PRDD from an RDD of DataFrames.
         No checking or validation occurs."""
-        result = PRDD(None)
+        result = PRDD(None, sql_ctx)
         return result.from_rdd_of_dataframes(rdd)
 
     @classmethod
     def from_spark_df(cls, schema_rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs."""
-        return PRDD(schema_rdd)
+        return PRDD(schema_rdd, schema_rdd.sql_ctx)
 
     def to_spark_sql(self):
         """A Sparkling Pandas specific function to turn a DDF into

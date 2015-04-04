@@ -39,6 +39,7 @@ class GroupBy:
         self._prdd = prdd
         self._myargs = args
         self._mykwargs = kwargs
+        self.sql_ctx = prdd.sql_ctx
 
     def _can_use_new_school(self):
         """Determine if we can use new school grouping, depends on the
@@ -139,7 +140,7 @@ class GroupBy:
         self._prep_old_school()
         return PRDD.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
-                lambda x: x.median()))
+                lambda x: x.median()), self.sql_ctx)
 
     def mean(self):
         """Compute mean of groups, excluding missing values.
@@ -152,7 +153,7 @@ class GroupBy:
         self._prep_old_school()
         return PRDD.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
-                lambda x: x.mean()))
+                lambda x: x.mean()), self.sql_ctx)
 
     def var(self, ddof=1):
         """Compute standard deviation of groups, excluding missing values.
@@ -162,8 +163,7 @@ class GroupBy:
         self._prep_old_school()
         return PRDD.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
-                lambda x: x.var(
-                    ddof=ddof)))
+                lambda x: x.var(ddof=ddof)), self.sql_ctx)
 
     def sum(self):
         """Compute the sum for each group."""
