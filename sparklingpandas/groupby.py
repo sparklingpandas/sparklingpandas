@@ -37,8 +37,8 @@ class GroupBy:
         self._sort = kwargs.get("sort", True)
         self._by = kwargs.get("by", None)
         self._prdd = prdd
-        self._args = args
-        self._kwargs = kwargs
+        self._myargs = args
+        self._mykwargs = kwargs
 
     def _can_use_new_school(self):
         """Determine if we can use new school grouping, depends on the
@@ -60,14 +60,12 @@ class GroupBy:
                 yield (key, group)
 
         def group_and_extract(frame):
-            return extract_keys(frame.groupby(*self._args, **self._kwargs))
+            return extract_keys(frame.groupby(*self._myargs, **self._mykwargs))
 
         self._baseRDD = self._prdd._rdd()
-        self._distributedRDD = rdd.flatMap(group_and_extract)
+        self._distributedRDD = self._baseRDD.flatMap(group_and_extract)
         self._mergedRDD = self._sortIfNeeded(
             self._group(self._distributedRDD))
-        self._myargs = args
-        self._mykwargs = kwargs
 
     def _sortIfNeeded(self, rdd):
         """Sort by key if we need to."""
