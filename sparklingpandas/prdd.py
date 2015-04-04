@@ -155,6 +155,9 @@ class PRDD:
 
     @property
     def axes(self):
+        """
+        Returns the axes. Note that the row indexes are junk (TODO fix this)
+        """
         return (self._rdd().map(lambda frame: frame.axes)
                 .reduce(lambda xy, ab: [xy[0].append(ab[0]), xy[1]]))
 
