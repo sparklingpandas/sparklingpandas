@@ -67,6 +67,7 @@ class PRDD:
         """Take an RDD of dataframes and return a PRDD"""
         def frame_to_spark_sql(frame):
             """Convert a Panda's DataFrame into Spark SQL Rows"""
+            # TODO: Convert to row objects directly?
             return map((lambda x: x[1].to_dict()), frame.iterrows())
         return PRDD.fromSchemaRDD(self._sqlCtx.inferSchema(rdd.flatMap(frame_to_spark_sql)))
 
