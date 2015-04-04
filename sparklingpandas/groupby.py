@@ -55,12 +55,14 @@ class GroupBy:
 
     def _prep_old_school(self):
         """Prepare the old school pandas group by based approach."""
+        myargs = self._myargs
+        mykwargs = self._mykwargs
         def extract_keys(groupedFrame):
             for key, group in groupedFrame:
                 yield (key, group)
 
         def group_and_extract(frame):
-            return extract_keys(frame.groupby(*self._myargs, **self._mykwargs))
+            return extract_keys(frame.groupby(*myargs, **mykwargs))
 
         self._baseRDD = self._prdd._rdd()
         self._distributedRDD = self._baseRDD.flatMap(group_and_extract)
@@ -102,7 +104,7 @@ class GroupBy:
         because Spark gives us back a list we convert to an iterator in
         __iter__ so it allows us to skip the round trip through iterators.
         """
-        self.prep_old_school()
+        self._prep_old_school()
         return self._mergedRDD.collect()
 
     @property
