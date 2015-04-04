@@ -32,16 +32,16 @@ class PStatsOnColumn:
         self._key = key
 
     def min(self):
-        return self._df["MIN("+self._key+")"]
+        return self._df["MIN("+self._key+")"][0]
 
     def max(self):
-        return self._df["MAX("+self._key+")"]
+        return self._df["MAX("+self._key+")"][0]
 
     def avg(self):
-        return self._df["AVG("+self._key+")"]
+        return self._df["AVG("+self._key+")"][0]
 
     def sum(self):
-        return self._df["SUM("+self._key+")"]
+        return self._df["COUNT("+self._key+")"][0]
 
     def count(self):
         return self.sum()
