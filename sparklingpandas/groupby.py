@@ -314,7 +314,7 @@ class GroupBy:
         self._prep_old_school()
         return PRDD.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
-                lambda g: g.aggregate(f)))
+                lambda g: g.aggregate(f)), sql_ctx)
 
     def agg(self, f):
         return self.aggregate(f)
