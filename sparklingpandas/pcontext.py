@@ -23,7 +23,7 @@ add_pyspark_path()
 import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
-from sparklingpandas.prdd import PRDD
+from sparklingpandas.dataframe import DataFrame
 
 
 class PSparkContext():
@@ -107,10 +107,10 @@ class PSparkContext():
 
         # Do the actual load
         if use_whole_file:
-            return PRDD.fromRDD(
+            return DataFrame.fromRDD(
                 self.sc.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
         else:
-            return PRDD.fromRDD(
+            return DataFrame.fromRDD(
                 self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
 
     def from_data_frame(self, df):
@@ -131,11 +131,11 @@ class PSparkContext():
                 return iter([])
         indexedData = zip(df.index, df.itertuples(index=False))
         rdd = self.sc.parallelize(indexedData).mapPartitions(loadFromKeyRow)
-        return PRDD.fromRDD(rdd)
+        return DataFrame.fromRDD(rdd)
 
     def sql(self, query):
         """Perform a SQL query and create a L{PRDD} of the result."""
-        return PRDD.fromRDD(
+        return DataFrame.fromRDD(
             self.from_schema_rdd(
                 self._get_sqlctx().sql(query)))
 
@@ -150,7 +150,7 @@ class PSparkContext():
                 ])
             else:
                 return iter([])
-        return PRDD.fromRDD(schemaRDD.mapPartitions(_load_kv_partitions))
+        return DataFrame.fromRDD(schemaRDD.mapPartitions(_load_kv_partitions))
 
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
@@ -174,7 +174,7 @@ class PSparkContext():
         if 'index' in kwargs:
             index = kwargs['index']
         elementsWithIndex = zip(index, elements)
-        return PRDD.fromRDD(
+        return DataFrame.fromRDD(
             self.sc.parallelize(elementsWithIndex).mapPartitions(
                 _load_partitions))
 

@@ -22,7 +22,7 @@ import pandas
 
 add_pyspark_path()
 from sparklingpandas.pcontext import PSparkContext
-from sparklingpandas.prdd import PRDD
+from sparklingpandas.dataframe import DataFrame
 import unittest2
 import sys
 import functools

@@ -17,9 +17,9 @@
 #
 
 from sparklingpandas.utils import add_pyspark_path
-from sparklingpandas.prdd import PRDD
+from sparklingpandas.dataframe import DataFrame
 add_pyspark_path()
-import pandas
+import pandas as pd
 import numpy as np
 
 
@@ -112,7 +112,7 @@ class GroupBy:
 
         For multiple groupings, the result index will be a MultiIndex.
         """
-        return PRDD.fromRDD(
+        return DataFrame.fromRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.median()))
 
@@ -122,7 +122,7 @@ class GroupBy:
         For multiple groupings, the result index will be a MultiIndex.
         """
         # TODO(holden): use stats counter
-        return PRDD.fromRDD(
+        return DataFrame.fromRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.mean()))
 
@@ -132,7 +132,7 @@ class GroupBy:
         For multiple groupings, the result index will be a MultiIndex.
         """
         # TODO(holden): use stats counter
-        return PRDD.fromRDD(
+        return DataFrame.fromRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.var(
                     ddof=ddof)))
@@ -146,7 +146,7 @@ class GroupBy:
             return x.groupby(*myargs, **mykwargs).sum()
 
         def merge_value(x, y):
-            return pandas.concat([x, create_combiner(y)])
+            return pd.concat([x, create_combiner(y)])
 
         def merge_combiner(x, y):
             return x + y
@@ -155,7 +155,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfSum)
+        return DataFrame.fromRDD(rddOfSum)
 
     def min(self):
         """Compute the min for each group."""
@@ -175,7 +175,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfMin)
+        return DataFrame.fromRDD(rddOfMin)
 
     def max(self):
         """Compute the max for each group."""
@@ -195,7 +195,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfMax)
+        return DataFrame.fromRDD(rddOfMax)
 
     def first(self):
         """
@@ -218,7 +218,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfFirst)
+        return DataFrame.fromRDD(rddOfFirst)
 
     def last(self):
         """Pull out the last from each group."""
@@ -238,7 +238,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfLast)
+        return DataFrame.fromRDD(rddOfLast)
 
     def _regroup_mergedRDD(self):
         """A common pattern is we want to call groupby again on the dataframes
@@ -260,14 +260,14 @@ class GroupBy:
         nthRDD = self._regroup_mergedRDD().mapValues(
             lambda r: r.nth(
                 n, *args, **kwargs)).values()
-        return PRDD.fromRDD(nthRDD)
+        return DataFrame.fromRDD(nthRDD)
 
     def aggregate(self, f):
         """Apply the aggregation function.
         Note: This implementation does note take advantage of partial
         aggregation.
         """
-        return PRDD.fromRDD(
+        return DataFrame.fromRDD(
             self._regroup_mergedRDD().values().map(
                 lambda g: g.aggregate(f)))
 
@@ -285,7 +285,7 @@ class GroupBy:
             """
             # TODO: Is there a better way to do this?
             for key, row in data.iterrows():
-                yield (key, pandas.DataFrame.from_dict(dict([(key, row)]),
+                yield (key, pd.DataFrame.from_dict(dict([(key, row)]),
                                                        orient='index'))
 
         myargs = self._myargs
@@ -296,4 +296,4 @@ class GroupBy:
             lambda key_data: key_data[1].apply(func, *args, **kwargs))
         reKeyedRDD = appliedRDD.flatMap(key_by_index)
         prdd = self._sortIfNeeded(reKeyedRDD).values()
-        return PRDD.fromRDD(prdd)
+        return DataFrame.fromRDD(prdd)

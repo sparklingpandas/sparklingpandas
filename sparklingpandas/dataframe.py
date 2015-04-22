@@ -27,7 +27,7 @@ from sparklingpandas.pstatcounter import PStatCounter
 import pandas
 
 
-class PRDD:
+class DataFrame:
 
     """A Panda Resilient Distributed Dataset (PRDD), is an extension of the RDD.
     It is an RDD containing Panda dataframes and provides special methods that
@@ -41,7 +41,7 @@ class PRDD:
     @classmethod
     def fromRDD(cls, rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs."""
-        return PRDD(rdd)
+        return DataFrame(rdd)
 
     def to_spark_sql(self):
         """A Sparkling Pandas specific function to turn a DDF into

@@ -23,8 +23,8 @@ currently) version of Spark installed - <http://spark.apache.org>
 Using
 =========
 
-Make sure you have the SPARK_HOME enviroment variable set correctly, as
-SparklingPandas uses this for including the PySpark libraries
+Make sure you have the SPARK_HOME environment variable set correctly, as
+SparklingPandas uses this for including the PySpark libraries.
 
 Other than that you can install SparklingPandas with pip and just import it.
 The primary unit of SparklingPandas is a PRDD (Pandas Resillent Distributed
