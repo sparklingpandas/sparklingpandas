@@ -169,7 +169,7 @@ class PRDD:
 
     def collect(self):
         """Collect the elements in an PRDD and concatenate the partition."""
-        return self._schema_rdd.toPandas().reset_index()
+        return self._schema_rdd.toPandas()
 
     def stats(self, columns):
         """Compute the stats for each column provided in columns.
