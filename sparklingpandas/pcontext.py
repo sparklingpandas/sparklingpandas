@@ -23,7 +23,7 @@ add_pyspark_path()
 import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
-from sparklingpandas.prdd import PRDD
+from sparklingpandas.dataframe import Dataframe
 
 
 class PSparkContext():
@@ -121,21 +121,21 @@ class PSparkContext():
         return self.from_spark_df(schema_rdd)
 
     def from_data_frame(self, df):
-        return PRDD.from_spark_df(self.sql_ctx.createDataFrame(df))
+        return Dataframe.from_spark_df(self.sql_ctx.createDataFrame(df))
 
     def sql(self, query):
         """Perform a SQL query and create a L{PRDD} of the result."""
-        return PRDD.from_spark_df(self.sql_ctx.sql(query))
+        return Dataframe.from_spark_df(self.sql_ctx.sql(query))
 
     def table(self, table):
         """Returns the provided table as a L{PRDD}"""
-        return PRDD.from_spark_df(self.sql_ctx.table(query))
+        return Dataframe.from_spark_df(self.sql_ctx.table(query))
 
     def from_schema_rdd(self, schemaRDD):
-        return PRDD.from_spark_df(schemaRDD)
+        return Dataframe.from_spark_df(schemaRDD)
 
     def from_spark_df(self, schemaRDD):
-        return PRDD.from_spark_df(schemaRDD)
+        return Dataframe.from_spark_df(schemaRDD)
 
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
@@ -156,7 +156,7 @@ class PSparkContext():
 
         def _from_pandas_rdd_records(pandas_rdd_records, schema):
             """Createa a L{PRDD} from an RDD of records with schema"""
-            return PRDD.from_spark_df(
+            return Dataframe.from_spark_df(
                 self.sql_ctx.createDataFrame(pandas_rdd_records, schema))
 
         schema = pandas_rdd.map(lambda x: x.columns).first

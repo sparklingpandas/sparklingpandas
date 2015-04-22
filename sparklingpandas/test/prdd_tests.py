@@ -49,7 +49,7 @@ class PContextTests(SparklingPandasTestCase):
 
     def test_get_item(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
+        df = self.psc.DataFrame(input, columns=['magic', 'thing'])
         actual_col = prdd['thing'].collect()
         actual_thing_result = actual_col.values.tolist()
         expected_thing_result = [u"happy", u"sad", u"happiest"]

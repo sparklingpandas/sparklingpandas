@@ -17,9 +17,9 @@
 #
 
 from sparklingpandas.utils import add_pyspark_path
-from sparklingpandas.prdd import PRDD
+from sparklingpandas.dataframe import Dataframe
 add_pyspark_path()
-import pandas
+import pandas as pd
 import numpy as np
 
 
@@ -138,7 +138,7 @@ class GroupBy:
         For multiple groupings, the result index will be a MultiIndex.
         """
         self._prep_old_school()
-        return PRDD.fromDataFrameRDD(
+        return Dataframe.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.median()), self.sql_ctx)
 
@@ -149,9 +149,9 @@ class GroupBy:
         """
         if self._can_use_new_school():
             self._prep_new_school()
-            return PRDD.fromSchemaRDD(self._grouped_spark_sql.mean())
+            return Dataframe.fromSchemaRDD(self._grouped_spark_sql.mean())
         self._prep_old_school()
-        return PRDD.fromDataFrameRDD(
+        return Dataframe.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.mean()), self.sql_ctx)
 
@@ -161,7 +161,7 @@ class GroupBy:
         For multiple groupings, the result index will be a MultiIndex.
         """
         self._prep_old_school()
-        return PRDD.fromDataFrameRDD(
+        return Dataframe.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.var(ddof=ddof)), self.sql_ctx)
 
@@ -169,7 +169,7 @@ class GroupBy:
         """Compute the sum for each group."""
         if self._can_use_new_school():
             self._prep_new_school()
-            return PRDD.fromSchemaRDD(self._grouped_spark_sql.sum())
+            return Dataframe.fromSchemaRDD(self._grouped_spark_sql.sum())
         self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
@@ -178,7 +178,7 @@ class GroupBy:
             return x.groupby(*myargs, **mykwargs).sum()
 
         def merge_value(x, y):
-            return pandas.concat([x, create_combiner(y)])
+            return pd.concat([x, create_combiner(y)])
 
         def merge_combiner(x, y):
             return x + y
@@ -187,13 +187,13 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfSum)
+        return Dataframe.fromRDD(rddOfSum)
 
     def min(self):
         """Compute the min for each group."""
         if self._can_use_new_school():
             self._prep_new_school()
-            return PRDD.fromSchemaRDD(self._grouped_spark_sql.min())
+            return Dataframe.fromSchemaRDD(self._grouped_spark_sql.min())
         self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
@@ -211,13 +211,13 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfMin)
+        return Dataframe.fromRDD(rddOfMin)
 
     def max(self):
         """Compute the max for each group."""
         if self._can_use_new_school():
             self._prep_new_school()
-            return PRDD.fromSchemaRDD(self._grouped_spark_sql.max())
+            return Dataframe.fromSchemaRDD(self._grouped_spark_sql.max())
         self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
@@ -235,7 +235,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfMax)
+        return Dataframe.fromRDD(rddOfMax)
 
     def first(self):
         """
@@ -259,7 +259,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfFirst)
+        return Dataframe.fromRDD(rddOfFirst)
 
     def last(self):
         """Pull out the last from each group."""
@@ -280,7 +280,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return PRDD.fromRDD(rddOfLast)
+        return Dataframe.fromRDD(rddOfLast)
 
     def _regroup_mergedRDD(self):
         """A common pattern is we want to call groupby again on the dataframes
@@ -304,7 +304,7 @@ class GroupBy:
         nthRDD = self._regroup_mergedRDD().mapValues(
             lambda r: r.nth(
                 n, *args, **kwargs)).values()
-        return PRDD.fromRDD(nthRDD)
+        return Dataframe.fromRDD(nthRDD)
 
     def aggregate(self, f):
         """Apply the aggregation function.
@@ -312,7 +312,7 @@ class GroupBy:
         aggregation.
         """
         self._prep_old_school()
-        return PRDD.fromDataFrameRDD(
+        return Dataframe.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda g: g.aggregate(f)), self.sql_ctx)
 
@@ -331,7 +331,7 @@ class GroupBy:
             """
             # TODO: Is there a better way to do this?
             for key, row in data.iterrows():
-                yield (key, pandas.DataFrame.from_dict(dict([(key, row)]),
+                yield (key, pd.DataFrame.from_dict(dict([(key, row)]),
                                                        orient='index'))
 
         myargs = self._myargs
@@ -342,4 +342,4 @@ class GroupBy:
             lambda key_data: key_data[1].apply(func, *args, **kwargs))
         reKeyedRDD = appliedRDD.flatMap(key_by_index)
         prdd = self._sortIfNeeded(reKeyedRDD).values()
-        return PRDD.fromRDD(prdd)
+        return Dataframe.fromRDD(prdd)

@@ -30,10 +30,10 @@ import pandas
 
 
 
-class PRDD:
+class Dataframe:
 
-    """A Panda Resilient Distributed Dataset (PRDD), is based on
-    Spark SQL's DataFrame (previously known as SchemaRDD). PRDDs aim to
+    """A Panda Resilient Distributed Dataset (Dataframe), is based on
+    Spark SQL's DataFrame (previously known as SchemaRDD). Dataframes aim to
     provide, as close as reasonable, Panda's compatable inferface.
     Note: RDDs are lazy, so you operations are not performed until required."""
 
@@ -64,31 +64,31 @@ class PRDD:
         return self.from_rdd_of_dataframes(result_rdd)
 
     def from_rdd_of_dataframes(self, rdd):
-        """Take an RDD of dataframes and return a PRDD"""
+        """Take an RDD of dataframes and return a Dataframe"""
         def frame_to_spark_sql(frame):
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             # TODO: Convert to row objects directly?
             return [r.tolist() for r in frame.to_records(index=False)]
         schema = list(rdd.first().columns)
-        return PRDD.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
+        return Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
 
     @classmethod
     def fromSchemaRDD(cls, schemaRdd):
-        """Construct a PRDD from an SchemaRDD.
+        """Construct a Dataframe from an SchemaRDD.
         No checking or validation occurs."""
-        return PRDD(schemaRdd, schemaRdd.sql_ctx)
+        return Dataframe(schemaRdd, schemaRdd.sql_ctx)
 
     @classmethod
     def fromDataFrameRDD(cls, rdd, sql_ctx):
-        """Construct a PRDD from an RDD of DataFrames.
+        """Construct a Dataframe from an RDD of DataFrames.
         No checking or validation occurs."""
-        result = PRDD(None, sql_ctx)
+        result = Dataframe(None, sql_ctx)
         return result.from_rdd_of_dataframes(rdd)
 
     @classmethod
     def from_spark_df(cls, schema_rdd):
-        """Construct a PRDD from an RDD. No checking or validation occurs."""
-        return PRDD(schema_rdd, schema_rdd.sql_ctx)
+        """Construct a Dataframe from an RDD. No checking or validation occurs."""
+        return Dataframe(schema_rdd, schema_rdd.sql_ctx)
 
     def to_spark_sql(self):
         """A Sparkling Pandas specific function to turn a DDF into
@@ -99,13 +99,13 @@ class PRDD:
         return self._schema_rdd
 
     def applymap(self, f, **kwargs):
-        """Return a new PRDD by applying a function to each element of each
+        """Return a new Dataframe by applying a function to each element of each
         Panda DataFrame."""
         return self.from_rdd_of_dataframes(
             self._rdd().map(lambda data: data.applymap(f), **kwargs))
 
     def __getitem__(self, key):
-        """Returns a new PRDD of elements from that key."""
+        """Returns a new Dataframe of elements from that key."""
         return self.from_spark_df(self._schema_rdd.select(key))
 
     def groupby(self, by=None, axis=0, level=None, as_index=True, sort=True,
@@ -168,7 +168,7 @@ class PRDD:
                 .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
     def collect(self):
-        """Collect the elements in an PRDD and concatenate the partition."""
+        """Collect the elements in an Dataframe and concatenate the partition."""
         return self._schema_rdd.toPandas()
 
     def stats(self, columns):
@@ -188,13 +188,13 @@ class PRDD:
         return PStats(self.fromSchemaRDD(self._schema_rdd.agg(*aggs)))
 
     def min(self):
-        return self.from_spark_df(prdd._schema_rdd.min())
+        return self.from_spark_df(Dataframe._schema_rdd.min())
 
     def max(self):
-        return self.from_spark_df(prdd._schema_rdd.max())
+        return self.from_spark_df(Dataframe._schema_rdd.max())
 
     def avg(self):
-        return self.from_spark_df(prdd._schema_rdd.avg())
+        return self.from_spark_df(Dataframe._schema_rdd.avg())
 
     def _flatmap(self, f, items):
         return chain.from_iterable(imap(f, items))
