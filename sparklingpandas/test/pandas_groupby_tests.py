@@ -12,7 +12,6 @@ import sys
 import pandas as pd
 from pandas import date_range, bdate_range, Timestamp
 from pandas.core.index import Index, MultiIndex, Int64Index
-from pandas.core.common import rands
 from pandas.core.api import Categorical, DataFrame
 from pandas.core.series import Series
 from pandas.util.testing import (assert_panel_equal, assert_frame_equal,
@@ -26,6 +25,12 @@ from pandas import compat
 import pandas.util.testing as tm
 import unittest2
 import numpy as np
+
+try:
+    # rands was moved to util.testing in pandas 0.15
+    from pandas.core.common import rands
+except ImportError:
+    from pandas.util.testing import rands
 
 
 class PandasGroupby(SparklingPandasTestCase):

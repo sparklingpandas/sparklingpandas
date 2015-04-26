@@ -1,10 +1,13 @@
-![logo](https://github.com/holdenk/sparklingpandas/raw/master/img/logo.jpg)
-![buildstatus](https://travis-ci.org/holdenk/sparklingpandas.svg?branch=master)(https://travis-ci.org/holdenk/sparklingpandas)
-===========
-SparklingPandas
-===========
+![logo](img/sparkling_panda.jpg)
 
-SparklingPandas aims to make it easy to use the distributed computing power of PySpark to scale your data anlysis with Pandas.
+[![buildstatus](https://travis-ci.org/holdenk/sparklingpandas.svg?branch=master)](https://travis-ci.org/holdenk/sparklingpandas)
+
+==============
+SparklingPandas
+==============
+
+SparklingPandas aims to make it easy to use the distributed computing power
+of PySpark to scale your data analysis with Pandas.
 
 Documentation
 =========
@@ -14,14 +17,18 @@ None (right now). You can find some slides in the slides/ directory
 Requirements
 =========
 
-The primary requirement of SparklingPandas is that you have a recent (v1.0-SNAPSHOT currently) version of Spark installed - <http://spark.apache.org>
+The primary requirement of SparklingPandas is that you have a recent (v1.3
+currently) version of Spark installed - <http://spark.apache.org>
 
 Using
 =========
 
-Make sure you have the SPARK_HOME enviroment variable set correctly, as SparklingPandas uses this for including the PySpark libraries
+Make sure you have the SPARK_HOME enviroment variable set correctly, as
+SparklingPandas uses this for including the PySpark libraries
 
-Other than that you can install SparklingPandas with pip and just import it. The primary unit of SparklingPandas is a PRDD (Pandas Resillent Distributed Data Set)
+Other than that you can install SparklingPandas with pip and just import it.
+The primary unit of SparklingPandas is a PRDD (Pandas Resillent Distributed
+Data Set)
 
 State
 =========

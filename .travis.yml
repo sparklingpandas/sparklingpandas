@@ -7,7 +7,6 @@ before_install:
 install:
   # install deps
   - sudo conda init
-  - sudo conda update conda --yes
   - deps='pip numpy pandas requests nose numpydoc sphinx pep8'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
@@ -15,10 +14,11 @@ install:
   # install our own package into the environment
   - "pip install ."
 script:
-  # Download spark 1.0.0
-  - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz"
-  - "tar -xvf spark-1.0.0-bin-hadoop2.tgz"
+  # Download spark 1.3.0
+  - "wget http://people.apache.org/~pwendell/spark-1.3.0-rc3/spark-1.3.0-bin-hadoop2.4.tgz"
+  - "tar -xvf spark-1.3.0-bin-hadoop2.4.tgz"
   # Run the tests
-  - "export SPARK_HOME=./spark-1.0.0-bin-hadoop2/"
+  - "export SPARK_HOME=./spark-1.3.0-bin-hadoop2.4/"
   - "./run-tests"
-  - "pep8 sparklingpandas/"
+  - "pep8 --ignore=E402 sparklingpandas/"
+  
