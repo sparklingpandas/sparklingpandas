@@ -48,6 +48,8 @@ class PContextTests(SparklingPandasTestCase):
         assert expected_thing_result == actual_thing_result
 
     def test_get_item(self):
+        # Test get item functionality. If we add support for distributed series
+        # we should update this to behave more like pandas (as well as the code).
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
         df = self.psc.DataFrame(input, columns=['magic', 'thing'])
         actual_col = df['thing'].collect()

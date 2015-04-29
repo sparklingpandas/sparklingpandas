@@ -79,12 +79,15 @@ class Dataframe:
         first_df = rdd.first()
         schema = list(first_df.columns)
         # If we have an explicit index use it, otherwise create implicit index field
-        if (first_df.index.names[0]):
-            schema = first_df.index.names + schema
-        else:
-            schema.insert(0, "index")
+        index_names = list(first_df.index.names)
+        z = 0
+        while z < len(index_names):
+            if not index_names[z]:
+                index_names[z] = "_sparkling_panda_magic_index_"+str(z)
+            z = z+1
+        schema = index_names + schema
         ddf = Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
-        ddf._index_names = first_df.index.names
+        ddf._index_names = index_names
         return ddf
 
     @classmethod
@@ -227,9 +230,12 @@ class Dataframe:
 def _update_index_on_df(df, index_names):
     """Helper function to restore index information after collection. Doesn't
     use self so we can serialize this."""
-    if index_names[0]:
-        df = df.set_index(index_names)
-    elif 'index' in df.columns:
-        df = df.set_index("index")
-        df.index.name = None
+    df = df.set_index(index_names)
+    # Remove names from unnamed indexes
+    z = 0
+    while z < len(index_names):
+        if index_names[z].startswith('_sparkling_panda_magic_index_'):
+            index_names[z] = None
+        z = z+1
+    df.index.names = index_names
     return df

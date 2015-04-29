@@ -128,16 +128,23 @@ class PSparkContext():
             # TODO: Convert to row objects directly?
             return [r.tolist() for r in frame.to_records()]
         schema = list(df.columns)
-        schema.insert(0, "index")
+        index_names = list(df.index.names)
+        z = 0
+        while z < len(index_names):
+            if not index_names[z]:
+                index_names[z] = "_sparkling_panda_magic_index_"+str(z)
+            z = z+1
+        schema = index_names + schema
         rows = self.sc.parallelize(frame_to_rows(df))
-        return Dataframe.fromSchemaRDD(
+        df = Dataframe.fromSchemaRDD(
             self.sql_ctx.createDataFrame(
                 rows,
                 schema=schema,
                 # Look at all the rows, should be ok since coming from
                 # a local dataset
-                samplingRatio=1
-                                     ))
+                samplingRatio=1))
+        df._index_names = index_names
+        return df
 
 
     def sql(self, query):
