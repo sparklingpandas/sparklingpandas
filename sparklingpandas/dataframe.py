@@ -51,7 +51,10 @@ class Dataframe:
             if not records:
                 return []
             else:
-                return [pandas.DataFrame.from_records([records], columns=columns)]
+                df = pandas.DataFrame.from_records([records], columns=columns)
+                if 'index' in columns:
+                    df.set_index('index')
+                return [df]
 
         return self._schema_rdd.rdd.flatMap(fromRecords)
 
@@ -68,7 +71,7 @@ class Dataframe:
         def frame_to_spark_sql(frame):
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             # TODO: Convert to row objects directly?
-            return [r.tolist() for r in frame.to_records(index=False)]
+            return [r.tolist() for r in frame.to_records()]
         schema = list(rdd.first().columns)
         return Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
 
@@ -169,7 +172,10 @@ class Dataframe:
 
     def collect(self):
         """Collect the elements in an Dataframe and concatenate the partition."""
-        return self._schema_rdd.toPandas()
+        df = self._schema_rdd.toPandas()
+        if 'index' in df.columns:
+            df.set_index('index')
+        return df
 
     def stats(self, columns):
         """Compute the stats for each column provided in columns.
