@@ -120,7 +120,11 @@ class Dataframe:
             self._rdd().map(lambda data: data.applymap(f), **kwargs))
 
     def __getitem__(self, key):
-        """Returns a new Dataframe of elements from that key."""
+        """Returns a new Dataframe of elements from those keys.
+        Note: this differs from Pandas DataFrames in that when selecting
+        a single key it returns a series, however we don't have good
+        support for series just yet so we always returns DataFrames.
+        """
         return self.from_spark_df(self._schema_rdd.select(key))
 
     def groupby(self, by=None, axis=0, level=None, as_index=True, sort=True,

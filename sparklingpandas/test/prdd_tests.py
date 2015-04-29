@@ -52,7 +52,7 @@ class PContextTests(SparklingPandasTestCase):
         df = self.psc.DataFrame(input, columns=['magic', 'thing'])
         actual_col = df['thing'].collect()
         actual_thing_result = actual_col.values.tolist()
-        expected_thing_result = [u"happy", u"sad", u"happiest"]
+        expected_thing_result = [[u"happy"], [u"sad"], [u"happiest"]]
         assert expected_thing_result == actual_thing_result
 
     def test_collect(self):
