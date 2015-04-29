@@ -37,27 +37,26 @@ class Dataframe:
     provide, as close as reasonable, Panda's compatable inferface.
     Note: RDDs are lazy, so you operations are not performed until required."""
 
-    def __init__(self, schema_rdd, sql_ctx, index_name=None):
+    def __init__(self, schema_rdd, sql_ctx, index_names=[None]):
         self._schema_rdd = schema_rdd
         self.sql_ctx = sql_ctx
-        # Keep track of what our index is called. When in SchemaRDD
-        # it is always called index, collecting back though we rename
-        # it. Defaults to None.
-        self._index_name = index_name
+        # Keep track of what our index is called.
+        # Defaults to None. If None we use an implicit index called index.
+        self._index_names = index_names
 
     def _rdd(self):
         """Return an RDD of Panda DataFrame objects. This can be expensive
         especially if we don't do a narrow transformation after and get it back
         to Spark SQL land quickly."""
         columns = self._schema_rdd.columns
+        index_names = self._index_names
 
         def fromRecords(records):
             if not records:
                 return []
             else:
                 df = pandas.DataFrame.from_records([records], columns=columns)
-                if 'index' in columns:
-                    df = df.set_index('index')
+                df = _update_index_on_df(df, index_names)
                 return [df]
 
         return self._schema_rdd.rdd.flatMap(fromRecords)
@@ -79,9 +78,13 @@ class Dataframe:
         # Todo, compute worker side rather than bringing a frame back
         first_df = rdd.first()
         schema = list(first_df.columns)
-        schema.insert(0, "index")
+        # If we have an explicit index use it, otherwise create implicit index field
+        if (first_df.index.names[0]):
+            schema = first_df.index.names + schema
+        else:
+            schema.insert(0, "index")
         ddf = Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
-        ddf._index_name = first_df.index.name
+        ddf._index_names = first_df.index.names
         return ddf
 
     @classmethod
@@ -136,9 +139,7 @@ class Dataframe:
         df = pandas.DataFrame.from_records(
             [self._schema_rdd.first()],
             columns=self._schema_rdd.columns)
-        if 'index' in columns:
-            df = df.set_index("index")
-        df.index.name = self._index_name 
+        df = _update_index_on_df(df, self._index_names)
         return df
 
 
@@ -188,9 +189,7 @@ class Dataframe:
     def collect(self):
         """Collect the elements in an Dataframe and concatenate the partition."""
         df = self._schema_rdd.toPandas()
-        if 'index' in df.columns:
-            df = df.set_index('index')
-        df.index.name=None
+        df = _update_index_on_df(df, self._index_names)
         return df
 
     def stats(self, columns):
@@ -220,3 +219,13 @@ class Dataframe:
 
     def _flatmap(self, f, items):
         return chain.from_iterable(imap(f, items))
+
+def _update_index_on_df(df, index_names):
+    """Helper function to restore index information after collection. Doesn't
+    use self so we can serialize this."""
+    if index_names[0]:
+        df = df.set_index(index_names)
+    elif 'index' in df.columns:
+        df = df.set_index("index")
+        df.index.name = None
+    return df
