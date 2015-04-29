@@ -121,7 +121,17 @@ class PSparkContext():
         return self.from_spark_df(schema_rdd)
 
     def from_data_frame(self, df):
-        return Dataframe.from_spark_df(self.sql_ctx.createDataFrame(df))
+        """Make a distributed dataframe from a local dataframe. The intend use
+        is for testing. Note: dtypes are re-infered, so they may not match."""
+        def frame_to_rows(frame):
+            """Convert a Panda's DataFrame into Spark SQL Rows"""
+            # TODO: Convert to row objects directly?
+            return [r.tolist() for r in frame.to_records()]
+        schema = list(df.columns)
+        schema.insert(0, "index")
+        rows = sc.parallelize(frame_to_rows(df))
+        return Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rows), schema=schema))
+
 
     def sql(self, query):
         """Perform a SQL query and create a L{PRDD} of the result."""
