@@ -82,6 +82,7 @@ class Dataframe:
         schema.insert(0, "index")
         ddf = Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
         ddf._index_name = first_df.index.name
+        return ddf
 
     @classmethod
     def fromSchemaRDD(cls, schemaRdd):
