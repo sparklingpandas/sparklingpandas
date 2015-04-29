@@ -113,7 +113,7 @@ class PContextTests(SparklingPandasTestCase):
         def assert_axes_eq(ax1, ax2):
             #TODO: re-enable this after we fix axes to return a valid
             #first axes if we need to.
-            #assert_index_equal(ax1[0], ax2[0])
+            assert_index_equal(ax1[0], ax2[0])
             assert_index_equal(ax1[1], ax2[1])
         assert_axes_eq(self.basicpframe.axes, self.basicframe.axes)
         assert_axes_eq(self.numericpframe.axes, self.numericframe.axes)
