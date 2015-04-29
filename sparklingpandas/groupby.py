@@ -58,6 +58,7 @@ class GroupBy:
         """Prepare the old school pandas group by based approach."""
         myargs = self._myargs
         mykwargs = self._mykwargs
+
         def extract_keys(groupedFrame):
             for key, group in groupedFrame:
                 yield (key, group)
@@ -112,8 +113,10 @@ class GroupBy:
     def groups(self):
         """Returns dict {group name -> group labels}."""
         self.prep_old_school()
+
         def extract_group_labels(frame):
             return (frame[0], frame[1].index.values)
+
         return self._mergedRDD.map(extract_group_labels).collectAsMap()
 
     @property
@@ -128,8 +131,10 @@ class GroupBy:
     def indices(self):
         """Returns dict {group name -> group indices}."""
         self._prep_old_school()
+
         def extract_group_indices(frame):
             return (frame[0], frame[1].index)
+
         return self._mergedRDD.map(extract_group_indices).collectAsMap()
 
     def median(self):
@@ -326,13 +331,14 @@ class GroupBy:
         This returns a PRDD.
         """
         self._prep_old_school()
+
         def key_by_index(data):
             """Key each row by its index.
             """
             # TODO: Is there a better way to do this?
             for key, row in data.iterrows():
-                yield (key, pd.DataFrame.from_dict(dict([(key, row)]),
-                                                       orient='index'))
+                yield (key, pd.DataFrame.from_dict(
+                    dict([(key, row)]), orient='index'))
 
         myargs = self._myargs
         mykwargs = self._mykwargs

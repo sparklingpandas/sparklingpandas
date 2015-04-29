@@ -49,7 +49,7 @@ class PContextTests(SparklingPandasTestCase):
 
     def test_get_item(self):
         # Test get item functionality. If we add support for distributed series
-        # we should update this to behave more like pandas (as well as the code).
+        # we should update this to behave more like pandas.
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
         df = self.psc.DataFrame(input, columns=['magic', 'thing'])
         actual_col = df['thing'].collect()
@@ -79,7 +79,8 @@ class PContextTests(SparklingPandasTestCase):
         np_tests.assert_almost_equal(b_col_stat_counter.count(), 3)
         np_tests.assert_almost_equal(b_col_stat_counter.avg(), 20.0)
         # TODO(holden OR anyone): Add a stdev aggregation and use it
-        # np_tests.assert_almost_equal(b_col_stat_counter.stdev(), 8.16496580928)
+        # np_tests.assert_almost_equal(b_col_stat_counter.stdev(),
+        #  8.16496580928)
         np_tests.assert_almost_equal(b_col_stat_counter.max(), 30)
         np_tests.assert_almost_equal(b_col_stat_counter.min(), 10)
 
@@ -113,8 +114,6 @@ class PContextTests(SparklingPandasTestCase):
 
     def test_axes(self):
         def assert_axes_eq(ax1, ax2):
-            #TODO: re-enable this after we fix axes to return a valid
-            #first axes if we need to.
             assert_index_equal(ax1[0], ax2[0])
             assert_index_equal(ax1[1], ax2[1])
         assert_axes_eq(self.basicpframe.axes, self.basicframe.axes)

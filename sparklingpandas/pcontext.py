@@ -142,7 +142,6 @@ class PSparkContext():
         df._index_names = index_names
         return df
 
-
     def sql(self, query):
         """Perform a SQL query and create a L{PRDD} of the result."""
         return Dataframe.from_spark_df(self.sql_ctx.sql(query))
@@ -160,9 +159,9 @@ class PSparkContext():
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
         return self.from_data_frame(pandas.DataFrame(
-                elements,
-                *args,
-                **kwargs))
+            elements,
+            *args,
+            **kwargs))
 
     def from_pandas_rdd(self, pandas_rdd):
         def _extract_records(data):

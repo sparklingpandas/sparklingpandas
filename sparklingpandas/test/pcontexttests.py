@@ -29,4 +29,5 @@ class PContextTests(SparklingPandasTestCase):
         prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
         elements = prdd.collect()
         assert len(elements) == 3
-        assert sorted(elements['magic']) == sorted([u'coffee', u'tea', u'water'])
+        expected = sorted([u'coffee', u'tea', u'water'])
+        assert sorted(elements['magic']) == expected

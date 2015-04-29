@@ -29,9 +29,7 @@ import pyspark
 import pandas
 
 
-
 class Dataframe:
-
     """A Panda Resilient Distributed Dataset (Dataframe), is based on
     Spark SQL's DataFrame (previously known as SchemaRDD). Dataframes aim to
     provide, as close as reasonable, Panda's compatable inferface.
@@ -77,11 +75,12 @@ class Dataframe:
         # Todo, compute worker side rather than bringing a frame back
         first_df = rdd.first()
         schema = list(first_df.columns)
-        # If we have an explicit index use it, otherwise create implicit index field
-        index_names = list(first_df.index.names)
-        index_names = _normalize_index_names(index_names)
+        # Add the index_names to the schema.
+        index_names = _normalize_index_names(first_df.index.names)
         schema = index_names + schema
-        ddf = Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
+        ddf = Dataframe.fromSchemaRDD(
+            self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql),
+                                         schema=schema))
         ddf._index_names = index_names
         return ddf
 
@@ -100,7 +99,8 @@ class Dataframe:
 
     @classmethod
     def from_spark_df(cls, schema_rdd):
-        """Construct a Dataframe from an RDD. No checking or validation occurs."""
+        """Construct a Dataframe from an RDD.
+        No checking or validation occurs."""
         return Dataframe(schema_rdd, schema_rdd.sql_ctx)
 
     def to_spark_sql(self):
@@ -137,13 +137,12 @@ class Dataframe:
     def _first_as_df(self):
         """Gets the first row as a dataframe. Useful for functions like
         dtypas & ftypes"""
-        columns=self._schema_rdd.columns
+        columns = self._schema_rdd.columns
         df = pandas.DataFrame.from_records(
             [self._schema_rdd.first()],
             columns=self._schema_rdd.columns)
         df = _update_index_on_df(df, self._index_names)
         return df
-
 
     @property
     def dtypes(self):
@@ -189,7 +188,8 @@ class Dataframe:
                 .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
     def collect(self):
-        """Collect the elements in an Dataframe and concatenate the partition."""
+        """Collect the elements in an Dataframe
+        and concatenate the partition."""
         df = self._schema_rdd.toPandas()
         df = _update_index_on_df(df, self._index_names)
         return df
@@ -207,7 +207,9 @@ class Dataframe:
 
         from pyspark.sql import functions as F
         functions = [F.min, F.max, F.avg, F.count]
-        aggs = list(self._flatmap(lambda column: map(lambda f: f(column), functions),columns))
+        aggs = list(
+            self._flatmap(lambda column: map(lambda f: f(column), functions),
+                          columns))
         return PStats(self.fromSchemaRDD(self._schema_rdd.agg(*aggs)))
 
     def min(self):
@@ -222,6 +224,8 @@ class Dataframe:
     def _flatmap(self, f, items):
         return chain.from_iterable(imap(f, items))
 
+
+# DataFrame helper functions that don't depend on the class
 def _update_index_on_df(df, index_names):
     """Helper function to restore index information after collection. Doesn't
     use self so we can serialize this."""
@@ -232,14 +236,16 @@ def _update_index_on_df(df, index_names):
         df.index.names = index_names
     return df
 
+
 def _de_normalize_index_names(index_names):
     z = 0
     index_names = list(index_names)
     while z < len(index_names):
         if index_names[z].startswith("index_") or index_names[z] == "index":
             index_names[z] = None
-        z = z+1
+        z = z + 1
     return index_names
+
 
 def _normalize_index_names(index_names):
     z = 0
@@ -247,8 +253,8 @@ def _normalize_index_names(index_names):
     while z < len(index_names):
         if not index_names[z]:
             if (z > 0):
-                index_names[z] = "index_"+str(z)
+                index_names[z] = "index_" + str(z)
             else:
                 index_names[z] = "index"
-        z = z+1
+        z = z + 1
     return index_names

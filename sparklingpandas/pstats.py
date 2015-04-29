@@ -20,28 +20,32 @@ from sparklingpandas.utils import add_pyspark_path
 add_pyspark_path()
 import pandas
 
+
 class PStats:
     """A object to wrap the stats/aggregation values"""
     def __init__(self, prdd):
         self._df = prdd.collect()
+
     def __getitem__(self, key):
         return PStatsOnColumn(self._df, key)
+
+
 class PStatsOnColumn:
     def __init__(self, df, key):
         self._df = df
         self._key = key
 
     def min(self):
-        return self._df["MIN("+self._key+")"][0]
+        return self._df["MIN(" + self._key + ")"][0]
 
     def max(self):
-        return self._df["MAX("+self._key+")"][0]
+        return self._df["MAX(" + self._key + ")"][0]
 
     def avg(self):
-        return self._df["AVG("+self._key+")"][0]
+        return self._df["AVG(" + self._key + ")"][0]
 
     def sum(self):
-        return self._df["COUNT("+self._key+")"][0]
+        return self._df["COUNT(" + self._key + ")"][0]
 
     def count(self):
         return self.sum()
