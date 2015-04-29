@@ -129,7 +129,7 @@ class PSparkContext():
             return [r.tolist() for r in frame.to_records()]
         schema = list(df.columns)
         schema.insert(0, "index")
-        rows = sc.parallelize(frame_to_rows(df))
+        rows = self.sc.parallelize(frame_to_rows(df))
         return Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rows, schema=schema))
 
 
