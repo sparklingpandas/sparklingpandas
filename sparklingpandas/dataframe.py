@@ -53,7 +53,7 @@ class Dataframe:
             else:
                 df = pandas.DataFrame.from_records([records], columns=columns)
                 if 'index' in columns:
-                    df.set_index('index')
+                    df = df.set_index('index')
                 return [df]
 
         return self._schema_rdd.rdd.flatMap(fromRecords)
@@ -73,6 +73,7 @@ class Dataframe:
             # TODO: Convert to row objects directly?
             return [r.tolist() for r in frame.to_records()]
         schema = list(rdd.first().columns)
+        schema.insert(0, "index")
         return Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
 
     @classmethod
@@ -174,7 +175,7 @@ class Dataframe:
         """Collect the elements in an Dataframe and concatenate the partition."""
         df = self._schema_rdd.toPandas()
         if 'index' in df.columns:
-            df.set_index('index')
+            df = df.set_index('index')
         return df
 
     def stats(self, columns):
