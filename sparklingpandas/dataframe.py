@@ -124,9 +124,14 @@ class Dataframe:
     def _first_as_df(self):
         """Gets the first row as a dataframe. Useful for functions like
         dtypas & ftypes"""
-        return pandas.DataFrame.from_records(
+        columns=self._schema_rdd.columns
+        df = pandas.DataFrame.from_records(
             [self._schema_rdd.first()],
             columns=self._schema_rdd.columns)
+        if 'index' in columns:
+            df = df.set_index("index")
+        return df
+
 
     @property
     def dtypes(self):
