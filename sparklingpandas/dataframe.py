@@ -37,9 +37,13 @@ class Dataframe:
     provide, as close as reasonable, Panda's compatable inferface.
     Note: RDDs are lazy, so you operations are not performed until required."""
 
-    def __init__(self, schema_rdd, sql_ctx):
+    def __init__(self, schema_rdd, sql_ctx, index_name=None):
         self._schema_rdd = schema_rdd
         self.sql_ctx = sql_ctx
+        # Keep track of what our index is called. When in SchemaRDD
+        # it is always called index, collecting back though we rename
+        # it. Defaults to None.
+        self._index_name = index_name
 
     def _rdd(self):
         """Return an RDD of Panda DataFrame objects. This can be expensive
@@ -72,9 +76,12 @@ class Dataframe:
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             # TODO: Convert to row objects directly?
             return [r.tolist() for r in frame.to_records()]
-        schema = list(rdd.first().columns)
+        # Todo, compute worker side rather than bringing a frame back
+        first_df = rdd.first()
+        schema = list(first_df.columns)
         schema.insert(0, "index")
-        return Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
+        ddf = Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
+        ddf._index_name = first_df.index.name
 
     @classmethod
     def fromSchemaRDD(cls, schemaRdd):
@@ -130,6 +137,7 @@ class Dataframe:
             columns=self._schema_rdd.columns)
         if 'index' in columns:
             df = df.set_index("index")
+        df.index.name = self._index_name 
         return df
 
 

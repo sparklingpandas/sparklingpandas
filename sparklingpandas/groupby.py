@@ -187,7 +187,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfSum)
+        return Dataframe.fromDataFrameRDD(rddOfSum, self.sql_ctx)
 
     def min(self):
         """Compute the min for each group."""
@@ -211,7 +211,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfMin)
+        return Dataframe.fromDataFrameRDD(rddOfMin, self.sql_ctx)
 
     def max(self):
         """Compute the max for each group."""
@@ -235,7 +235,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfMax)
+        return Dataframe.fromDataFrameRDD(rddOfMax, self.sql_ctx)
 
     def first(self):
         """
@@ -259,7 +259,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfFirst)
+        return Dataframe.fromDataFrameRDD(rddOfFirst, self.sql_ctx)
 
     def last(self):
         """Pull out the last from each group."""
@@ -280,7 +280,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfLast)
+        return Dataframe.fromDataFrameRDD(rddOfLast, self.sql_ctx)
 
     def _regroup_mergedRDD(self):
         """A common pattern is we want to call groupby again on the dataframes
@@ -304,7 +304,7 @@ class GroupBy:
         nthRDD = self._regroup_mergedRDD().mapValues(
             lambda r: r.nth(
                 n, *args, **kwargs)).values()
-        return Dataframe.fromDataFrameRDD(nthRDD)
+        return Dataframe.fromDataFrameRDD(nthRDD, self.sql_ctx)
 
     def aggregate(self, f):
         """Apply the aggregation function.
@@ -342,4 +342,4 @@ class GroupBy:
             lambda key_data: key_data[1].apply(func, *args, **kwargs))
         reKeyedRDD = appliedRDD.flatMap(key_by_index)
         prdd = self._sortIfNeeded(reKeyedRDD).values()
-        return Dataframe.fromDataFrameRDD(prdd)
+        return Dataframe.fromDataFrameRDD(prdd, self.sql_ctx)
