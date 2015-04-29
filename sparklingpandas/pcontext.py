@@ -130,7 +130,14 @@ class PSparkContext():
         schema = list(df.columns)
         schema.insert(0, "index")
         rows = self.sc.parallelize(frame_to_rows(df))
-        return Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rows, schema=schema))
+        return Dataframe.fromSchemaRDD(
+            self.sql_ctx.createDataFrame(
+                rows,
+                schema=schema,
+                # Look at all the rows, should be ok since coming from
+                # a local dataset
+                samplingRatio=1
+                                     ))
 
 
     def sql(self, query):
