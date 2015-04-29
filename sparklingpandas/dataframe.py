@@ -37,11 +37,10 @@ class Dataframe:
     provide, as close as reasonable, Panda's compatable inferface.
     Note: RDDs are lazy, so you operations are not performed until required."""
 
-    def __init__(self, schema_rdd, sql_ctx, index_names=[None]):
+    def __init__(self, schema_rdd, sql_ctx, index_names=None):
         self._schema_rdd = schema_rdd
         self.sql_ctx = sql_ctx
-        # Keep track of what our index is called.
-        # Defaults to None. If None we use an implicit index called index.
+        # Keep track of what our index is called. If none no index information.
         self._index_names = index_names
 
     def _rdd(self):
@@ -80,11 +79,7 @@ class Dataframe:
         schema = list(first_df.columns)
         # If we have an explicit index use it, otherwise create implicit index field
         index_names = list(first_df.index.names)
-        z = 0
-        while z < len(index_names):
-            if not index_names[z]:
-                index_names[z] = "_sparkling_panda_magic_index_"+str(z)
-            z = z+1
+        index_names = _normalize_index_names(index_names)
         schema = index_names + schema
         ddf = Dataframe.fromSchemaRDD(self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql), schema=schema))
         ddf._index_names = index_names
@@ -230,12 +225,30 @@ class Dataframe:
 def _update_index_on_df(df, index_names):
     """Helper function to restore index information after collection. Doesn't
     use self so we can serialize this."""
-    df = df.set_index(index_names)
-    # Remove names from unnamed indexes
+    if index_names:
+        df = df.set_index(index_names)
+        # Remove names from unnamed indexes
+        index_names = _de_normalize_index_names(index_names)
+        df.index.names = index_names
+    return df
+
+def _de_normalize_index_names(index_names):
     z = 0
+    index_names = list(index_names)
     while z < len(index_names):
-        if index_names[z].startswith('_sparkling_panda_magic_index_'):
+        if index_names[z].startswith("index_") or index_names[z] == "index":
             index_names[z] = None
         z = z+1
-    df.index.names = index_names
-    return df
+    return index_names
+
+def _normalize_index_names(index_names):
+    z = 0
+    index_names = list(index_names)
+    while z < len(index_names):
+        if not index_names[z]:
+            if (z > 0):
+                index_names[z] = "index_"+str(z)
+            else:
+                index_names[z] = "index"
+        z = z+1
+    return index_names
