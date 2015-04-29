@@ -181,6 +181,7 @@ class Dataframe:
         df = self._schema_rdd.toPandas()
         if 'index' in df.columns:
             df = df.set_index('index')
+        df.index.name=None
         return df
 
     def stats(self, columns):
