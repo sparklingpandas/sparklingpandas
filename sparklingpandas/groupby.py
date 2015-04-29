@@ -187,7 +187,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromRDD(rddOfSum)
+        return Dataframe.fromDataFrameRDD(rddOfSum)
 
     def min(self):
         """Compute the min for each group."""
@@ -211,7 +211,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromRDD(rddOfMin)
+        return Dataframe.fromDataFrameRDD(rddOfMin)
 
     def max(self):
         """Compute the max for each group."""
@@ -235,7 +235,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromRDD(rddOfMax)
+        return Dataframe.fromDataFrameRDD(rddOfMax)
 
     def first(self):
         """
@@ -259,7 +259,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromRDD(rddOfFirst)
+        return Dataframe.fromDataFrameRDD(rddOfFirst)
 
     def last(self):
         """Pull out the last from each group."""
@@ -280,7 +280,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromRDD(rddOfLast)
+        return Dataframe.fromDataFrameRDD(rddOfLast)
 
     def _regroup_mergedRDD(self):
         """A common pattern is we want to call groupby again on the dataframes
@@ -304,7 +304,7 @@ class GroupBy:
         nthRDD = self._regroup_mergedRDD().mapValues(
             lambda r: r.nth(
                 n, *args, **kwargs)).values()
-        return Dataframe.fromRDD(nthRDD)
+        return Dataframe.fromDataFrameRDD(nthRDD)
 
     def aggregate(self, f):
         """Apply the aggregation function.
@@ -342,4 +342,4 @@ class GroupBy:
             lambda key_data: key_data[1].apply(func, *args, **kwargs))
         reKeyedRDD = appliedRDD.flatMap(key_by_index)
         prdd = self._sortIfNeeded(reKeyedRDD).values()
-        return Dataframe.fromRDD(prdd)
+        return Dataframe.fromDataFrameRDD(prdd)
