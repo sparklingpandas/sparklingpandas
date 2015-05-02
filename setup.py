@@ -7,7 +7,7 @@ setup(
     author_email='holden@pigscanfly.ca',
     packages=['sparklingpandas', 'sparklingpandas.test'],
     url='https://github.com/holdenk/PandaSpark',
-    license='LICENSE.txt',
+    license='LICENSE.t  xt',
     description='Enable Pandas on PySpark',
     long_description=open('README.md').read(),
     install_requires=[
