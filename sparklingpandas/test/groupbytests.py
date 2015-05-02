@@ -165,7 +165,7 @@ class Groupby(SparklingPandasTestCase):
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
         self._compareDataFrames(numericGroupedFrame.max(),
-            distributedNumericGroupedFrame.max().collect())
+                                distributedNumericGroupedFrame.max().collect())
 
     def test_apply(self):
         """Test that apply works on a numeric data frame."""
