@@ -160,7 +160,7 @@ class Groupby(SparklingPandasTestCase):
                                 distributedNumericGroupedFrame.min().collect())
 
     def test_max(self):
-        """Test that min works on a numeric data frame."""
+        """Test that max works on a numeric data frame."""
         numericGroupedFrame = self.numericframe.groupby('a', sort=True)
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
