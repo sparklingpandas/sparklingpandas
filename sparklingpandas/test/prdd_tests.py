@@ -48,11 +48,13 @@ class PContextTests(SparklingPandasTestCase):
         assert expected_thing_result == actual_thing_result
 
     def test_get_item(self):
+        # Test get item functionality. If we add support for distributed series
+        # we should update this to behave more like pandas.
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
-        actual_col = prdd['thing'].collect()
+        df = self.psc.DataFrame(input, columns=['magic', 'thing'])
+        actual_col = df['thing'].collect()
         actual_thing_result = actual_col.values.tolist()
-        expected_thing_result = ["happy", "sad", "happiest"]
+        expected_thing_result = [[u"happy"], [u"sad"], [u"happiest"]]
         assert expected_thing_result == actual_thing_result
 
     def test_collect(self):
@@ -73,10 +75,12 @@ class PContextTests(SparklingPandasTestCase):
         input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
         prdd = self.psc.DataFrame(input, columns=['a', 'b'])
         stats = prdd.stats(columns=['b'])
-        b_col_stat_counter = stats._counters['b']
+        b_col_stat_counter = stats['b']
         np_tests.assert_almost_equal(b_col_stat_counter.count(), 3)
-        np_tests.assert_almost_equal(b_col_stat_counter.mean(), 20.0)
-        np_tests.assert_almost_equal(b_col_stat_counter.stdev(), 8.16496580928)
+        np_tests.assert_almost_equal(b_col_stat_counter.avg(), 20.0)
+        # TODO(holden OR anyone): Add a stdev aggregation and use it
+        # np_tests.assert_almost_equal(b_col_stat_counter.stdev(),
+        #  8.16496580928)
         np_tests.assert_almost_equal(b_col_stat_counter.max(), 30)
         np_tests.assert_almost_equal(b_col_stat_counter.min(), 10)
 

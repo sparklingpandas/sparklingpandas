@@ -32,7 +32,8 @@ class PContextTests(SparklingPandasTestCase):
         prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
         elements = prdd.collect()
         assert len(elements) == 3
-        assert sorted(elements['magic']) == ['coffee', 'tea', 'water']
+        expected = sorted([u'coffee', u'tea', u'water'])
+        assert sorted(elements['magic']) == expected
 
     def test_read_json(self):
         input = [{'magic': 'tea', 'thing': 'happy'},
@@ -49,4 +50,5 @@ class PContextTests(SparklingPandasTestCase):
         os.unlink(temp_file.name)
 
         assert len(elements) == 3
-        assert sorted(elements['magic']) == ['coffee', 'tea', 'water']
+        expected = sorted([u'coffee', u'tea', u'water'])
+        assert sorted(elements['magic']) == expected
