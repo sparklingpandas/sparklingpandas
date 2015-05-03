@@ -63,30 +63,74 @@ class Dataframe:
         index_names = set(_normalize_index_names(self._index_names))
         return filter(lambda x: x not in index_names, self._schema_rdd.columns)
 
-    def __evil_apply_with_dataframes(self, func):
+    def _evil_apply_with_dataframes(self, func, preservesColumns=False):
         """Convert the underlying SchmeaRDD to an RDD of DataFrames.
         apply the provide function and convert the result back.
         This is hella slow."""
         source_rdd = self._rdd()
         result_rdd = func(source_rdd)
-        return self.from_rdd_of_dataframes(result_rdd)
+        # By default we don't know what the columns & indexes are so we let
+        # from_rdd_of_dataframes look at the first partition to determine them.
+        columnsIndexes = None
+        if preservesColumns:
+            index_names = self._index_names
+            # Remove indexes from the columns
+            columns = self._schema_rdd.columns[len(self._index_names):]
+            columnsIndexes = (columns, index_names)
+        return self.from_rdd_of_dataframes(
+            result_rdd, columnsIndexes=columnsIndexes)
 
-    def from_rdd_of_dataframes(self, rdd):
-        """Take an RDD of dataframes and return a Dataframe"""
+    def _first_as_df(self):
+        """Gets the first row as a Panda's Dataframe. Useful for functions like
+        dtypes & ftypes"""
+        columns = self._schema_rdd.columns
+        df = pandas.DataFrame.from_records(
+            [self._schema_rdd.first()],
+            columns=self._schema_rdd.columns)
+        df = _update_index_on_df(df, self._index_names)
+        return df
+
+    def from_rdd_of_dataframes(self, rdd, columnsIndexes=None):
+        """Take an RDD of Panda's Dataframes and return a Dataframe.
+        If the columns and indexes are already known (e.g. applyMap)
+        then supplying them with columnsIndexes will skip eveluating
+        the first partition to determine index info."""
         def frame_to_spark_sql(frame):
             """Convert a Panda's DataFrame into Spark SQL Rows"""
-            # TODO: Convert to row objects directly?
             return [r.tolist() for r in frame.to_records()]
-        # Todo, compute worker side rather than bringing a frame back
-        first_df = rdd.first()
-        schema = list(first_df.columns)
+
+        def frame_to_schema_and_indexnames(frames):
+            """Returns the schema and index names of the frames. Useful
+            if the frame is large and we wish to avoid transfering
+            the entire frame. Only bothers to apply once per partiton"""
+            try:
+                frame = frames.next()
+                return [(list(frame.columns), list(frame.index.names))]
+            except StopIteration:
+                return []
+
+        # Store if the RDD was persisted so we don't uncache an
+        # explicitly cached input.
+        was_persisted = rdd.is_cached
+        # If we haven't been supplied with the schema info cache the RDD
+        # since we are going to eveluate the first partition and then eveluate
+        # the entire RDD as part of creating a Spark DataFrame.
+        (schema, index_names) = ([], [])
+        if not columnsIndexes:
+            rdd.cache()
+            (schema, index_names) = rdd.mapPartitions(
+                frame_to_schema_and_indexnames).first()
+        else:
+            (schema, index_names) = columnsIndexes
         # Add the index_names to the schema.
-        index_names = _normalize_index_names(first_df.index.names)
+        index_names = _normalize_index_names(index_names)
         schema = index_names + schema
         ddf = Dataframe.fromSchemaRDD(
             self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql),
                                          schema=schema))
         ddf._index_names = index_names
+        if not was_persisted:
+            rdd.unpersist()
         return ddf
 
     @classmethod
@@ -119,8 +163,10 @@ class Dataframe:
     def applymap(self, f, **kwargs):
         """Return a new Dataframe by applying a function to each element of each
         Panda DataFrame."""
-        return self.from_rdd_of_dataframes(
-            self._rdd().map(lambda data: data.applymap(f), **kwargs))
+        def transformRdd(rdd):
+            return rdd.map(lambda data: data.applymap(f), **kwargs)
+        return self._evil_apply_with_dataframes(transformRdd,
+                                                preservesColumns=True)
 
     def __getitem__(self, key):
         """Returns a new Dataframe of elements from those keys.
@@ -138,16 +184,6 @@ class Dataframe:
         from sparklingpandas.groupby import GroupBy
         return GroupBy(self, by=by, axis=axis, level=level, as_index=as_index,
                        sort=sort, group_keys=group_keys, squeeze=squeeze)
-
-    def _first_as_df(self):
-        """Gets the first row as a dataframe. Useful for functions like
-        dtypas & ftypes"""
-        columns = self._schema_rdd.columns
-        df = pandas.DataFrame.from_records(
-            [self._schema_rdd.first()],
-            columns=self._schema_rdd.columns)
-        df = _update_index_on_df(df, self._index_names)
-        return df
 
     @property
     def dtypes(self):
