@@ -328,7 +328,7 @@ class GroupBy:
         """Apply the provided function and combine the results together in the
         same way as apply from groupby in pandas.
 
-        This returns a PRDD.
+        This returns a Dataframe.
         """
         self._prep_old_school()
 
@@ -347,5 +347,5 @@ class GroupBy:
         appliedRDD = regroupedRDD.map(
             lambda key_data: key_data[1].apply(func, *args, **kwargs))
         reKeyedRDD = appliedRDD.flatMap(key_by_index)
-        prdd = self._sortIfNeeded(reKeyedRDD).values()
-        return Dataframe.fromDataFrameRDD(prdd, self.sql_ctx)
+        dataframe = self._sortIfNeeded(reKeyedRDD).values()
+        return Dataframe.fromDataFrameRDD(dataframe, self.sql_ctx)
