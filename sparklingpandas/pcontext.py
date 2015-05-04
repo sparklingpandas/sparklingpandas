@@ -1,4 +1,4 @@
-"""Provide an easy interface for loading data into L{PRDD}s for Spark.
+"""Provide an easy interface for loading data into L{Dataframe}s for Spark.
 """
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -109,13 +109,13 @@ class PSparkContext():
                 self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
 
     def parquetFile(self, *paths):
-        """Loads a Parquet file, returning the result as a L{PRDD}.
+        """Loads a Parquet file, returning the result as a L{Dataframe}.
         """
         return self.from_spark_df(self.sql_ctx.parquetFile(paths))
 
     def jsonFile(self, path, schema=None, samplingRatio=1.0):
         """Loads a text file storing one JSON object per line as a
-        L{PRDD}.
+        L{Dataframe}.
         """
         schema_rdd = self.sql_ctx.jsonFile(path, schema, samplingRatio)
         return self.from_spark_df(schema_rdd)
@@ -143,11 +143,11 @@ class PSparkContext():
         return df
 
     def sql(self, query):
-        """Perform a SQL query and create a L{PRDD} of the result."""
+        """Perform a SQL query and create a L{Dataframe} of the result."""
         return Dataframe.from_spark_df(self.sql_ctx.sql(query))
 
     def table(self, table):
-        """Returns the provided table as a L{PRDD}"""
+        """Returns the provided table as a L{Dataframe}"""
         return Dataframe.from_spark_df(self.sql_ctx.table(query))
 
     def from_schema_rdd(self, schemaRDD):
@@ -168,7 +168,7 @@ class PSparkContext():
             return [r.toList() for r in data.to_records(index=False)]
 
         def _from_pandas_rdd_records(pandas_rdd_records, schema):
-            """Createa a L{PRDD} from an RDD of records with schema"""
+            """Createa a L{Dataframe} from an RDD of records with schema"""
             return Dataframe.from_spark_df(
                 self.sql_ctx.createDataFrame(pandas_rdd_records, schema))
 
@@ -187,7 +187,7 @@ class PSparkContext():
             for filename, contents in files:
                 yield pandas.read_json(sio(contents), *args, **kwargs)
 
-        return PRDD.fromRDD(
+        return dataframe.fromRDD(
             self.sc.wholeTextFiles(name).mapPartitionsWithIndex(json_file))
 
     def stop(self):
