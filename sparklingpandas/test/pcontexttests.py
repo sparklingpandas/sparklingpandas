@@ -29,8 +29,8 @@ class PContextTests(SparklingPandasTestCase):
 
     def test_dataframe_construction(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
-        elements = prdd.collect()
+        dataframe = self.psc.DataFrame(input, columns=['magic', 'thing'])
+        elements = dataframe.collect()
         assert len(elements) == 3
         expected = sorted([u'coffee', u'tea', u'water'])
         assert sorted(elements['magic']) == expected
@@ -45,8 +45,8 @@ class PContextTests(SparklingPandasTestCase):
         with open(temp_file.name, 'wb') as f:
             json.dump(input, f)
 
-        prdd = self.psc.read_json(temp_file.name)
-        elements = prdd.collect()
+        dataframe = self.psc.read_json(temp_file.name)
+        elements = dataframe.collect()
         os.unlink(temp_file.name)
 
         assert len(elements) == 3

@@ -23,8 +23,8 @@ import pandas
 
 class PStats:
     """A object to wrap the stats/aggregation values"""
-    def __init__(self, prdd):
-        self._df = prdd.collect()
+    def __init__(self, dataframe):
+        self._df = dataframe.collect()
 
     def __getitem__(self, key):
         return PStatsOnColumn(self._df, key)

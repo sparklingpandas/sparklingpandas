@@ -1,5 +1,5 @@
 """
-Test methods in prdd
+Test methods in dataframe
 """
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -34,9 +34,9 @@ class PContextTests(SparklingPandasTestCase):
 
     def test_apply_map(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
+        dataframe = self.psc.DataFrame(input, columns=['magic', 'thing'])
         addpandasfunc = (lambda x: "panda" + x)
-        result = prdd.applymap(addpandasfunc).collect()
+        result = dataframe.applymap(addpandasfunc).collect()
 
         expected_thing_result = ["pandahappy", "pandasad", "pandahappiest"]
         expected_magic_result = ["pandatea", "pandawater", "pandacoffee"]
@@ -59,8 +59,8 @@ class PContextTests(SparklingPandasTestCase):
 
     def test_collect(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-        prdd = self.psc.DataFrame(input, columns=['magic', 'thing'])
-        collected_result = prdd.collect()
+        dataframe = self.psc.DataFrame(input, columns=['magic', 'thing'])
+        collected_result = dataframe.collect()
 
         expected_thing_result = ["happy", "sad", "happiest"]
         expected_magic_result = ["tea", "water", "coffee"]
@@ -73,8 +73,8 @@ class PContextTests(SparklingPandasTestCase):
 
     def test_stats(self):
         input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
-        prdd = self.psc.DataFrame(input, columns=['a', 'b'])
-        stats = prdd.stats(columns=['b'])
+        dataframe = self.psc.DataFrame(input, columns=['a', 'b'])
+        stats = dataframe.stats(columns=['b'])
         b_col_stat_counter = stats['b']
         np_tests.assert_almost_equal(b_col_stat_counter.count(), 3)
         np_tests.assert_almost_equal(b_col_stat_counter.avg(), 20.0)
