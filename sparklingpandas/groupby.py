@@ -53,6 +53,8 @@ class GroupBy:
     def _prep_new_school(self):
         """Used Spark SQL group approach"""
         self._grouped_spark_sql = self._prdd.to_spark_sql().groupBy(self._by)
+        self._columns = filter(lambda x: x != self._by,
+                               self._prdd._column_names())
 
     def _prep_old_school(self):
         """Prepare the old school pandas group by based approach."""
@@ -123,7 +125,7 @@ class GroupBy:
     def ngroups(self):
         """Number of groups."""
         if self._can_use_new_school():
-            return self._grouped_saprk_sql.count()
+            return self._grouped_spark_sql.count()
         self._prep_old_school()
         return self._mergedRDD.count()
 
@@ -242,11 +244,36 @@ class GroupBy:
             merge_combiner)).values()
         return Dataframe.fromDataFrameRDD(rddOfMax, self.sql_ctx)
 
+    def _use_aggregation(self, agg, aggName, columns=None):
+        """Compute the result using the aggregation function provided.
+        The aggregation name must also be provided so we can strip of the extra
+        name that Spark SQL adds."""
+        if not columns:
+            columns = self._columns
+        from pyspark.sql import functions as F
+        aggs = list([F.first(self._by)] +
+                    map(lambda column: agg(column), self._columns))
+        aggRdd = self._grouped_spark_sql.agg(*aggs)
+        renamedRdd = aggRdd
+        for column in self._columns:
+            fromName = aggName + "(" + column + ")"
+            renamedRdd = renamedRdd.withColumnRenamed(fromName, column)
+        renamedRdd = renamedRdd.withColumnRenamed("FIRST(" + self._by + ")",
+                                                  self._by)
+        df = Dataframe.fromSchemaRDD(renamedRdd)
+        df._index_names = [self._by]
+        return df
+
     def first(self):
         """
         Pull out the first from each group. Note: this is different than
         Spark's first.
         """
+        # If its possible to use Spark SQL grouping do it
+        if self._can_use_new_school():
+            self._prep_new_school()
+            from pyspark.sql import functions as F
+            return self._use_aggregation(F.first, "FIRST")
         myargs = self._myargs
         mykwargs = self._mykwargs
         self._prep_old_school()

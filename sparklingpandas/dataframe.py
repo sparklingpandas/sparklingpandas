@@ -58,6 +58,11 @@ class Dataframe:
 
         return self._schema_rdd.rdd.flatMap(fromRecords)
 
+    def _column_names(self):
+        """Return the column names"""
+        index_names = set(_normalize_index_names(self._index_names))
+        return filter(lambda x: x not in index_names, self._schema_rdd.columns)
+
     def __evil_apply_with_dataframes(self, func):
         """Convert the underlying SchmeaRDD to an RDD of DataFrames.
         apply the provide function and convert the result back.

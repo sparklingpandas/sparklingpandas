@@ -23,6 +23,10 @@ import sys
 import pandas as pd
 import unittest2
 import numpy as np
+from pandas.util.testing import (assert_almost_equal,
+                                 assert_series_equal,
+                                 assert_frame_equal,
+                                 assert_index_equal)
 
 
 class Groupby(SparklingPandasTestCase):
@@ -37,6 +41,15 @@ class Groupby(SparklingPandasTestCase):
         distributedGroupedFrame = self.basicpframe.groupby('magic', sort=False)
         distributedGroupedFrame._cache()
         self._compare_groupby_results(groupedFrame, distributedGroupedFrame)
+
+    def test_basic_groupby_first(self):
+        """Test groupby with out sorting."""
+        groupedFrame = self.basicframe.groupby('magic', sort=False)
+        distributedGroupedFrame = self.basicpframe.groupby('magic', sort=False)
+        firstGroupedFrame = groupedFrame.first()
+        firstDistributedGroupedFrame = distributedGroupedFrame.first()
+        assert_frame_equal(firstGroupedFrame,
+                           firstDistributedGroupedFrame.collect())
 
     def test_basic_groupby_na(self):
         """Test groupby with out sorting on an na frame"""
