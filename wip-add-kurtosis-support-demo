@@ -1,0 +1,11 @@
+from sparklingpandas.custom_functions import *
+import random
+input = range(1,6) + range(1,6) + range(1,6) + range(1,6) + range(1,6) + range(1,6)
+df1 = sqlContext.createDataFrame(sc.parallelize(input)\
+                                    .map(lambda i: Row(single=i, rand= random.randint(0,100000))))
+df1.collect()
+import pyspark.sql.functions as F
+x = df1.groupBy(df1.single).agg(F.min(df1.rand))
+x.collect()
+j = df1.groupBy(df1.single).agg(kurtosis(df1.rand))
+j.collect()

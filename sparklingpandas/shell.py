@@ -25,5 +25,7 @@ from sparklingpandas.pcontext import PSparkContext
 from pyspark.sql import SQLContext
 sqlCtx = SQLContext(sc)
 hiveCtx = HiveContext(sqlCtx)
-psc = PSparkContext(sc, sqlCtx=hiveCtx)
+sqlContext = sqlCtx
+from pyspark.sql import Row
+psc = PSparkContext(sc, sqlCtx=sqlCtx)
 print("Sparkling Pandas context is available as psc\n")
