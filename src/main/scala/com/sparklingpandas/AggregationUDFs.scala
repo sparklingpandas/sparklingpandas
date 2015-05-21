@@ -51,15 +51,12 @@ case class KurtosisFunction(child: Expression, base: AggregateExpression) extend
   }
   override def eval(input: Row): Any = {
     if (data.isEmpty) {
-      println("No data???")
       null
     } else {
       val inputAsDoubles = data.toList.map(toDouble)
-      println("computing on input "+inputAsDoubles)
       val inputArray = inputAsDoubles.toArray
       val apacheKurtosis = new ApacheKurtosis()
       val result = apacheKurtosis.evaluate(inputArray, 0, inputArray.size)
-      println("result "+result)
       Cast(Literal(result), DoubleType).eval(null)
     }
   }
