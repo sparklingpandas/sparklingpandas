@@ -253,6 +253,10 @@ class Dataframe:
                           columns))
         return PStats(self.fromSchemaRDD(self._schema_rdd.agg(*aggs)))
 
+    def kurtosis(self, axis=None):
+        """A simplified kurtosis implementation, currently only supports computing over a simplified axes."""
+        return self.from_spark_df(self._schema_rdd.)
+    
     def min(self):
         return self.from_spark_df(Dataframe._schema_rdd.min())
 
