@@ -21,6 +21,7 @@ from sparklingpandas.utils import add_pyspark_path
 import pandas
 
 add_pyspark_path()
+from pyspark import SparkConf
 from sparklingpandas.pcontext import PSparkContext
 from sparklingpandas.dataframe import Dataframe
 import unittest2
@@ -39,7 +40,11 @@ class SparklingPandasTestCase(unittest2.TestCase):
         PSparkContext."""
         self._old_sys_path = list(sys.path)
         class_name = self.__class__.__name__
-        self.psc = PSparkContext.simple('local[4]', class_name, batchSize=2)
+        conf = SparkConf()
+        conf.set("spark.cores.max", "4")
+        conf.set("spark.master", "local[4]")
+        conf.set("spark.app-name", class_name)
+        self.psc = PSparkContext.simple(conf=conf)
         # Add a common basic input and basicpframe we can reuse in testing
         self.basicinput = [
             ("tea", "happy"),

@@ -84,6 +84,14 @@ class PContextTests(SparklingPandasTestCase):
         np_tests.assert_almost_equal(b_col_stat_counter.max(), 30)
         np_tests.assert_almost_equal(b_col_stat_counter.min(), 10)
 
+    @unittest2.skip("Skipping this until we have kurtosis on dataframes")
+    def test_kurtosis(self):
+        input = input = [(5.1, 10.2, 100.2, 999.1), (5.1, 20.3, 900.1, 765.2), (5.1, 30.2, 1002.3, 82.4), (5.1, 30.2, 1090.3, 98.5)]
+        dataframe = self.psc.DataFrame(input, columns=['a', 'b', 'c', 'd'])
+        pdataframe = pd.DataFrame(input)
+        np_tests.assert_almost_equal(dataframe.kurtosis(axis=0).collect().values,
+                                     pdataframe.kurtosis(axis=0).values)
+
     def test_dtypes(self):
         assert_series_equal(self.basicpframe.dtypes,
                             self.basicframe.dtypes)

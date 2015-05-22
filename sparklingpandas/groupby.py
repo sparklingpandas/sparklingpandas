@@ -334,12 +334,20 @@ class GroupBy:
     def aggregate(self, f):
         """Apply the aggregation function.
         Note: This implementation does note take advantage of partial
-        aggregation.
+        aggregation unless we have one of the special cases.
+        Currently the only special case is Series.kurtosis - and even
+        that doesn't properly do partial aggregations, but we can improve
+        it to do this eventually!
         """
-        self._prep_old_school()
-        return Dataframe.fromDataFrameRDD(
-            self._regroup_mergedRDD().values().map(
-                lambda g: g.aggregate(f)), self.sql_ctx)
+        if self._can_use_new_school() and f == pd.Series.kurtosis:
+            self._prep_new_school()
+            import custom_functions as CF
+            return self._use_aggregation(CF.kurtosis, "Kurtosis") 
+        else :
+            self._prep_old_school()
+            return Dataframe.fromDataFrameRDD(
+                self._regroup_mergedRDD().values().map(
+                    lambda g: g.aggregate(f)), self.sql_ctx)
 
     def agg(self, f):
         return self.aggregate(f)
