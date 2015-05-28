@@ -20,7 +20,9 @@ _functions = {
 }
 
 def registerSQLExtensions(sqlCtx):
-    sqlCtx.sc._jvm.com.sparklingpandas.functions.registerUdfs()
+    scala_SQLContext = sqlCtx._ssql_ctx
+    sc = sqlCtx._sc
+    sc._jvm.com.sparklingpandas.functions.registerUdfs(scala_SQLContext)
 
 for _name, _doc in _functions.items():
     globals()[_name] = _create_function(_name, _doc)
