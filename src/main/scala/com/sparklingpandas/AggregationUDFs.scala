@@ -9,6 +9,7 @@ import scala.math._
 
 import org.apache.commons.math.stat.StatUtils
 import org.apache.commons.math.stat.descriptive.moment.{ Kurtosis => ApacheKurtosis}
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.EvilSqlTools
 import org.apache.spark.sql.types.{DoubleType, NumericType}
@@ -17,10 +18,25 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.catalyst.trees
 import org.apache.spark.sql.catalyst.errors.TreeNodeException
 
+// functions we want to be callable from python
 object functions {
   def kurtosis(e: Column): Column = new Column(Kurtosis(EvilSqlTools.getExpr(e)))
+  def registerUdfs(sqlCtx: SQLContext): Unit = {
+    sqlCtx.udf.register("rowKurtosis", helpers.rowKurtosis _)
+  }
 }
 
+// helper functions, not meant to be called directly from Python
+object helpers {
+  def rowKurtosis(x: Any*): Double = {
+    val inputAsDoubles = x.map(Utils.toDouble)
+    val inputArray = inputAsDoubles.toArray
+    val apacheKurtosis = new ApacheKurtosis()
+    apacheKurtosis.evaluate(inputArray, 0, inputArray.size)
+  }
+}
+
+// Compute the kurtosis on columns
 case class Kurtosis(child: Expression) extends AggregateExpression {
   def this() = this(null)
 
@@ -39,21 +55,11 @@ case class KurtosisFunction(child: Expression, base: AggregateExpression) extend
     data += child.eval(input)
   }
 
-  // This function seems shaaady
-  // TODO: Do something more reasonable
-  private def toDouble(x: Any): Double = {
-    x match {
-      case x: NumericType => EvilSqlTools.toDouble(x.asInstanceOf[NumericType])
-      case x: Long => x.toDouble
-      case x: Int => x.toDouble
-      case x: Double => x
-    }
-  }
   override def eval(input: Row): Any = {
     if (data.isEmpty) {
       null
     } else {
-      val inputAsDoubles = data.toList.map(toDouble)
+      val inputAsDoubles = data.toList.map(Utils.toDouble)
       val inputArray = inputAsDoubles.toArray
       val apacheKurtosis = new ApacheKurtosis()
       val result = apacheKurtosis.evaluate(inputArray, 0, inputArray.size)
