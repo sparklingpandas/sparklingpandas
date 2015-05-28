@@ -24,7 +24,7 @@ import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
 from sparklingpandas.dataframe import Dataframe, _normalize_index_names
-
+from sparklingpandas.custom_functions import registerSQLExtensions
 
 class PSparkContext():
 
@@ -38,6 +38,8 @@ class PSparkContext():
         else:
             from pyspark.sql import SQLContext
             self.sql_ctx = SQLContext(self.sc)
+        # Register our magical functions
+        registerSQLExtensions(self.sql_ctx)
 
     @classmethod
     def simple(cls, *args, **kwargs):

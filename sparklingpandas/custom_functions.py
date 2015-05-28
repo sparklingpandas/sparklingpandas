@@ -19,6 +19,8 @@ _functions = {
     'kurtosis': 'Calculate the kurtosis, maybe!',
 }
 
+def registerSQLExtensions(sqlCtx):
+    sqlCtx.sc._jvm.com.sparklingpandas.functions.registerUdfs()
 
 for _name, _doc in _functions.items():
     globals()[_name] = _create_function(_name, _doc)

@@ -253,6 +253,13 @@ class Dataframe:
                           columns))
         return PStats(self.fromSchemaRDD(self._schema_rdd.agg(*aggs)))
 
+    def kurtosis(self, axis=None):
+        if axis == None or axis == 0:
+            # TODO: * isn't happy we should only do this on some columns
+            return self.from_spark_df(self._schema_rdd.select("rowKurtosis(*)"))
+        else:
+            return self.groupby("true").aggregate(pdf.Series.kurtsosis)
+
     def min(self):
         return self.from_spark_df(Dataframe._schema_rdd.min())
 
