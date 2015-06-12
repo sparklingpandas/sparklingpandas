@@ -12,7 +12,12 @@ of PySpark to scale your data analysis with Pandas.
 Documentation
 =========
 
-None (right now). You can find some slides in the slides/ directory
+None (right now).
+
+
+Videos
+=========
+An early version of Sparkling Pandas was discussed in [Sparkling Pandas - using Apache Spark to scale Pandas - Holden Karau and Juliet Hougland](https://www.youtube.com/watch?v=AcyI_V8FeIU)
 
 Requirements
 =========
