@@ -3,8 +3,8 @@ from setuptools import setup
 setup(
     name='sparklingpandas',
     version='0.0.1',
-    author='Holden Karau',
-    author_email='holden@pigscanfly.ca',
+    author='Holden Karau, Juliet Hougland',
+    author_email='holden@pigscanfly.ca, juliet@cloudera.com',
     packages=['sparklingpandas', 'sparklingpandas.test'],
     url='https://github.com/holdenk/PandaSpark',
     license='LICENSE.txt',
