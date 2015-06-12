@@ -18,7 +18,8 @@ Requirements
 =========
 
 The primary requirement of SparklingPandas is that you have a recent (v1.3
-currently) version of Spark installed - <http://spark.apache.org>
+currently) version of Spark installed - <http://spark.apache.org> and Python
+2.7.
 
 Using
 =========
