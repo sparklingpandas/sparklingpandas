@@ -2,11 +2,11 @@ from setuptools import setup
 
 setup(
     name='sparklingpandas',
-    version='0.0.1',
-    author='Holden Karau',
-    author_email='holden@pigscanfly.ca',
+    version='0.0.2',
+    author='Holden Karau, Juliet Hougland',
+    author_email='holden@pigscanfly.ca, juliet@cloudera.com',
     packages=['sparklingpandas', 'sparklingpandas.test'],
-    url='https://github.com/holdenk/PandaSpark',
+    url='https://github.com/sparklingpandas/sparklingpandas',
     license='LICENSE.txt',
     description='Enable Pandas on PySpark',
     long_description=open('README.md').read(),
