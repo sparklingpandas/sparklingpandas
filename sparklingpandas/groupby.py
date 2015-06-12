@@ -25,9 +25,9 @@ import numpy as np
 
 class GroupBy:
 
-    """An RDD with key value pairs, where each value is a Panda's dataframe and
+    """An RDD with key value pairs, where each value is a Pandas Dataframe and
     the key is the result of the group. Supports many of the same operations
-    as a Panda's GroupBy."""
+    as a Pandas GroupBy."""
 
     def __init__(self, prdd, *args, **kwargs):
         """Construct a groupby object providing the functions on top of the
@@ -104,7 +104,7 @@ class GroupBy:
         return self._mergedRDD.collect().__iter__()
 
     def collect(self):
-        """Return a list of the elements. This is a SparklingPanda extension
+        """Return a list of the elements. This is a SparklingPandas extension
         because Spark gives us back a list we convert to an iterator in
         __iter__ so it allows us to skip the round trip through iterators.
         """
