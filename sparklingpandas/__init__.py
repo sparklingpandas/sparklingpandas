@@ -17,8 +17,10 @@
 
 
 """
-PandaSpark provides support for Pandas on Spark. The primary classes one should
- look at are L{Dataframe} and L{PSparkContext}.
+SparkingPandas provides support for a Pandas-like api on Spark. Spark
+DataFrames do not provide the api that Pandas users are used to in data frames.
+In order to provide an API similar to Pandas' Dataframes or R's Dataframes we
+provide the classes [[prdd]]
 """
 
 """from sparklingpandas.dataframe import Dataframe
