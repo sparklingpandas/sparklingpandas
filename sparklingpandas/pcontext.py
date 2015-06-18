@@ -105,10 +105,10 @@ class PSparkContext():
 
         # Do the actual load
         if use_whole_file:
-            return self.from_pandas_RDD(
+            return self.from_pandas_rdd(
                 self.sc.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
         else:
-            return self.from_pandas_RDD(
+            return self.from_pandas_rdd(
                 self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
 
     def parquetFile(self, *paths):

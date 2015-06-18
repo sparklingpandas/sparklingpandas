@@ -18,6 +18,7 @@ Test methods in pcontext
 # limitations under the License.
 #
 import json
+import csv
 import os
 import tempfile
 
@@ -52,3 +53,21 @@ class PContextTests(SparklingPandasTestCase):
         assert len(elements) == 3
         expected = sorted([u'coffee', u'tea', u'water'])
         assert sorted(elements['magic']) == expected
+
+    def test_read_csv(self):
+        input = [["happy", 3],
+                 ["grumpy", 4],
+                 ["dopey", 5]]
+
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        temp_file.close()
+
+        with open(temp_file.name, 'wb') as f:
+            writer = csv.writer(f)
+            writer.write_rows(input)
+
+        df = self.psc.read_csv(temp_file.name)
+        elements = df.collect()
+        os.unlink(temp_file.name)
+
+        assert len(elements) == 3
