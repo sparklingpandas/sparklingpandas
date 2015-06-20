@@ -22,7 +22,7 @@ An early version of Sparkling Pandas was discussed in [Sparkling Pandas - using 
 Requirements
 =========
 
-The primary requirement of SparklingPandas is that you have a recent (v1.3
+The primary requirement of SparklingPandas is that you have a recent (v1.4
 currently) version of Spark installed - <http://spark.apache.org> and Python
 2.7.
 

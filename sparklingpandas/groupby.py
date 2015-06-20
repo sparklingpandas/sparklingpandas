@@ -251,16 +251,9 @@ class GroupBy:
         if not columns:
             columns = self._columns
         from pyspark.sql import functions as F
-        aggs = list([F.first(self._by)] +
-                    map(lambda column: agg(column), self._columns))
+        aggs = map(lambda column: agg(column).as(column), self._columns)
         aggRdd = self._grouped_spark_sql.agg(*aggs)
-        renamedRdd = aggRdd
-        for column in self._columns:
-            fromName = aggName + "(" + column + ")"
-            renamedRdd = renamedRdd.withColumnRenamed(fromName, column)
-        renamedRdd = renamedRdd.withColumnRenamed("FIRST(" + self._by + ")",
-                                                  self._by)
-        df = Dataframe.fromSchemaRDD(renamedRdd)
+        df = Dataframe.fromSchemaRDD(aggRdd)
         df._index_names = [self._by]
         return df
 
