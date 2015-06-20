@@ -7,4 +7,5 @@ import org.apache.spark.sql.types.NumericType
 object EvilSqlTools {
   def getExpr(c: Column): Expression = c.expr
   def toDouble(e: NumericType): Double = e.numeric.asInstanceOf[Numeric[Any]].toDouble()
+  def makeColumn(e: Expression): Column = Column(e)
 }
