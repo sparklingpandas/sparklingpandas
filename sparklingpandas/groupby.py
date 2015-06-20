@@ -251,7 +251,7 @@ class GroupBy:
         if not columns:
             columns = self._columns
         from pyspark.sql import functions as F
-        aggs = map(lambda column: agg(column).as(column), self._columns)
+        aggs = map(lambda column: agg(column).alias(column), self._columns)
         aggRdd = self._grouped_spark_sql.agg(*aggs)
         df = Dataframe.fromSchemaRDD(aggRdd)
         df._index_names = [self._by]
