@@ -26,6 +26,7 @@ from pyspark.context import SparkContext
 from sparklingpandas.dataframe import Dataframe, _normalize_index_names
 from sparklingpandas.custom_functions import registerSQLExtensions
 
+
 class PSparkContext():
 
     """This is a thin wrapper around SparkContext from PySpark which makes it

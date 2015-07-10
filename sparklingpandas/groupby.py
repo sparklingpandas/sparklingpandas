@@ -342,8 +342,8 @@ class GroupBy:
         if self._can_use_new_school() and f == pd.Series.kurtosis:
             self._prep_new_school()
             import custom_functions as CF
-            return self._use_aggregation(CF.kurtosis, "Kurtosis") 
-        else :
+            return self._use_aggregation(CF.kurtosis, "Kurtosis")
+        else:
             self._prep_old_school()
             return Dataframe.fromDataFrameRDD(
                 self._regroup_mergedRDD().values().map(

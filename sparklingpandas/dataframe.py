@@ -254,10 +254,11 @@ class Dataframe:
         return PStats(self.fromSchemaRDD(self._schema_rdd.agg(*aggs)))
 
     def kurtosis(self, axis=None):
-        if axis == None or axis == 0:
+        if axis is None or axis == 0:
             # TODO: * isn't happy we should only do this on some columns
             # Note: this code path doesn't work
-            return self.from_spark_df(self._schema_rdd.select("rowKurtosis(*)"))
+            return self.from_spark_df(
+                self._schema_rdd.select("rowKurtosis(*)"))
         else:
             return self.groupby("true").aggregate(pdf.Series.kurtsosis)
 

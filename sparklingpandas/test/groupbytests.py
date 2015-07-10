@@ -162,8 +162,9 @@ class Groupby(SparklingPandasTestCase):
         distributedNumericGroupedFrame = self.numericpframe.groupby(
             'a', sort=True)
         from pandas import Series
-        self._compareDataFrames(numericGroupedFrame.aggregate(Series.kurtosis),
-                                distributedNumericGroupedFrame.aggregate(Series.kurtosis).collect())
+        expected = numericGroupedFrame.aggregate(Series.kurtosis)
+        result = distributedNumericGroupedFrame.aggregate(Series.kurtosis)
+        self._compareDataFrames(expected, result.collect())
 
     def test_sum_three_col(self):
         """Test that sum works on three column numeric data frame."""
