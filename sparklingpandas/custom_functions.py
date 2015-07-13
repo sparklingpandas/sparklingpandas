@@ -19,9 +19,9 @@ def _create_sql_function(name, doc=""):
 
 def _create_function_on_df(name, doc=""):
     """ Create a function for calling on Dataframe."""
-    def _(df):
+    def _(df, *args):
         sc = SparkContext._active_spark_context
-        jc = getattr(sc._jvm.com.sparklingpandas.functions, name)(df._jdf)
+        jc = getattr(sc._jvm.com.sparklingpandas.functions, name)(df._jdf, *args)
         return jc
     _.__name__ = name
     _.__doc__ = doc
@@ -45,6 +45,8 @@ def registerSQLExtensions(sqlCtx):
 
 for _name, _doc in _functions.items():
     globals()[_name] = _create_sql_function(_name, _doc)
+for _name, _doc in _functions_on_df.items():
+    globals()[_name] = _create_function_on_df(_name, _doc)
 del _name, _doc
 __all__ += _functions.keys()
 __all__.sort()
