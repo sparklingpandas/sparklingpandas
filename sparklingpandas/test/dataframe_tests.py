@@ -71,8 +71,19 @@ class DataframeTests(SparklingPandasTestCase):
         assert expected_magic_result == actual_magic_result
         assert expected_thing_result == actual_thing_result
 
+
     def test_numeric_pframe_can_collect(self):
         self.numericpframe.collect()
+
+
+    def test_histogram_of_strings(self):
+        input = [("water", "sad"), ("coffee", "happiest"),
+                 ("coffee", "happy")]
+        dataframe = self.psc.DataFrame(input, columns=['magic', 'thing'])
+        histogramData = dataframe["magic"]._generate_histogram_data()
+        expected = {"water": 1, "coffee": 2}
+        assert histogramData == expected
+
 
     def test_stats(self):
         input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
