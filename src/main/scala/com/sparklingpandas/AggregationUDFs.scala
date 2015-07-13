@@ -37,8 +37,11 @@ object helpers {
     apacheKurtosis.evaluate(inputArray, 0, inputArray.size)
   }
 
+  // Compute the histogram data, returns a map of bucket name to count.
   def dataFrameHistogram(e: DataFrame, buckets: Int):
       java.util.Map[String, Long] = {
+    // Compute the histogram, provide a function to extract the double value from
+    // the row. This uses Spark's histogram function
     def rowHistogram(f: Row => Double) = {
       val indexCounts = e.map(f).histogram(buckets)
       val map = new scala.collection.mutable.HashMap[String, Long]()
@@ -54,6 +57,8 @@ object helpers {
     // use more magic. Note: we ignore bucket #s for String inputs.
     val schema = e.schema
     val fields = schema.fields
+    // If we have a numeric type underneath, then use rowHistogram otherwise
+    // use countByValue().
     fields.head match {
       case StructField(_, StringType, _, _) => e.map(_.getString(0)).countByValue()
       case StructField(_, IntegerType, _, _) => rowHistogram(_.getInt(0).toDouble)
