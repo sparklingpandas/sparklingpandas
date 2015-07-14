@@ -17,9 +17,9 @@
 # limitations under the License.
 #
 
-from sparklingpandas.utils import add_pyspark_path
+from sparklingpandas.utils import setup_pyspark
 
-add_pyspark_path()
+setup_pyspark()
 import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext

@@ -3,8 +3,8 @@ import timeit
 setup_str = """import pandas as pd
 import numpy.random as nprnd
 import scipy.stats as scistats
-from pandaspark.utils import add_pyspark_path
-add_pyspark_path()
+from pandaspark.utils import setup_pyspark
+setup_pyspark()
 from pyspark.statcounter import StatCounter
 df = pd.DataFrame({'samples' : pd.Series(nprnd.randn(1000))})"""
 

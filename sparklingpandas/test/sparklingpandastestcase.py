@@ -17,10 +17,10 @@
 
 """This module provides some common test case base for PandaSparkTestCases"""
 
-from sparklingpandas.utils import add_pyspark_path
+from sparklingpandas.utils import setup_pyspark
 import pandas
 
-add_pyspark_path()
+setup_pyspark()
 from pyspark import SparkConf
 from sparklingpandas.pcontext import PSparkContext
 from sparklingpandas.dataframe import Dataframe

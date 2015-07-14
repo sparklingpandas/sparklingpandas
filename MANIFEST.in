@@ -1,3 +1,4 @@
 include *.txt
 include *.md
-recursive-include docs 
+recursive-include docs
+recursive-include ./target/scala-2.10/ *.jar

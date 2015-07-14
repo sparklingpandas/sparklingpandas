@@ -26,7 +26,14 @@ _functions = {
 def registerSQLExtensions(sqlCtx):
     scala_SQLContext = sqlCtx._ssql_ctx
     sc = sqlCtx._sc
-    sc._jvm.com.sparklingpandas.functions.registerUdfs(scala_SQLContext)
+    try:
+        sc._jvm.com.sparklingpandas.functions.registerUdfs(scala_SQLContext)
+    except Exception:
+        msg = ("An exception was encoutered trying to register extra UDFS."
+               "Some Sparkling Panda functionality may not be available."
+               "If building from source run ./sbt/sbt assembly")
+        print msg
+
 
 for _name, _doc in _functions.items():
     globals()[_name] = _create_function(_name, _doc)

@@ -30,7 +30,10 @@ Using
 =========
 
 Make sure you have the SPARK_HOME enviroment variable set correctly, as
-SparklingPandas uses this for including the PySpark libraries
+SparklingPandas uses this for including the PySpark libraries.
+
+Some SparklingPandas components are built on the JVM, if building from source you
+can compile these run `./sbt/sbt assembly`.
 
 Other than that you can install SparklingPandas with pip and just import it.
 The primary unit of SparklingPandas is a PRDD (Pandas Resillent Distributed

@@ -16,8 +16,8 @@
 # limitations under the License.
 #
 
-from sparklingpandas.utils import add_pyspark_path
-add_pyspark_path()
+from sparklingpandas.utils import setup_pyspark
+setup_pyspark()
 import pandas
 
 
