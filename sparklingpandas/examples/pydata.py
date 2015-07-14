@@ -16,10 +16,13 @@ def fetchProfile(id):
         # Choose the most common
         pronouns_counter = Counter(pronouns).most_common
         if pronouns_counter is not None:
-            return [(id, pronouns_counter(1)[0][0])]
+            return [Row(id=id, pronoun=pronouns_counter(1)[0][0])]
     except urllib2.HTTPError:
         return []
     except IndexError:
         return [(id, "none")]
 
-speaker_pronouns = profiles.flatMap(fetchProfile).toDF()
+speaker_pronouns = psc.from_spark_df(
+    profiles.flatMap(fetchProfile).toDF())
+speaker_pronouns._index_names = ["id"]
+
