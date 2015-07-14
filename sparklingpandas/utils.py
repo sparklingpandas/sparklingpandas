@@ -11,8 +11,12 @@ def setup_pyspark():
 
     add_pyspark_path()
     import os
-    jars = os.path.realpath(__file__ + "/../../target/scala-2.10/sparklingpandas-assembly-0.0.2-SNAPSHOT.jar")
-    os.environ['PYSPARK_SUBMIT_ARGS']="--jars %s --driver-class-path %s pyspark-shell".format(jars, jars)
+    jarname = "sparklingpandas-assembly-0.0.2-SNAPSHOT.jar"
+    jars = os.path.realpath(__file__ +
+                            "/../../target/scala-2.10/" + jarname)
+    args = os.getenv("PYSPARK_SUBMIT_ARGS",
+                     "--jars %s --driver-class-path %s pyspark-shell".format(jars, jars))
+    os.environ['PYSPARK_SUBMIT_ARGS']= args
     add_pyspark_path()
 
 def add_pyspark_path():
