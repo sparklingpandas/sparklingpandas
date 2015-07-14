@@ -14,7 +14,9 @@ install:
   - "pip install ."
 script:
   # Download spark 1.4.0
-  - "wget http://download.nextag.com/apache/spark/spark-1.4.0/spark-1.4.0-bin-hadoop2.4.tgz"
+  - "URL1=http://d3kbcqa49mib13.cloudfront.net/spark-1.4.0-bin-hadoop2.6.tgz"
+  - "URL2=http://download.nextag.com/apache/spark/spark-1.4.0/spark-1.4.0-bin-hadoop2.4.tgz"
+  - "axel $URL1 || wget $URL1 || axel $URL2 || wget $URL2"
   - "tar -xvf spark-1.4.0-bin-hadoop2.4.tgz"
   # build our scala code
   - ./sbt/sbt compile package
