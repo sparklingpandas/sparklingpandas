@@ -282,7 +282,7 @@ class Dataframe:
     def plot(self, kind='histogram', display='ipython', columns=[]):
         """Plot the dataframe."""
         # Todo : magic
-        histogramData = self._generate_histogram_data
+        histogramData = self._generate_histogram_data()
         return histogramData
 
 # DataFrame helper functions that don't depend on the class

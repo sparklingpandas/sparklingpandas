@@ -16,13 +16,20 @@ def fetchProfile(id):
         # Choose the most common
         pronouns_counter = Counter(pronouns).most_common
         if pronouns_counter is not None:
-            return [Row(id=id, pronoun=pronouns_counter(1)[0][0])]
+            return [(int(id), pronouns_counter(1)[0][0])]
     except urllib2.HTTPError:
         return []
     except IndexError:
         return [(id, "none")]
 
+from pyspark.sql import SQLContext
+from pyspark.sql.types import *
+schema = StructType([StructField("id", IntegerType(), True),
+         StructField("pronoun", StringType(), True)])
 speaker_pronouns = psc.from_spark_df(
-    profiles.flatMap(fetchProfile).toDF())
+    sqlContext.createDataFrame(
+        profiles.flatMap(fetchProfile),
+        schema
+    ))
 speaker_pronouns._index_names = ["id"]
-
+speaker_pronouns["pronoun"].histogram()
