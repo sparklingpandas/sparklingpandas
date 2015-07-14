@@ -283,7 +283,8 @@ class Dataframe:
         """Plot the dataframe."""
         # Todo : magic
         histogramData = self._generate_histogram_data()
-        return histogramData
+        localdf = pandas.DataFrame(dict(d).items()).set_index(0)
+        localdf.plot()
 
 # DataFrame helper functions that don't depend on the class
 def _update_index_on_df(df, index_names):

@@ -32,4 +32,5 @@ speaker_pronouns = psc.from_spark_df(
         schema
     ))
 speaker_pronouns._index_names = ["id"]
-speaker_pronouns["pronoun"].histogram()
+import matplotlib.pyplot as plt
+speaker_pronouns["pronoun"].plot()
