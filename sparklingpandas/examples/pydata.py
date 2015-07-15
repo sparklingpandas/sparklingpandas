@@ -1,4 +1,4 @@
-profiles = sc.parallelize(list(range(1, 300))) # later 1 -> 300
+profiles = sc.parallelize(list(range(1, 350))) # later 1 -> 300
 
 import re
 pronoun_re = re.compile("[\s\.\>](she|he|they|xe|ze|zhe|mer)[\s\.\<]", flags=re.IGNORECASE)

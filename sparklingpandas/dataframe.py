@@ -283,11 +283,11 @@ class Dataframe:
         """Plot the dataframe as a histogram"""
         # Todo : magic
         histogramData = self._generate_histogram_data(10)
-        newcolumns = self._schema_rdd.columns
-        newcolumns.insert(0, "counts")
+        newcolumns = list(self._schema_rdd.columns)
+        newcolumns.insert(1, "counts")
         localdf = pandas.DataFrame(dict(histogramData).items(),
                                    columns = newcolumns)
-        localdf.set_index("counts")
+        localdf = localdf.set_index(self._schema_rdd.columns)
         return localdf.plot(kind="bar")
 
 # DataFrame helper functions that don't depend on the class
