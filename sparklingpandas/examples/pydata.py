@@ -1,4 +1,4 @@
-profiles = sc.parallelize(list(range(8,12))) # later 1 -> 300
+profiles = sc.parallelize(list(range(1, 300))) # later 1 -> 300
 
 import re
 pronoun_re = re.compile("[\s\.\>](she|he|they|xe|ze|zhe|mer)[\s\.\<]", flags=re.IGNORECASE)
@@ -6,8 +6,11 @@ pronoun_re = re.compile("[\s\.\>](she|he|they|xe|ze|zhe|mer)[\s\.\<]", flags=re.
 def fetchProfile(id):
     """Fetch a PyData Seattle speaker profile and return the most common pronoun used"""
     import urllib2
+    import time
+    import random
     from collections import Counter
     try:
+        time.sleep(random.randint(0,3))
         response = urllib2.urlopen("http://seattle.pydata.org/speaker/profile/%s" % id)
         html = response.read()
         # Extract the pronouns
@@ -31,6 +34,8 @@ speaker_pronouns = psc.from_spark_df(
         profiles.flatMap(fetchProfile),
         schema
     ))
+speaker_pronouns._schema_rdd.cache()
 speaker_pronouns._index_names = ["id"]
 import matplotlib.pyplot as plt
-speaker_pronouns["pronoun"].plot()
+plot = speaker_pronouns["pronoun"].plot()
+plot.get_figure().savefig("/tmp/fig")

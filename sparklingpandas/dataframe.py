@@ -274,17 +274,21 @@ class Dataframe:
     def _flatmap(self, f, items):
         return chain.from_iterable(imap(f, items))
 
-    def _generate_histogram_data(self):
+    def _generate_histogram_data(self, bins):
         """Generate the histogram data."""
         import custom_functions as CF
-        return CF.histogram(self._schema_rdd)
+        return CF.histogram(self._schema_rdd, 10)
 
-    def plot(self, kind='histogram', display='ipython', columns=[]):
-        """Plot the dataframe."""
+    def plot(self, kind="bar", bins=10):
+        """Plot the dataframe as a histogram"""
         # Todo : magic
-        histogramData = self._generate_histogram_data()
-        localdf = pandas.DataFrame(dict(d).items()).set_index(0)
-        localdf.plot()
+        histogramData = self._generate_histogram_data(10)
+        newcolumns = self._schema_rdd.columns
+        newcolumns.insert(0, "counts")
+        localdf = pandas.DataFrame(dict(histogramData).items(),
+                                   columns = newcolumns)
+        localdf.set_index("counts")
+        return localdf.plot(kind="bar")
 
 # DataFrame helper functions that don't depend on the class
 def _update_index_on_df(df, index_names):

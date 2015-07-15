@@ -22,7 +22,9 @@ import org.apache.spark.sql.catalyst.errors.TreeNodeException
 // functions we want to be callable from python
 object functions {
   def kurtosis(e: Column): Column = new Column(Kurtosis(EvilSqlTools.getExpr(e)))
-  def histogram(e: DataFrame): java.util.Map[String, Long] = helpers.dataFrameHistogram(e, 0)
+  def histogram(e: DataFrame): java.util.Map[String, Long] = helpers.dataFrameHistogram(e, 10)
+  def histogram(e: DataFrame, buckets: Int): java.util.Map[String, Long] = helpers.dataFrameHistogram(e, buckets)
+
   def registerUdfs(sqlCtx: SQLContext): Unit = {
     sqlCtx.udf.register("rowKurtosis", helpers.rowKurtosis _)
   }
