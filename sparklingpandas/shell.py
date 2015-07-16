@@ -22,7 +22,10 @@ This file is designed to be launched by bin/pyspark
 """
 
 from sparklingpandas.pcontext import PSparkContext
-from pyspark.sql import SQLContext
+from pyspark.sql import SQLContext, HiveContext
+from pyspark import SparkContext
+
+sc = SparkContext()
 sqlCtx = SQLContext(sc)
 hiveCtx = HiveContext(sqlCtx)
 sqlContext = sqlCtx

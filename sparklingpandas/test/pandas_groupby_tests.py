@@ -128,19 +128,6 @@ class PandasGroupby(SparklingPandasTestCase):
         assert_frame_equal(nth, expected)
 
     @unittest2.expectedFailure
-    def test_getitem(self):
-        # it works!
-        grouped['B'].first()
-        grouped['B'].last()
-        grouped['B'].nth(0)
-
-        self.df.loc[self.df['A'] == 'foo', 'B'] = np.nan
-        self.assertTrue(com.isnull(grouped['B'].first()['foo']))
-        self.assertTrue(com.isnull(grouped['B'].last()['foo']))
-        # not sure what this is testing
-        self.assertTrue(com.isnull(grouped['B'].nth(0)[0]))
-
-    @unittest2.expectedFailure
     def test_new_in0140(self):
         """
         Test new functionality in 0.14.0. This currently doesn't work.
@@ -169,7 +156,7 @@ class PandasGroupby(SparklingPandasTestCase):
         df['F'] = 1
 
         # tests for first / last / nth
-        grouped = ddf.groupby('A')
+        grouped = df.groupby('A')
         first = grouped.first().collect()
         expected = df.ix[[1, 0], ['B', 'C', 'D', 'E', 'F']]
         expected.index = Index(['bar', 'foo'], name='A')

@@ -114,7 +114,7 @@ class GroupBy:
     @property
     def groups(self):
         """Returns dict {group name -> group labels}."""
-        self.prep_old_school()
+        self._prep_old_school()
 
         def extract_group_labels(frame):
             return (frame[0], frame[1].index.values)

@@ -44,7 +44,7 @@ class DataLoad(SparklingPandasTestCase):
         data = pframe.collect().sort(['magic'])
         expected = pandas.DataFrame(input, columns=['magic', 'thing']).sort(
             ['magic'])
-        assert_frame_equal(shouldeq, collectedframe)
+        assert_frame_equal(data, expected)
 
     def test_from_csv_record(self, whole_file=False):
         x = "hi,i,like,coffee\n"
@@ -110,7 +110,7 @@ class DataLoad(SparklingPandasTestCase):
                 "name": x[0],
                 "coffees": int(
                     x[1])})
-        sql_ctx = self.psc._get_sql_ctx()
+        sql_ctx = self.psc.sql_ctx()
         coffee_table = sql_ctx.inferSchema(rdd)
         coffee_table.registerAsTable("coffee")
         # Query it

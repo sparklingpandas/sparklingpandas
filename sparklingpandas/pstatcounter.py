@@ -25,6 +25,8 @@ import pandas
 add_pyspark_path()
 
 from pyspark.statcounter import StatCounter
+import scipy.stats as scistats
+import numpy as np
 
 
 class PStatCounter(object):

@@ -26,7 +26,7 @@ from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
 from pyspark.rdd import RDD
 import pyspark
-import pandas
+import pandas as pd
 
 
 class Dataframe:
@@ -52,7 +52,7 @@ class Dataframe:
             if not records:
                 return []
             else:
-                df = pandas.DataFrame.from_records([records], columns=columns)
+                df = pd.DataFrame.from_records([records], columns=columns)
                 df = _update_index_on_df(df, index_names)
                 return [df]
 
@@ -84,7 +84,7 @@ class Dataframe:
         """Gets the first row as a Panda's Dataframe. Useful for functions like
         dtypes & ftypes"""
         columns = self._schema_rdd.columns
-        df = pandas.DataFrame.from_records(
+        df = pd.DataFrame.from_records(
             [self._schema_rdd.first()],
             columns=self._schema_rdd.columns)
         df = _update_index_on_df(df, self._index_names)
@@ -260,16 +260,16 @@ class Dataframe:
             return self.from_spark_df(
                 self._schema_rdd.select("rowKurtosis(*)"))
         else:
-            return self.groupby("true").aggregate(pdf.Series.kurtsosis)
+            return self.groupby("true").aggregate(pd.Series.kurtsosis)
 
     def min(self):
-        return self.from_spark_df(Dataframe._schema_rdd.min())
+        return self.from_spark_df(self._schema_rdd.min())
 
     def max(self):
-        return self.from_spark_df(Dataframe._schema_rdd.max())
+        return self.from_spark_df(self._schema_rdd.max())
 
     def avg(self):
-        return self.from_spark_df(Dataframe._schema_rdd.avg())
+        return self.from_spark_df(self._schema_rdd.avg())
 
     def _flatmap(self, f, items):
         return chain.from_iterable(imap(f, items))
