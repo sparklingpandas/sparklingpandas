@@ -46,7 +46,7 @@ class GroupBy:
         args / kwargs"""
         # TODO: check the other components for sanity
         # and add support for doing this with a map function if possible.
-        if (isinstance(self._by, basestring)):
+        if isinstance(self._by, basestring):
             return True
         return False
 
@@ -86,7 +86,7 @@ class GroupBy:
 
     def __len__(self):
         """Number of groups."""
-        if (self._can_use_new_school()):
+        if self._can_use_new_school():
             self._prep_new_school()
             return self._prdd.to_spark_sql.groupby(self._by).count()
         self._prep_old_school()
@@ -114,7 +114,7 @@ class GroupBy:
     @property
     def groups(self):
         """Returns dict {group name -> group labels}."""
-        self.prep_old_school()
+        self._prep_old_school()
 
         def extract_group_labels(frame):
             return (frame[0], frame[1].index.values)
@@ -156,7 +156,7 @@ class GroupBy:
         """
         if self._can_use_new_school():
             self._prep_new_school()
-            return Dataframe.fromSchemaRDD(self._grouped_spark_sql.mean())
+            return Dataframe.from_schema_rdd(self._grouped_spark_sql.mean())
         self._prep_old_school()
         return Dataframe.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
@@ -176,7 +176,7 @@ class GroupBy:
         """Compute the sum for each group."""
         if self._can_use_new_school():
             self._prep_new_school()
-            return Dataframe.fromSchemaRDD(self._grouped_spark_sql.sum())
+            return Dataframe.from_schema_rdd(self._grouped_spark_sql.sum())
         self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
@@ -200,7 +200,7 @@ class GroupBy:
         """Compute the min for each group."""
         if self._can_use_new_school():
             self._prep_new_school()
-            return Dataframe.fromSchemaRDD(self._grouped_spark_sql.min())
+            return Dataframe.from_schema_rdd(self._grouped_spark_sql.min())
         self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
@@ -224,7 +224,7 @@ class GroupBy:
         """Compute the max for each group."""
         if self._can_use_new_school():
             self._prep_new_school()
-            return Dataframe.fromSchemaRDD(self._grouped_spark_sql.max())
+            return Dataframe.from_schema_rdd(self._grouped_spark_sql.max())
         self._prep_old_school()
         myargs = self._myargs
         mykwargs = self._mykwargs
@@ -253,7 +253,7 @@ class GroupBy:
         from pyspark.sql import functions as F
         aggs = map(lambda column: agg(column).alias(column), self._columns)
         aggRdd = self._grouped_spark_sql.agg(*aggs)
-        df = Dataframe.fromSchemaRDD(aggRdd)
+        df = Dataframe.from_schema_rdd(aggRdd)
         df._index_names = [self._by]
         return df
 

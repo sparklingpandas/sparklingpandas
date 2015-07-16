@@ -6,7 +6,7 @@ before_install:
 install:
   # install deps
   - sudo conda init
-  - deps='pip numpy pandas requests nose numpydoc sphinx pep8'
+  - deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install unittest2
@@ -22,4 +22,5 @@ script:
   - "export SPARK_HOME=./spark-1.4.0-bin-hadoop2.4/"
   - "nosetests --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
   - "pep8 --ignore=E402 sparklingpandas/"
+  - "pylint -E sparklingpandas --extension-pkg-whitelist=numpy"
   

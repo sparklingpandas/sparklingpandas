@@ -20,7 +20,7 @@ Test all of the methods for loading data into PandaSpark
 
 import pandas
 from tempfile import NamedTemporaryFile
-from sparklingpandas.test.sparklingpandastestcase import \
+from sparklingpandas.test.sp_test_case import \
     SparklingPandasTestCase
 import sys
 import unittest2
@@ -44,7 +44,7 @@ class DataLoad(SparklingPandasTestCase):
         data = pframe.collect().sort(['magic'])
         expected = pandas.DataFrame(input, columns=['magic', 'thing']).sort(
             ['magic'])
-        assert_frame_equal(shouldeq, collectedframe)
+        assert_frame_equal(data, expected)
 
     def test_from_csv_record(self, whole_file=False):
         x = "hi,i,like,coffee\n"
@@ -87,7 +87,7 @@ class DataLoad(SparklingPandasTestCase):
                               'two', 'two', 'one', 'three'],
                         'C': np.random.randn(8),
                         'D': np.random.randn(8)})
-        ddf = self.psc.from_data_frame(df)
+        ddf = self.psc.from_pd_data_frame(df)
         ddfc = ddf.collect()
         assert_frame_equal(ddfc, df)
 
@@ -105,12 +105,12 @@ class DataLoad(SparklingPandasTestCase):
             columns=["coffees", "name"])
         # Create an in memory table for us to query
         input = [("holden", 6), ("tubepanda", 0)]
-        rdd = self.psc.sc.parallelize(input).map(
+        rdd = self.psc.spark_ctx.parallelize(input).map(
             lambda x: {
                 "name": x[0],
                 "coffees": int(
                     x[1])})
-        sql_ctx = self.psc._get_sql_ctx()
+        sql_ctx = self.psc.sql_ctx()
         coffee_table = sql_ctx.inferSchema(rdd)
         coffee_table.registerAsTable("coffee")
         # Query it
