@@ -20,7 +20,6 @@ Look at the stats() method on PRDD for more info.
 #
 
 from sparklingpandas.utils import add_pyspark_path
-import pandas
 
 add_pyspark_path()
 
@@ -82,10 +81,10 @@ class PStatCounter(object):
         return self
 
     def __str__(self):
-        str = ""
+        formatted_str = ""
         for column, counter in self._counters.items():
-            str += "(field: %s,  counters: %s)" % (column, counter)
-        return str
+            formatted_str += "(field: %s,  counters: %s)" % (column, counter)
+        return formatted_str
 
     def __repr__(self):
         return self.__str__()
@@ -97,7 +96,7 @@ class ColumnStatCounters(object):
     A wrapper around StatCounter which collects stats for multiple columns
     """
 
-    def __init__(self, dataframes=[], columns=[]):
+    def __init__(self, dataframes=None, columns=None):
         """
         Creates a stats counter for the provided data frames
         computing the stats for all of the columns in columns.
@@ -109,8 +108,8 @@ class ColumnStatCounters(object):
         self._column_stats = dict((column_name, StatCounter()) for
                                   column_name in columns)
 
-        for df in dataframes:
-            self.merge(df)
+        for single_df in dataframes:
+            self.merge(single_df)
 
     def merge(self, frame):
         """
@@ -119,9 +118,9 @@ class ColumnStatCounters(object):
         ----------
         frame: pandas DataFrame we will update our stats counter with.
         """
-        for column_name, counter in self._column_stats.items():
+        for column_name, _ in self._column_stats.items():
             data_arr = frame[[column_name]].values
-            count, min_max_tup, mean, unbiased_var, skew, kurt = \
+            count, min_max_tup, mean, _, _, _ = \
                 scistats.describe(data_arr)
             stats_counter = StatCounter()
             stats_counter.n = count
@@ -139,16 +138,16 @@ class ColumnStatCounters(object):
         ----------
         other_column_counters: Other col_stat_counter to marge in to this one.
         """
-        for column_name, counter in self._column_stats.items():
+        for column_name, _ in self._column_stats.items():
             self._column_stats[column_name] = self._column_stats[column_name] \
                 .mergeStats(other_col_counters._column_stats[column_name])
         return self
 
     def __str__(self):
-        str = ""
+        formatted_str = ""
         for column, counter in self._column_stats.items():
-            str += "(field: %s,  counters: %s)" % (column, counter)
-        return str
+            formatted_str += "(field: %s,  counters: %s)" % (column, counter)
+        return formatted_str
 
     def __repr__(self):
         return self.__str__()
