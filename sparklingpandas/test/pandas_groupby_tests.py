@@ -101,9 +101,9 @@ class PandasGroupby(SparklingPandasTestCase):
 
     def test_first_last_nth(self):
         # tests for first / last / nth
-        ddf = self.psc.from_data_frame(self.df)
+        ddf = self.psc.from_pd_data_frame(self.df)
         assert_frame_equal(ddf.collect(), self.df)
-        grouped = self.psc.from_data_frame(self.df).groupby('A')
+        grouped = self.psc.from_pd_data_frame(self.df).groupby('A')
         first = grouped.first().collect()
         expected = self.df.ix[[1, 0], ['B', 'C', 'D']]
         expected.index = Index(['bar', 'foo'], name='A')
@@ -134,7 +134,7 @@ class PandasGroupby(SparklingPandasTestCase):
         """
         # v0.14.0 whatsnew
         df = DataFrame([[1, np.nan], [1, 4], [5, 6]], columns=['A', 'B'])
-        ddf = self.psc.from_data_frame(df)
+        ddf = self.psc.from_pd_data_frame(df)
         g = ddf.groupby('A')
         result = g.first().collect()
         expected = df.iloc[[1, 2]].set_index('A')
@@ -181,7 +181,7 @@ class PandasGroupby(SparklingPandasTestCase):
                         'data3': np.random.randn(5),
                         'key1': ['a', 'a', 'b', 'b', 'a'],
                         'key2': ['one', 'two', 'one', 'two', 'one']})
-        ddf = self.psc.from_data_frame(df)
+        ddf = self.psc.from_pd_data_frame(df)
         dgrouped = ddf.groupby(['key1', 'key2'])
         grouped = df.groupby(['key1', 'key2'])
         assert_frame_equal(dgrouped.var().collect(), grouped.var())
@@ -197,7 +197,7 @@ class PandasGroupby(SparklingPandasTestCase):
                         'data2': np.random.randn(5),
                         'key1': ['a', 'a', 'b', 'b', 'a'],
                         'key2': ['one', 'two', 'one', 'two', 'one']})
-        ddf = self.psc.from_data_frame(df)
+        ddf = self.psc.from_pd_data_frame(df)
         dgrouped = ddf.groupby('key1')
         grouped = df.groupby('key1')
 
@@ -211,7 +211,7 @@ class PandasGroupby(SparklingPandasTestCase):
 
     def test_agg_regression1(self):
         grouped = self.tsframe.groupby([lambda x: x.year, lambda x: x.month])
-        dgrouped = self.psc.from_data_frame(
+        dgrouped = self.psc.from_pd_data_frame(
             self.tsframe).groupby(
             [lambda x: x.year, lambda x: x.month])
         result = dgrouped.agg(np.mean).collect()

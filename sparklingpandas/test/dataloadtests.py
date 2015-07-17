@@ -87,7 +87,7 @@ class DataLoad(SparklingPandasTestCase):
                               'two', 'two', 'one', 'three'],
                         'C': np.random.randn(8),
                         'D': np.random.randn(8)})
-        ddf = self.psc.from_data_frame(df)
+        ddf = self.psc.from_pd_data_frame(df)
         ddfc = ddf.collect()
         assert_frame_equal(ddfc, df)
 

@@ -32,8 +32,14 @@ class PSparkContext():
     """This is a thin wrapper around SparkContext from PySpark which makes it
     easy to load data into L{PRDD}s."""
 
-    def __init__(self, sparkcontext, sql_ctx=None):
-        self.spark_ctx = sparkcontext
+    def __init__(self, spark_context, sql_ctx=None):
+        """Initialize a PSparkContext with the associacted spark context,
+        and spark sql context if provided.
+        :param spark_context: Initialized and configured spark context.
+        :param sql_ctx: Initialized and configured SQL context, if relevant.
+        :return: Correctly initialized SparklingPandasContext.
+        """
+        self.spark_ctx = spark_context
         if sql_ctx:
             self.sql_ctx = sql_ctx
         else:
@@ -64,7 +70,7 @@ class PSparkContext():
         """
         def csv_file(partition_number, files):
             file_count = 0
-            for filename, contents in files:
+            for _, contents in files:
                 # Only skip lines on the first file
                 if partition_number == 0 and file_count == 0 and _skiprows > 0:
                     yield pandas.read_csv(sio(contents), *args,
@@ -79,14 +85,14 @@ class PSparkContext():
                                           **kwargs)
 
         def csv_rows(partition_number, rows):
-            inputStr = "\n".join(rows)
+            in_str = "\n".join(rows)
             if partition_number == 0:
-                return iter([pandas.read_csv(sio(inputStr), *args, header=None,
+                return iter([pandas.read_csv(sio(in_str), *args, header=None,
                                              names=mynames, skip_rows=_skiprows,
                                              **kwargs)])
             else:
                 # could use .iterows instead?
-                return iter([pandas.read_csv(sio(inputStr), *args, header=None,
+                return iter([pandas.read_csv(sio(in_str), *args, header=None,
                                              names=mynames, **kwargs)])
 
         # If we need to peak at the first partition and determine the column
@@ -122,27 +128,27 @@ class PSparkContext():
         schema_rdd = self.sql_ctx.jsonFile(path, schema, sampling_ratio)
         return self.from_spark_df(schema_rdd)
 
-    def from_data_frame(self, df):
+    def from_pd_data_frame(self, local_df):
         """Make a distributed dataframe from a local dataframe. The intend use
         is for testing. Note: dtypes are re-infered, so they may not match."""
         def frame_to_rows(frame):
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             # TODO: Convert to row objects directly?
             return [r.tolist() for r in frame.to_records()]
-        schema = list(df.columns)
-        index_names = list(df.index.names)
+        schema = list(local_df.columns)
+        index_names = list(local_df.index.names)
         index_names = _normalize_index_names(index_names)
         schema = index_names + schema
-        rows = self.spark_ctx.parallelize(frame_to_rows(df))
-        df = Dataframe.from_schema_rdd(
+        rows = self.spark_ctx.parallelize(frame_to_rows(local_df))
+        sp_df = Dataframe.from_schema_rdd(
             self.sql_ctx.createDataFrame(
                 rows,
                 schema=schema,
                 # Look at all the rows, should be ok since coming from
                 # a local dataset
                 samplingRatio=1))
-        df._index_names = index_names
-        return df
+        sp_df._index_names = index_names
+        return sp_df
 
     def sql(self, query):
         """Perform a SQL query and create a L{Dataframe} of the result."""
@@ -152,15 +158,18 @@ class PSparkContext():
         """Returns the provided table as a L{Dataframe}"""
         return Dataframe.from_spark_df(self.sql_ctx.table(table))
 
-    def from_schema_rdd(self, schema_rdd):
-        return Dataframe.from_spark_df(schema_rdd)
-
-    def from_spark_df(self, schema_rdd):
-        return Dataframe.from_spark_df(schema_rdd)
+    @staticmethod
+    def from_spark_df(dataframe_rdd):
+        """
+        Translates a Spark DataFrame Rdd into a SparklingPandas dataframe.
+        :param dataframe_rdd: Input dataframe RDD to convert
+        :return: Matchign SparklingPandas dataframe
+        """
+        return Dataframe.from_spark_df(dataframe_rdd)
 
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
-        return self.from_data_frame(pandas.DataFrame(
+        return self.from_pd_data_frame(pandas.DataFrame(
             elements,
             *args,
             **kwargs))
@@ -185,12 +194,12 @@ class PSparkContext():
         Currently, it is not possible to skip the first n rows of a file.
         Headers are provided in the json file and not specified separately.
         """
-        def json_file(partitionNumber, files):
-            for filename, contents in files:
+        def json_file(files):
+            for _, contents in files:
                 yield pandas.read_json(sio(contents), *args, **kwargs)
 
         return Dataframe.from_spark_df(
-            self.spark_ctx.wholeTextFiles(name).mapPartitionsWithIndex(json_file))
+            self.spark_ctx.wholeTextFiles(name).mapPartitions(json_file))
 
     def stop(self):
         """Stop the underlying SparkContext
