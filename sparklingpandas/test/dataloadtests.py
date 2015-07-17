@@ -105,7 +105,7 @@ class DataLoad(SparklingPandasTestCase):
             columns=["coffees", "name"])
         # Create an in memory table for us to query
         input = [("holden", 6), ("tubepanda", 0)]
-        rdd = self.psc.sc.parallelize(input).map(
+        rdd = self.psc.spark_ctx.parallelize(input).map(
             lambda x: {
                 "name": x[0],
                 "coffees": int(

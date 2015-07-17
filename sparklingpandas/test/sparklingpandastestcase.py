@@ -33,7 +33,7 @@ from pandas.util.testing import assert_frame_equal
 class SparklingPandasTestCase(unittest2.TestCase):
 
     """Basic SparklingPandasTestCase, inherit from this class to get a
-    PSparkContext as sc."""
+    PSparkContext as spark_ctx."""
 
     def setUp(self):
         """Setup the basic panda spark test case. This right now just creates a
@@ -97,7 +97,7 @@ class SparklingPandasTestCase(unittest2.TestCase):
         sys.path = self._old_sys_path
         # To avoid Akka rebinding to the same port, since it doesn't unbind
         # immediately on shutdown
-        self.psc.sc._jvm.System.clearProperty("spark.driver.port")
+        self.psc.spark_ctx._jvm.System.clearProperty("spark.driver.port")
 
     def _compareDataFrames(self, df1, df2):
         """

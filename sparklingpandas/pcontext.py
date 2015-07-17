@@ -33,12 +33,12 @@ class PSparkContext():
     easy to load data into L{PRDD}s."""
 
     def __init__(self, sparkcontext, sqlCtx=None):
-        self.sc = sparkcontext
+        self.spark_ctx = sparkcontext
         if sqlCtx:
             self.sql_ctx = sqlCtx
         else:
             from pyspark.sql import SQLContext
-            self.sql_ctx = SQLContext(self.sc)
+            self.sql_ctx = SQLContext(self.spark_ctx)
         # Register our magical functions
         registerSQLExtensions(self.sql_ctx)
 
@@ -98,7 +98,7 @@ class PSparkContext():
             mynames = names
         else:
             # In the future we could avoid this expensive call.
-            first_line = self.sc.textFile(name).first()
+            first_line = self.spark_ctx.textFile(name).first()
             frame = pandas.read_csv(sio(first_line), **kwargs)
             mynames = list(frame.columns.values)
             _skiprows += 1
@@ -106,10 +106,10 @@ class PSparkContext():
         # Do the actual load
         if use_whole_file:
             return self.from_pandas_rdd(
-                self.sc.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
+                self.spark_ctx.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
         else:
             return self.from_pandas_rdd(
-                self.sc.textFile(name).mapPartitionsWithIndex(csv_rows))
+                self.spark_ctx.textFile(name).mapPartitionsWithIndex(csv_rows))
 
     def parquetFile(self, *paths):
         """Loads a Parquet file, returning the result as a L{Dataframe}.
@@ -134,7 +134,7 @@ class PSparkContext():
         index_names = list(df.index.names)
         index_names = _normalize_index_names(index_names)
         schema = index_names + schema
-        rows = self.sc.parallelize(frame_to_rows(df))
+        rows = self.spark_ctx.parallelize(frame_to_rows(df))
         df = Dataframe.fromSchemaRDD(
             self.sql_ctx.createDataFrame(
                 rows,
@@ -191,9 +191,9 @@ class PSparkContext():
                 yield pandas.read_json(sio(contents), *args, **kwargs)
 
         return Dataframe.from_spark_df(
-            self.sc.wholeTextFiles(name).mapPartitionsWithIndex(json_file))
+            self.spark_ctx.wholeTextFiles(name).mapPartitionsWithIndex(json_file))
 
     def stop(self):
         """Stop the underlying SparkContext
         """
-        self.sc.stop()
+        self.spark_ctx.stop()
