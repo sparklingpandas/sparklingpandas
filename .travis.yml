@@ -20,6 +20,6 @@ script:
   - ./sbt/sbt compile package
   # Run the tests
   - "export SPARK_HOME=./spark-1.4.0-bin-hadoop2.4/"
-  - "./run-tests"
+  - "nosetests --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
   - "pep8 --ignore=E402 sparklingpandas/"
   
