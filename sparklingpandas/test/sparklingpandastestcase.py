@@ -44,6 +44,7 @@ class SparklingPandasTestCase(unittest2.TestCase):
         conf.set("spark.cores.max", "4")
         conf.set("spark.master", "local[4]")
         conf.set("spark.app-name", class_name)
+        conf.set("spark.driver.allowMultipleContexts", "true")
         self.psc = PSparkContext.simple(conf=conf)
         # Add a common basic input and basicpframe we can reuse in testing
         self.basicinput = [
