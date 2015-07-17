@@ -18,7 +18,6 @@
 
 from sparklingpandas.utils import add_pyspark_path
 from sparklingpandas.pstats import PStats
-from functools import reduce
 from itertools import chain, imap
 
 add_pyspark_path()
@@ -52,18 +51,21 @@ class Dataframe:
             if not records:
                 return []
             else:
-                df = pd.DataFrame.from_records([records], columns=columns)
-                df = _update_index_on_df(df, index_names)
-                return [df]
+                loaded_df = pd.DataFrame.from_records([records],
+                                                     columns=columns)
+                indexed_df = _update_index_on_df(loaded_df, index_names)
+                return [indexed_df]
 
         return self._schema_rdd.rdd.flatMap(fromRecords)
 
     def _column_names(self):
         """Return the column names"""
         index_names = set(_normalize_index_names(self._index_names))
-        return filter(lambda x: x not in index_names, self._schema_rdd.columns)
+        column_names = [col_name for col_name in self._schema_rdd.columns if
+                        col_name not in index_names]
+        return column_names
 
-    def _evil_apply_with_dataframes(self, func, preservesColumns=False):
+    def _evil_apply_with_dataframes(self, func, preserves_cols=False):
         """Convert the underlying SchmeaRDD to an RDD of DataFrames.
         apply the provide function and convert the result back.
         This is hella slow."""
@@ -71,14 +73,14 @@ class Dataframe:
         result_rdd = func(source_rdd)
         # By default we don't know what the columns & indexes are so we let
         # from_rdd_of_dataframes look at the first partition to determine them.
-        columnsIndexes = None
-        if preservesColumns:
+        column_idxs = None
+        if preserves_cols:
             index_names = self._index_names
             # Remove indexes from the columns
             columns = self._schema_rdd.columns[len(self._index_names):]
-            columnsIndexes = (columns, index_names)
+            column_idxs = (columns, index_names)
         return self.from_rdd_of_dataframes(
-            result_rdd, columnsIndexes=columnsIndexes)
+            result_rdd, column_idxs=column_idxs)
 
     def _first_as_df(self):
         """Gets the first row as a Panda's Dataframe. Useful for functions like
@@ -90,7 +92,7 @@ class Dataframe:
         df = _update_index_on_df(df, self._index_names)
         return df
 
-    def from_rdd_of_dataframes(self, rdd, columnsIndexes=None):
+    def from_rdd_of_dataframes(self, rdd, column_idxs=None):
         """Take an RDD of Panda's Dataframes and return a Dataframe.
         If the columns and indexes are already known (e.g. applyMap)
         then supplying them with columnsIndexes will skip eveluating
@@ -99,7 +101,7 @@ class Dataframe:
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             return [r.tolist() for r in frame.to_records()]
 
-        def frame_to_schema_and_indexnames(frames):
+        def frame_to_schema_and_idx_names(frames):
             """Returns the schema and index names of the frames. Useful
             if the frame is large and we wish to avoid transfering
             the entire frame. Only bothers to apply once per partiton"""
@@ -116,16 +118,16 @@ class Dataframe:
         # since we are going to eveluate the first partition and then eveluate
         # the entire RDD as part of creating a Spark DataFrame.
         (schema, index_names) = ([], [])
-        if not columnsIndexes:
+        if not column_idxs:
             rdd.cache()
             (schema, index_names) = rdd.mapPartitions(
-                frame_to_schema_and_indexnames).first()
+                frame_to_schema_and_idx_names).first()
         else:
-            (schema, index_names) = columnsIndexes
+            (schema, index_names) = column_idxs
         # Add the index_names to the schema.
         index_names = _normalize_index_names(index_names)
         schema = index_names + schema
-        ddf = Dataframe.fromSchemaRDD(
+        ddf = Dataframe.from_schema_rdd(
             self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql),
                                          schema=schema))
         ddf._index_names = index_names
@@ -134,10 +136,10 @@ class Dataframe:
         return ddf
 
     @classmethod
-    def fromSchemaRDD(cls, schemaRdd):
+    def from_schema_rdd(cls, schema_rdd):
         """Construct a Dataframe from an SchemaRDD.
         No checking or validation occurs."""
-        return Dataframe(schemaRdd, schemaRdd.sql_ctx)
+        return Dataframe(schema_rdd, schema_rdd.sql_ctx)
 
     @classmethod
     def fromDataFrameRDD(cls, rdd, sql_ctx):
@@ -163,10 +165,10 @@ class Dataframe:
     def applymap(self, f, **kwargs):
         """Return a new Dataframe by applying a function to each element of each
         Panda DataFrame."""
-        def transformRdd(rdd):
+        def transform_rdd(rdd):
             return rdd.map(lambda data: data.applymap(f), **kwargs)
-        return self._evil_apply_with_dataframes(transformRdd,
-                                                preservesColumns=True)
+        return self._evil_apply_with_dataframes(transform_rdd,
+                                                preserves_cols=True)
 
     def __getitem__(self, key):
         """Returns a new Dataframe of elements from those keys.
@@ -231,9 +233,9 @@ class Dataframe:
     def collect(self):
         """Collect the elements in an Dataframe
         and concatenate the partition."""
-        df = self._schema_rdd.toPandas()
-        df = _update_index_on_df(df, self._index_names)
-        return df
+        local_df = self._schema_rdd.toPandas()
+        correct_idx_df = _update_index_on_df(local_df, self._index_names)
+        return correct_idx_df
 
     def stats(self, columns):
         """Compute the stats for each column provided in columns.
@@ -251,7 +253,7 @@ class Dataframe:
         aggs = list(
             self._flatmap(lambda column: map(lambda f: f(column), functions),
                           columns))
-        return PStats(self.fromSchemaRDD(self._schema_rdd.agg(*aggs)))
+        return PStats(self.from_schema_rdd(self._schema_rdd.agg(*aggs)))
 
     def kurtosis(self, axis=None):
         if axis is None or axis == 0:
@@ -302,7 +304,7 @@ def _normalize_index_names(index_names):
     index_names = list(index_names)
     while z < len(index_names):
         if not index_names[z]:
-            if (z > 0):
+            if z > 0:
                 index_names[z] = "index_" + str(z)
             else:
                 index_names[z] = "index"

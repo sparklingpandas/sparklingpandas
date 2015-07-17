@@ -30,5 +30,5 @@ sqlCtx = SQLContext(spark_ctx)
 hiveCtx = HiveContext(sqlCtx)
 sqlContext = sqlCtx
 from pyspark.sql import Row
-psc = PSparkContext(spark_ctx, sqlCtx=sqlCtx)
+psc = PSparkContext(spark_ctx, sql_ctx=sqlCtx)
 print("Sparkling Pandas context is available as psc\n")
