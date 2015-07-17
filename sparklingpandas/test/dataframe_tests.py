@@ -18,7 +18,7 @@ Test methods in dataframe
 # limitations under the License.
 #
 
-from sparklingpandas.test.sparklingpandastestcase import \
+from sparklingpandas.test.sp_test_case import \
     SparklingPandasTestCase
 
 import pandas as pd

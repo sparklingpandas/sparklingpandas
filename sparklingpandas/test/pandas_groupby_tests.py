@@ -6,7 +6,7 @@ Test our groupby support based on the pandas groupby tests.
 #
 
 from tempfile import NamedTemporaryFile
-from sparklingpandas.test.sparklingpandastestcase import \
+from sparklingpandas.test.sp_test_case import \
     SparklingPandasTestCase
 import sys
 import pandas as pd

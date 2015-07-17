@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-from sparklingpandas.test.sparklingpandastestcase import \
+from sparklingpandas.test.sp_test_case import \
     SparklingPandasTestCase
 
 import unittest2
@@ -116,7 +116,7 @@ class Groupby(SparklingPandasTestCase):
         numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
-        self._compareDataFrames(numeric_grouped_frame.sum(),
+        self._compare_dfs(numeric_grouped_frame.sum(),
                                 dist_num_grouped_frame.sum().collect())
 
     def test_median(self):
@@ -124,7 +124,7 @@ class Groupby(SparklingPandasTestCase):
         numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
-        self._compareDataFrames(
+        self._compare_dfs(
             numeric_grouped_frame.median(),
             dist_num_grouped_frame.median().collect())
 
@@ -133,7 +133,7 @@ class Groupby(SparklingPandasTestCase):
         numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
-        self._compareDataFrames(
+        self._compare_dfs(
             numeric_grouped_frame.mean(),
             dist_num_grouped_frame.mean().collect())
 
@@ -142,7 +142,7 @@ class Groupby(SparklingPandasTestCase):
         numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
-        self._compareDataFrames(numeric_grouped_frame.var(),
+        self._compare_dfs(numeric_grouped_frame.var(),
                                 dist_num_grouped_frame.var().collect())
 
     def test_kurtosis(self):
@@ -153,14 +153,14 @@ class Groupby(SparklingPandasTestCase):
         from pandas import Series
         expected = numeric_grouped_frame.aggregate(Series.kurtosis)
         result = dist_num_grouped_frame.aggregate(Series.kurtosis)
-        self._compareDataFrames(expected, result.collect())
+        self._compare_dfs(expected, result.collect())
 
     def test_sum_three_col(self):
         """Test that sum works on three column numeric data frame."""
         numeric_grouped_frame = self.numericthreeframe.groupby('a', sort=True)
         dist_num_grouped_frame = self.numericthreepframe.groupby(
             'a', sort=True)
-        self._compareDataFrames(numeric_grouped_frame.sum(),
+        self._compare_dfs(numeric_grouped_frame.sum(),
                                 dist_num_grouped_frame.sum().collect())
 
     def test_min(self):
@@ -168,7 +168,7 @@ class Groupby(SparklingPandasTestCase):
         numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
-        self._compareDataFrames(numeric_grouped_frame.min(),
+        self._compare_dfs(numeric_grouped_frame.min(),
                                 dist_num_grouped_frame.min().collect())
 
     def test_max(self):
@@ -176,7 +176,7 @@ class Groupby(SparklingPandasTestCase):
         numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
-        self._compareDataFrames(numeric_grouped_frame.max(),
+        self._compare_dfs(numeric_grouped_frame.max(),
                                 dist_num_grouped_frame.max().collect())
 
     def test_apply(self):
@@ -184,7 +184,7 @@ class Groupby(SparklingPandasTestCase):
         numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
-        self._compareDataFrames(numeric_grouped_frame.apply(lambda x: x),
+        self._compare_dfs(numeric_grouped_frame.apply(lambda x: x),
                                 dist_num_grouped_frame.apply(
                                     lambda x: x).collect())
 
@@ -204,11 +204,11 @@ class Groupby(SparklingPandasTestCase):
             grl2.sort()
             for (key1, value1), (key2, value2) in zip(grl1, grl2):
                 self.assertEqual(key1, key2)
-                self._compareDataFrames(value1, value2)
+                self._compare_dfs(value1, value2)
         else:
             for (key1, value1), (key2, value2) in zip(gr1, gr2):
                 self.assertEqual(key1, key2)
-                self._compareDataFrames(value1, value2)
+                self._compare_dfs(value1, value2)
 
 if __name__ == "__main__":
     unittest2.main()

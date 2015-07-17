@@ -284,12 +284,12 @@ def _update_index_on_df(df, index_names):
     if index_names:
         df = df.set_index(index_names)
         # Remove names from unnamed indexes
-        index_names = _de_normalize_index_names(index_names)
+        index_names = _denormalize_index_names(index_names)
         df.index.names = index_names
     return df
 
 
-def _de_normalize_index_names(index_names):
+def _denormalize_index_names(index_names):
     z = 0
     index_names = list(index_names)
     while z < len(index_names):
