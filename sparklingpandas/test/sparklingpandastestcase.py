@@ -17,10 +17,7 @@
 
 """This module provides some common test case base for PandaSparkTestCases"""
 
-from sparklingpandas.utils import setup_pyspark
-import pandas
-
-setup_pyspark()
+import sparklingpandas
 from pyspark import SparkConf
 from sparklingpandas.pcontext import PSparkContext
 from sparklingpandas.dataframe import Dataframe
@@ -28,7 +25,7 @@ import unittest2
 import sys
 import functools
 from pandas.util.testing import assert_frame_equal
-
+import pandas
 
 class SparklingPandasTestCase(unittest2.TestCase):
 

@@ -28,3 +28,5 @@ from sparklingpandas.pcontext import PSparkContext
 
 __all__ = ["Dataframe", "PSparkContext"]
 """
+from utils import setup_pyspark
+setup_pyspark()

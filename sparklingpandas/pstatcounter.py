@@ -18,11 +18,8 @@ Look at the stats() method on PRDD for more info.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from sparklingpandas.utils import setup_pyspark
 import pandas
 
-setup_pyspark()
 
 from pyspark.statcounter import StatCounter
 

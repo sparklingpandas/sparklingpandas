@@ -16,8 +16,6 @@
 # limitations under the License.
 #
 
-from sparklingpandas.utils import setup_pyspark
-setup_pyspark()
 import pandas
 
 

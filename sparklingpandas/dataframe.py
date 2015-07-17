@@ -16,12 +16,10 @@
 # limitations under the License.
 #
 
-from sparklingpandas.utils import setup_pyspark
 from sparklingpandas.pstats import PStats
 from functools import reduce
 from itertools import chain, imap
 
-setup_pyspark()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
 from pyspark.rdd import RDD
