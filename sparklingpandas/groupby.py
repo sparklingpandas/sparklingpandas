@@ -46,7 +46,7 @@ class GroupBy:
         args / kwargs"""
         # TODO: check the other components for sanity
         # and add support for doing this with a map function if possible.
-        if (isinstance(self._by, basestring)):
+        if isinstance(self._by, basestring):
             return True
         return False
 
@@ -86,7 +86,7 @@ class GroupBy:
 
     def __len__(self):
         """Number of groups."""
-        if (self._can_use_new_school()):
+        if self._can_use_new_school():
             self._prep_new_school()
             return self._prdd.to_spark_sql.groupby(self._by).count()
         self._prep_old_school()
