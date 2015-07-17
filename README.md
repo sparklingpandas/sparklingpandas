@@ -30,7 +30,14 @@ Using
 =========
 
 Make sure you have the SPARK_HOME enviroment variable set correctly, as
-SparklingPandas uses this for including the PySpark libraries
+SparklingPandas uses this for including the PySpark libraries. You will
+need to have built the Spark assembly jar as well, which you can do with
+ `./sbt/sbt assembly -Phive` in the directory where your Spark installation is.
+If you are using a pre-built version of Spark it normally includes the assembly
+jar, so you can skip building it.
+
+Some SparklingPandas components are built on the JVM, if building from source you
+can compile these run `./sbt/sbt assembly`.
 
 Other than that you can install SparklingPandas with pip and just import it.
 The primary unit of SparklingPandas is a PRDD (Pandas Resillent Distributed

@@ -16,9 +16,7 @@
 # limitations under the License.
 #
 
-from sparklingpandas.utils import add_pyspark_path
 from sparklingpandas.dataframe import Dataframe
-add_pyspark_path()
 import pandas as pd
 import numpy as np
 

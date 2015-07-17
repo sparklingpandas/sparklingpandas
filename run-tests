@@ -4,4 +4,10 @@ if [ -z "$SPARK_HOME" ]; then
    exit -1
 fi
 JARS=`ls ./target/scala-2.10/*.jar`
-PYSPARK_SUBMIT_ARGS="--jars $JARS --driver-class-path $JARS pyspark-shell" PYTHON_PATH=./ nosetests --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas
+if [ -z "$JARS" ]; then
+  echo "We were unable to find the Sparkling Panda's assembly JAR."
+  echo "Please run ./sbt/sbt assembly"
+  exit -1
+fi
+
+PYTHON_PATH=./ nosetests --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas
