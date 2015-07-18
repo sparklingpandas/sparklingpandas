@@ -22,10 +22,13 @@ This file is designed to be launched by bin/pyspark
 """
 
 from sparklingpandas.pcontext import PSparkContext
-from pyspark.sql import SQLContext
-sqlCtx = SQLContext(sc)
+from pyspark.sql import SQLContext, HiveContext
+from pyspark import SparkContext
+
+spark_ctx = SparkContext()
+sqlCtx = SQLContext(spark_ctx)
 hiveCtx = HiveContext(sqlCtx)
 sqlContext = sqlCtx
 from pyspark.sql import Row
-psc = PSparkContext(sc, sqlCtx=sqlCtx)
+psc = PSparkContext(spark_ctx, sql_ctx=sqlCtx)
 print("Sparkling Pandas context is available as psc\n")

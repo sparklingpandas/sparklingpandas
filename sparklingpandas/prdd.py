@@ -20,11 +20,7 @@ from sparklingpandas.utils import add_pyspark_path
 from functools import reduce
 
 add_pyspark_path()
-from pyspark.join import python_join, python_left_outer_join, \
-    python_right_outer_join, python_cogroup
-from pyspark.rdd import RDD
 from sparklingpandas.pstatcounter import PStatCounter
-import pandas
 
 
 class PRDD:
@@ -37,7 +33,7 @@ class PRDD:
         self._rdd = rdd
 
     @classmethod
-    def fromRDD(cls, rdd):
+    def from_rdd(cls, rdd):
         """Construct a PRDD from an RDD. No checking or validation occurs."""
         return PRDD(rdd)
 
@@ -50,15 +46,15 @@ class PRDD:
         raise NotImplementedError("Method deprecated, please use "
                                   "to_spark_sql_schema_rdd instead!")
 
-    def applymap(self, f, **kwargs):
+    def applymap(self, func, **kwargs):
         """Return a new PRDD by applying a function to each element of each
         pandas DataFrame."""
-        return self.fromRDD(
-            self._rdd.map(lambda data: data.applymap(f), **kwargs))
+        return self.from_rdd(
+            self._rdd.map(lambda data: data.applymap(func), **kwargs))
 
     def __getitem__(self, key):
         """Returns a new PRDD of elements from that key."""
-        return self.fromRDD(self._rdd.map(lambda x: x[key]))
+        return self.from_rdd(self._rdd.map(lambda x: x[key]))
 
     def groupby(self, *args, **kwargs):
         """Takes the same parameters as groupby on DataFrame.
@@ -109,73 +105,34 @@ class PRDD:
         return (self._rdd.map(lambda frame: frame.shape)
                 .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
-    @property
-    def dtypes(self):
-        """
-        Return the dtypes associated with this object
-        Uses the types from the first frame.
-        """
-        return self._rdd.first().dtypes
-
-    @property
-    def ftypes(self):
-        """
-        Return the ftypes associated with this object
-        Uses the types from the first frame.
-        """
-        return self._rdd.first().ftypes
-
-    def get_dtype_counts(self):
-        """
-        Return the counts of dtypes in this object
-        Uses the information from the first frame
-        """
-        return self._rdd.first().get_dtype_counts()
-
-    def get_ftype_counts(self):
-        """
-        Return the counts of ftypes in this object
-        Uses the information from the first frame
-        """
-        return self._rdd.first().get_ftype_counts()
-
-    @property
-    def axes(self):
-        return (self._rdd.map(lambda frame: frame.axes)
-                .reduce(lambda xy, ab: [xy[0].append(ab[0]), xy[1]]))
-
-    @property
-    def shape(self):
-        return (self._rdd.map(lambda frame: frame.shape)
-                .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
     def collect(self):
         """Collect the elements in an PRDD and concatenate the partition."""
         # The order of the frame order appends is based on the implementation
         # of reduce which calls our function with
         # f(valueToBeAdded, accumulator) so we do our reduce implementation.
-        def appendFrames(frame_a, frame_b):
+        def append_frames(frame_a, frame_b):
             return frame_a.append(frame_b)
-        return self._custom_rdd_reduce(appendFrames)
+        return self._custom_rdd_reduce(append_frames)
 
-    def _custom_rdd_reduce(self, f):
-        """Provides a custom RDD reduce which perserves ordering if the RDD has
-        been sorted. This is useful for us becuase we need this functionality
+    def _custom_rdd_reduce(self, reduce_func):
+        """Provides a custom RDD reduce which preserves ordering if the RDD has
+        been sorted. This is useful for us because we need this functionality
         as many pandas operations support sorting the results. The standard
         reduce in PySpark does not have this property.  Note that when PySpark
         no longer does partition reduces locally this code will also need to
         be updated."""
-        def func(iterator):
+        def accumulating_iter(iterator):
             acc = None
             for obj in iterator:
                 if acc is None:
                     acc = obj
                 else:
-                    acc = f(acc, obj)
+                    acc = reduce_func(acc, obj)
             if acc is not None:
                 yield acc
-        vals = self._rdd.mapPartitions(func).collect()
-        return reduce(f, vals)
+        vals = self._rdd.mapPartitions(accumulating_iter).collect()
+        return reduce(accumulating_iter, vals)
 
     def stats(self, columns):
         """Compute the stats for each column provided in columns.
@@ -183,16 +140,9 @@ class PRDD:
         ----------
         columns : list of str, contains all columns to compute stats on.
         """
-        def reduceFunc(sc1, sc2):
-            return sc1.merge_pstats(sc2)
-
-        return self._rdd.mapPartitions(
-            lambda i: [PStatCounter(dataframes=i, columns=columns)]).reduce(
-            reduceFunc)
-
         def reduce_func(sc1, sc2):
             return sc1.merge_pstats(sc2)
 
-        return self._rdd.mapPartitions(
-            lambda i: [PStatCounter(dataframes=i, columns=columns)]).reduce(
-                reduce_func)
+        return self._rdd.mapPartitions(lambda partition: [
+            PStatCounter(dataframes=partition, columns=columns)])\
+            .reduce(reduce_func)

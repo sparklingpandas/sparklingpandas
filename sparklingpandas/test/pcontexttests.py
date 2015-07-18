@@ -21,7 +21,7 @@ import json
 import os
 import tempfile
 
-from sparklingpandas.test.sparklingpandastestcase import \
+from sparklingpandas.test.sp_test_case import \
     SparklingPandasTestCase
 
 
