@@ -4,6 +4,9 @@ if [ -z "$SPARK_HOME" ]; then
    exit -1
 fi
 
-JARS=`ls ./target/scala-2.10/*.jar`
+CURRENT_DIR=`pwd`
+PROJECT_ROOT=`cd $x/../../../.. && pwd`
+
+JARS=`ls $PROJECT_ROOT/target/scala-2.10/*.jar`
 PYSPARK_SUBMIT_ARGS="--jars $JARS --driver-class-path $JARS pyspark-shell"
-PYTHON_PATH=./../../../..
+PYTHON_PATH=$PROJECT_ROOT:$PYHTON_PATH

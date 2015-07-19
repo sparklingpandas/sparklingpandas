@@ -30,7 +30,7 @@ from pandas.util.testing import (assert_almost_equal,
                                  assert_index_equal)
 
 
-class PContextTests(SparklingPandasTestCase):
+class DataframeTests(SparklingPandasTestCase):
 
     def test_apply_map(self):
         input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
