@@ -44,6 +44,7 @@ class Groupby(SparklingPandasTestCase):
         assert_frame_equal(first_grouped_frame,
                            first_dist_grouped_frame.collect())
 
+    @unittest2.skip("Spark SQL 1.4.0 & 1.4.1 has some issues with nulls")
     def test_basic_groupby_na(self):
         """Test groupby with out sorting on an na frame"""
         grouped_frame = self.mixednaframe.groupby('a', sort=False)

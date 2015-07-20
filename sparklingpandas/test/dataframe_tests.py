@@ -71,6 +71,9 @@ class DataframeTests(SparklingPandasTestCase):
         assert expected_magic_result == actual_magic_result
         assert expected_thing_result == actual_thing_result
 
+    def test_numeric_pframe_can_collect(self):
+        self.numericpframe.collect()
+
     def test_stats(self):
         input = [("magic", 10), ("ninja", 20), ("coffee", 30)]
         dataframe = self.psc.DataFrame(input, columns=['a', 'b'])

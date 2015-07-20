@@ -136,10 +136,10 @@ class Dataframe:
         return ddf
 
     @classmethod
-    def from_schema_rdd(cls, schema_rdd):
+    def from_schema_rdd(cls, schema_rdd, index_names=None):
         """Construct a Dataframe from an SchemaRDD.
         No checking or validation occurs."""
-        return Dataframe(schema_rdd, schema_rdd.sql_ctx)
+        return Dataframe(schemaRdd, schemaRdd.sql_ctx, index_names)
 
     @classmethod
     def fromDataFrameRDD(cls, rdd, sql_ctx):
