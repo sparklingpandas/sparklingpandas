@@ -9,8 +9,8 @@ from pyspark.statcounter import StatCounter
 df = pd.DataFrame({'samples' : pd.Series(nprnd.randn(1000))})"""
 
 CMDS = ["df[['samples']].describe()",
-            "scistats.describe(df[['samples']].values)",
-            "StatCounter(values=df[['samples']].values)"]
+        "scistats.describe(df[['samples']].values)",
+        "StatCounter(values=df[['samples']].values)"]
 N_ITERS = 1000
 
 for command in CMDS:

@@ -69,27 +69,35 @@ class PSparkContext():
         TODO: Use spark-csv package if the request could be fufilled by it.
         """
         def csv_file(partition_number, files):
+            # pylint: disable=unexpected-keyword-arg
             file_count = 0
             for _, contents in files:
                 # Only skip lines on the first file
                 if partition_number == 0 and file_count == 0 and _skiprows > 0:
-                    yield pandas.read_csv(sio(contents), *args,
-                                          header=None,
-                                          names=mynames,
-                                          skip_rows=_skiprows, **kwargs)
+                    yield pandas.read_csv(
+                        sio(contents), *args,
+                        header=None,
+                        names=mynames,
+                        skip_rows=_skiprows,
+                        **kwargs)
                 else:
                     file_count += 1
-                    yield pandas.read_csv(sio(contents), *args,
-                                          header=None,
-                                          names=mynames,
-                                          **kwargs)
+                    yield pandas.read_csv(
+                        sio(contents), *args,
+                        header=None,
+                        names=mynames,
+                        **kwargs)
 
         def csv_rows(partition_number, rows):
+            # pylint: disable=unexpected-keyword-arg
             in_str = "\n".join(rows)
             if partition_number == 0:
-                return iter([pandas.read_csv(sio(in_str), *args, header=None,
-                                             names=mynames, skip_rows=_skiprows,
-                                             **kwargs)])
+                return iter([
+                    pandas.read_csv(
+                        sio(in_str), *args, header=None,
+                        names=mynames,
+                        skip_rows=_skiprows,
+                        **kwargs)])
             else:
                 # could use .iterows instead?
                 return iter([pandas.read_csv(sio(in_str), *args, header=None,
@@ -105,13 +113,15 @@ class PSparkContext():
             # In the future we could avoid this expensive call.
             first_line = self.spark_ctx.textFile(name).first()
             frame = pandas.read_csv(sio(first_line), **kwargs)
-            mynames = list(frame.columns.values)
+            # pylint sees frame as a tuple despite it being a Dataframe
+            mynames = list(frame.columns.values)  # pylint: disable=no-member
             _skiprows += 1
 
         # Do the actual load
         if use_whole_file:
             return self.from_pandas_rdd(
-                self.spark_ctx.wholeTextFiles(name).mapPartitionsWithIndex(csv_file))
+                self.spark_ctx.wholeTextFiles(name)
+                .mapPartitionsWithIndex(csv_file))
         else:
             return self.from_pandas_rdd(
                 self.spark_ctx.textFile(name).mapPartitionsWithIndex(csv_rows))

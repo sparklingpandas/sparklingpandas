@@ -105,7 +105,6 @@ class PRDD:
         return (self._rdd.map(lambda frame: frame.shape)
                 .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
-
     def collect(self):
         """Collect the elements in an PRDD and concatenate the partition."""
         # The order of the frame order appends is based on the implementation

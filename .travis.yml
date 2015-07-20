@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 before_install:
-  - sudo pip install --upgrade conda
+  - sudo pip install --upgrade conda py4j
 install:
   # install deps
   - sudo conda init

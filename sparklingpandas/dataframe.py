@@ -52,7 +52,7 @@ class Dataframe:
                 return []
             else:
                 loaded_df = pd.DataFrame.from_records([records],
-                                                     columns=columns)
+                                                      columns=columns)
                 indexed_df = _update_index_on_df(loaded_df, index_names)
                 return [indexed_df]
 
@@ -139,7 +139,7 @@ class Dataframe:
     def from_schema_rdd(cls, schema_rdd, index_names=None):
         """Construct a Dataframe from an SchemaRDD.
         No checking or validation occurs."""
-        return Dataframe(schemaRdd, schemaRdd.sql_ctx, index_names)
+        return Dataframe(schema_rdd, schema_rdd.sql_ctx, index_names)
 
     @classmethod
     def fromDataFrameRDD(cls, rdd, sql_ctx):
@@ -262,7 +262,7 @@ class Dataframe:
             return self.from_spark_df(
                 self._schema_rdd.select("rowKurtosis(*)"))
         else:
-            return self.groupby("true").aggregate(pd.Series.kurtsosis)
+            return self.groupby("true").aggregate(pd.Series.kurtosis)
 
     def min(self):
         return self.from_spark_df(self._schema_rdd.min())

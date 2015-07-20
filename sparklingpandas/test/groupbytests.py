@@ -118,7 +118,7 @@ class Groupby(SparklingPandasTestCase):
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
         self._compare_dfs(numeric_grouped_frame.sum(),
-                                dist_num_grouped_frame.sum().collect())
+                          dist_num_grouped_frame.sum().collect())
 
     def test_median(self):
         """Test that median works on a numeric data frame."""
@@ -144,7 +144,7 @@ class Groupby(SparklingPandasTestCase):
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
         self._compare_dfs(numeric_grouped_frame.var(),
-                                dist_num_grouped_frame.var().collect())
+                          dist_num_grouped_frame.var().collect())
 
     def test_kurtosis(self):
         """Test that kurtosis works on a numeric data frame."""
@@ -162,7 +162,7 @@ class Groupby(SparklingPandasTestCase):
         dist_num_grouped_frame = self.numericthreepframe.groupby(
             'a', sort=True)
         self._compare_dfs(numeric_grouped_frame.sum(),
-                                dist_num_grouped_frame.sum().collect())
+                          dist_num_grouped_frame.sum().collect())
 
     def test_min(self):
         """Test that min works on a numeric data frame."""
@@ -170,7 +170,7 @@ class Groupby(SparklingPandasTestCase):
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
         self._compare_dfs(numeric_grouped_frame.min(),
-                                dist_num_grouped_frame.min().collect())
+                          dist_num_grouped_frame.min().collect())
 
     def test_max(self):
         """Test that max works on a numeric data frame."""
@@ -178,7 +178,7 @@ class Groupby(SparklingPandasTestCase):
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
         self._compare_dfs(numeric_grouped_frame.max(),
-                                dist_num_grouped_frame.max().collect())
+                          dist_num_grouped_frame.max().collect())
 
     def test_apply(self):
         """Test that apply works on a numeric data frame."""
@@ -186,8 +186,8 @@ class Groupby(SparklingPandasTestCase):
         dist_num_grouped_frame = self.numericpframe.groupby(
             'a', sort=True)
         self._compare_dfs(numeric_grouped_frame.apply(lambda x: x),
-                                dist_num_grouped_frame.apply(
-                                    lambda x: x).collect())
+                          dist_num_grouped_frame.apply(
+                              lambda x: x).collect())
 
     def _compare_groupby_results(self, gr1, gr2, order=False):
         """ Compare the results of two groupbys. By default sorts the results

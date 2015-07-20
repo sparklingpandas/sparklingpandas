@@ -19,7 +19,7 @@ import numpy as np
 
 try:
     # rands was moved to util.testing in pandas 0.15
-    from pandas.core.common import rands
+    from pandas.core.common import rands  # pylint: disable=no-name-in-module
 except ImportError:
     from pandas.util.testing import rands
 
