@@ -7,8 +7,8 @@ import scala.collection.JavaConversions._
 
 import scala.math._
 
-import org.apache.commons.math.stat.StatUtils
-import org.apache.commons.math.stat.descriptive.moment.{ Kurtosis => ApacheKurtosis}
+import org.apache.commons.math3.stat.StatUtils
+import org.apache.commons.math3.stat.descriptive.moment.{ Kurtosis => ApacheKurtosis}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.EvilSqlTools
@@ -20,6 +20,8 @@ import org.apache.spark.sql.catalyst.errors.TreeNodeException
 
 // functions we want to be callable from python
 object functions {
+  def kurtosis(e: String): Column = new Column(Kurtosis(
+    EvilSqlTools.getExpr(new Column(e))))
   def kurtosis(e: Column): Column = new Column(Kurtosis(EvilSqlTools.getExpr(e)))
   def registerUdfs(sqlCtx: SQLContext): Unit = {
     sqlCtx.udf.register("rowKurtosis", helpers.rowKurtosis _)

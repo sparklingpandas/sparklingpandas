@@ -134,10 +134,10 @@ class Dataframe:
         return ddf
 
     @classmethod
-    def fromSchemaRDD(cls, schemaRdd):
+    def fromSchemaRDD(cls, schemaRdd, index_names=None):
         """Construct a Dataframe from an SchemaRDD.
         No checking or validation occurs."""
-        return Dataframe(schemaRdd, schemaRdd.sql_ctx)
+        return Dataframe(schemaRdd, schemaRdd.sql_ctx, index_names)
 
     @classmethod
     def fromDataFrameRDD(cls, rdd, sql_ctx):
@@ -260,7 +260,7 @@ class Dataframe:
             return self.from_spark_df(
                 self._schema_rdd.select("rowKurtosis(*)"))
         else:
-            return self.groupby("true").aggregate(pdf.Series.kurtsosis)
+            return self.groupby("true").aggregate(pd.Series.kurtsosis)
 
     def min(self):
         return self.from_spark_df(Dataframe._schema_rdd.min())

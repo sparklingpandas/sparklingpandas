@@ -1,5 +1,5 @@
 """
-Test all of the methods for loading data into PandaSpark
+Test all of the methods for loading data into SparklingPandas
 """
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more

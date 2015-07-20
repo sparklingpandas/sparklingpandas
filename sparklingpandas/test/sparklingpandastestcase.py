@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-"""This module provides some common test case base for PandaSparkTestCases"""
+"""This module provides some common test case base for SparklingPandasTestCases"""
 
 from sparklingpandas.utils import add_pyspark_path
 import pandas
