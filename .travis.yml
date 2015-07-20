@@ -17,7 +17,7 @@ script:
   - "wget http://download.nextag.com/apache/spark/spark-1.4.0/spark-1.4.0-bin-hadoop2.4.tgz"
   - "tar -xvf spark-1.4.0-bin-hadoop2.4.tgz"
   # build our scala code
-  - ./sbt/sbt compile package
+  - ./sbt/sbt assembly
   # Run the tests
   - "export SPARK_HOME=./spark-1.4.0-bin-hadoop2.4/"
   - "nosetests --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
