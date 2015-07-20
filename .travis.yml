@@ -6,7 +6,7 @@ before_install:
 install:
   # install deps
   - sudo conda init
-  - deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint'
+  - deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint scipy openpyxl'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install unittest2
