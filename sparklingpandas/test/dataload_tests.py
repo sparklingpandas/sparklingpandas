@@ -110,12 +110,12 @@ class DataLoad(SparklingPandasTestCase):
                 "name": x[0],
                 "coffees": int(
                     x[1])})
-        sql_ctx = self.psc.sql_ctx()
+        sql_ctx = self.psc.sql_ctx
         coffee_table = sql_ctx.inferSchema(rdd)
         coffee_table.registerAsTable("coffee")
         # Query it
         schema_rdd = sql_ctx.sql("SELECT * FROM coffee")
-        ddf = self.psc.from_spark_df(schema_rdd)
+        ddf = self.psc.from_spark_rdd(schema_rdd, sql_ctx)
         assert_frame_equal(ddf.collect().reset_index(drop=True), df)
         # Query with the sql method on psc
         ddf2 = self.psc.sql("SELECT * FROM coffee")

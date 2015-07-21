@@ -149,10 +149,10 @@ class Dataframe:
         return result.from_rdd_of_dataframes(rdd)
 
     @classmethod
-    def from_spark_df(cls, schema_rdd):
+    def from_spark_rdd(cls, spark_rdd, sql_ctx):
         """Construct a Dataframe from an RDD.
         No checking or validation occurs."""
-        return Dataframe(schema_rdd, schema_rdd.sql_ctx)
+        return Dataframe(sql_ctx.createDataFrame(spark_rdd), sql_ctx)
 
     def to_spark_sql(self):
         """A Sparkling Pandas specific function to turn a DDF into
@@ -176,7 +176,7 @@ class Dataframe:
         a single key it returns a series, however we don't have good
         support for series just yet so we always returns DataFrames.
         """
-        return self.from_spark_df(self._schema_rdd.select(key))
+        return self.from_spark_rdd(self._schema_rdd.select(key), self.sql_ctx)
 
     def groupby(self, by=None, axis=0, level=None, as_index=True, sort=True,
                 group_keys=True, squeeze=False):
@@ -259,19 +259,18 @@ class Dataframe:
         if axis is None or axis == 0:
             # TODO: * isn't happy we should only do this on some columns
             # Note: this code path doesn't work
-            return self.from_spark_df(
-                self._schema_rdd.select("rowKurtosis(*)"))
+            return self.from_spark_rdd(self._schema_rdd.select("rowKurtosis(*)"), self.sql_ctx)
         else:
             return self.groupby("true").aggregate(pd.Series.kurtosis)
 
     def min(self):
-        return self.from_spark_df(self._schema_rdd.min())
+        return self.from_spark_rdd(self._schema_rdd.min(), self.sql_ctx)
 
     def max(self):
-        return self.from_spark_df(self._schema_rdd.max())
+        return self.from_spark_rdd(self._schema_rdd.max(), self.sql_ctx)
 
     def avg(self):
-        return self.from_spark_df(self._schema_rdd.avg())
+        return self.from_spark_rdd(self._schema_rdd.avg(), self.sql_ctx)
 
     def _flatmap(self, f, items):
         return chain.from_iterable(imap(f, items))

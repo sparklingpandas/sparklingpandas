@@ -54,7 +54,7 @@ class PSparkContext():
         PSparkContext"""
         return PSparkContext(SparkContext(*args, **kwargs))
 
-    def read_csv(self, name, use_whole_file=False, names=None, skip_rows=0,
+    def read_csv(self, name, use_whole_file=False, names=None, skiprows=0,
                  *args, **kwargs):
         """Read a CSV file in and parse it into Pandas DataFrames.
         If no names is provided we use the first row for the names.
@@ -66,7 +66,7 @@ class PSparkContext():
         this shouldn't be an issue for small values of skiprows.
         No other values of header is supported.
         All additional parameters are passed to the read_csv function.
-        TODO: Use spark-csv package if the request could be fufilled by it.
+        TODO: Use spark-csv package if the request could be fulfilled by it.
         """
         def csv_file(partition_number, files):
             # pylint: disable=unexpected-keyword-arg
@@ -78,7 +78,7 @@ class PSparkContext():
                         sio(contents), *args,
                         header=None,
                         names=mynames,
-                        skip_rows=_skiprows,
+                        skiprows=_skiprows,
                         **kwargs)
                 else:
                     file_count += 1
@@ -96,7 +96,7 @@ class PSparkContext():
                     pandas.read_csv(
                         sio(in_str), *args, header=None,
                         names=mynames,
-                        skip_rows=_skiprows,
+                        skiprows=_skiprows,
                         **kwargs)])
             else:
                 # could use .iterows instead?
@@ -106,7 +106,7 @@ class PSparkContext():
         # If we need to peak at the first partition and determine the column
         # names
         mynames = None
-        _skiprows = skip_rows
+        _skiprows = skiprows
         if names:
             mynames = names
         else:
@@ -129,14 +129,14 @@ class PSparkContext():
     def parquetFile(self, *paths):
         """Loads a Parquet file, returning the result as a L{Dataframe}.
         """
-        return self.from_spark_df(self.sql_ctx.parquetFile(paths))
+        return self.from_spark_rdd(self.sql_ctx.parquetFile(paths), self.sql_ctx)
 
     def jsonFile(self, path, schema=None, sampling_ratio=1.0):
         """Loads a text file storing one JSON object per line as a
         L{Dataframe}.
         """
         schema_rdd = self.sql_ctx.jsonFile(path, schema, sampling_ratio)
-        return self.from_spark_df(schema_rdd)
+        return self.from_spark_rdd(schema_rdd, self.sql_ctx)
 
     def from_pd_data_frame(self, local_df):
         """Make a distributed dataframe from a local dataframe. The intend use
@@ -162,20 +162,20 @@ class PSparkContext():
 
     def sql(self, query):
         """Perform a SQL query and create a L{Dataframe} of the result."""
-        return Dataframe.from_spark_df(self.sql_ctx.sql(query))
+        return Dataframe.from_spark_rdd(self.sql_ctx.sql(query), self.sql_ctx)
 
     def table(self, table):
         """Returns the provided table as a L{Dataframe}"""
-        return Dataframe.from_spark_df(self.sql_ctx.table(table))
+        return Dataframe.from_spark_rdd(self.sql_ctx.table(table), self.sql_ctx)
 
-    @staticmethod
-    def from_spark_df(dataframe_rdd):
+
+    def from_spark_rdd(self, spark_rdd, sql_ctx):
         """
         Translates a Spark DataFrame Rdd into a SparklingPandas dataframe.
         :param dataframe_rdd: Input dataframe RDD to convert
         :return: Matchign SparklingPandas dataframe
         """
-        return Dataframe.from_spark_df(dataframe_rdd)
+        return Dataframe.from_spark_rdd(spark_rdd, sql_ctx)
 
     def DataFrame(self, elements, *args, **kwargs):
         """Wraps the pandas.DataFrame operation."""
@@ -186,12 +186,12 @@ class PSparkContext():
 
     def from_pandas_rdd(self, pandas_rdd):
         def _extract_records(data):
-            return [r.toList() for r in data.to_records(index=False)]
+            return [r for r in data.to_records(index=False)]
 
         def _from_pandas_rdd_records(pandas_rdd_records, schema):
-            """Createa a L{Dataframe} from an RDD of records with schema"""
-            return Dataframe.from_spark_df(
-                self.sql_ctx.createDataFrame(pandas_rdd_records, schema))
+            """Create a L{Dataframe} from an RDD of records with schema"""
+            return Dataframe.from_spark_rdd(
+                self.sql_ctx.createDataFrame(pandas_rdd_records, schema), self.sql_ctx)
 
         schema = pandas_rdd.map(lambda x: x.columns).first
         rdd_records = pandas_rdd.flatMap(_extract_records)
@@ -208,8 +208,8 @@ class PSparkContext():
             for _, contents in files:
                 yield pandas.read_json(sio(contents), *args, **kwargs)
 
-        return Dataframe.from_spark_df(
-            self.spark_ctx.wholeTextFiles(name).mapPartitions(json_file))
+        return Dataframe.from_spark_rdd(
+            self.spark_ctx.wholeTextFiles(name).mapPartitions(json_file), self.sql_ctx)
 
     def stop(self):
         """Stop the underlying SparkContext

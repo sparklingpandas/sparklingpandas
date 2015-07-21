@@ -64,7 +64,7 @@ class PContextTests(SparklingPandasTestCase):
 
         with open(temp_file.name, 'wb') as f:
             writer = csv.writer(f)
-            writer.write_rows(input)
+            writer.writerows(input)
 
         df = self.psc.read_csv(temp_file.name)
         elements = df.collect()
