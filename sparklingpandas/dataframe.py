@@ -288,9 +288,10 @@ class Dataframe:
         newcolumns = list(self._schema_rdd.columns)
         newcolumns.insert(1, "counts")
         localdf = pandas.DataFrame(dict(histogramData).items(),
-                                   columns = newcolumns)
+                                   columns=newcolumns)
         localdf = localdf.set_index(self._schema_rdd.columns)
         return localdf.plot(kind="bar")
+
 
 # DataFrame helper functions that don't depend on the class
 def _update_index_on_df(df, index_names):
