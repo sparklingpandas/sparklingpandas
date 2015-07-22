@@ -50,9 +50,6 @@ class PContextTests(SparklingPandasTestCase):
         print dataframe._schema_rdd.collect()
         elements = dataframe.collect()
         os.unlink(temp_file.name)
-        print "xxxIndex is \n%s" % elements.index
-        print "xxxelements are %s" % elements
-        print "xxxColumsn of psc dataframe are %s" % dataframe._column_names()
         assert len(elements.index) == 3
         expected = sorted([u'coffee', u'tea', u'water'])
         assert sorted(elements['magic']) == expected

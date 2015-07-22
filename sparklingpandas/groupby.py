@@ -47,7 +47,7 @@ class GroupBy:
         args / kwargs"""
         # TODO: check the other components for sanity
         # and add support for doing this with a map function if possible.
-        if isinstance(self._by, basestring):
+        if (isinstance(self._by, basestring)):
             return True
         return False
 
@@ -55,10 +55,9 @@ class GroupBy:
         """Used Spark SQL group approach"""
         # Strip the index info
         non_index_columns = filter(lambda x: x not in self._prdd._index_names,
-                                   self._prdd._column_names())
+                                  self._prdd._column_names())
         self._grouped_spark_sql = (self._prdd.to_spark_sql()
-                                   .select(non_index_columns)
-                                   .groupBy(self._by))
+                                   .select(non_index_columns).groupBy(self._by))
         self._columns = filter(lambda x: x != self._by,
                                non_index_columns)
 
@@ -201,6 +200,7 @@ class GroupBy:
             merge_value,
             merge_combiner)).values()
         return Dataframe.fromDataFrameRDD(rddOfSum, self.sql_ctx)
+
 
     def _create_exprs_using_func(self, f, columns):
         """Create aggregate expressions using the provided function

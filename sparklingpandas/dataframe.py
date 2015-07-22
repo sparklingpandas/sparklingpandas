@@ -152,7 +152,7 @@ class Dataframe:
     def from_spark_rdd(cls, spark_rdd, sql_ctx):
         """Construct a Dataframe from an RDD.
         No checking or validation occurs."""
-        return Dataframe(sql_ctx.createDataFrame(spark_rdd), sql_ctx)
+        return Dataframe(spark_rdd, sql_ctx)
 
     def to_spark_sql(self):
         """A Sparkling Pandas specific function to turn a DDF into
