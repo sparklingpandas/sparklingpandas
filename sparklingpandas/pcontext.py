@@ -186,14 +186,14 @@ class PSparkContext():
 
     def from_pandas_rdd(self, pandas_rdd):
         def _extract_records(data):
-            return [r for r in data.to_records(index=False)]
+            return [r.tolist() for r in data.to_records(index=False)]
 
         def _from_pandas_rdd_records(pandas_rdd_records, schema):
             """Create a L{Dataframe} from an RDD of records with schema"""
             return Dataframe.from_spark_rdd(
                 self.sql_ctx.createDataFrame(pandas_rdd_records, schema), self.sql_ctx)
 
-        schema = pandas_rdd.map(lambda x: x.columns).first
+        schema = pandas_rdd.map(lambda x: x.columns.values).first()
         rdd_records = pandas_rdd.flatMap(_extract_records)
         return _from_pandas_rdd_records(rdd_records, schema)
 
@@ -204,12 +204,15 @@ class PSparkContext():
         Currently, it is not possible to skip the first n rows of a file.
         Headers are provided in the json file and not specified separately.
         """
-        def json_file(files):
+        def json_file_to_df(files):
+            """ Transforms a JSON file into a list of data"""
             for _, contents in files:
-                yield pandas.read_json(sio(contents), *args, **kwargs)
+                df =  pandas.read_json(sio(contents), *args, **kwargs)
+                yield [records.tolist() for records in df.to_records()]
 
         return Dataframe.from_spark_rdd(
-            self.spark_ctx.wholeTextFiles(name).mapPartitions(json_file), self.sql_ctx)
+            self.spark_ctx.wholeTextFiles(name).flatMapPartitions(
+                json_file_to_df), self.sql_ctx)
 
     def stop(self):
         """Stop the underlying SparkContext
