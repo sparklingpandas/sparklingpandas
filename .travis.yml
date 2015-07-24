@@ -20,7 +20,6 @@ script:
   - ./sbt/sbt assembly
   # Run the tests
   - "export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/"
-  - "nosetests --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
+  - "nosetests --logging-level=ERROR --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
   - "pep8 --ignore=E402 sparklingpandas/"
   - "pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member"
-
