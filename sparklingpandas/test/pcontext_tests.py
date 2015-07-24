@@ -55,7 +55,9 @@ class PContextTests(SparklingPandasTestCase):
         assert sorted(elements['magic']) == expected
 
     def test_read_csv(self):
-        input = [["happy", 3],
+        """Read CSV with header. """
+        input = [["dwarves", "uid"],
+                 ["happy", 3],
                  ["grumpy", 4],
                  ["dopey", 5]]
 
@@ -70,4 +72,4 @@ class PContextTests(SparklingPandasTestCase):
         elements = df.collect()
         os.unlink(temp_file.name)
 
-        assert len(elements) == 3
+        assert len(elements.index) == 3

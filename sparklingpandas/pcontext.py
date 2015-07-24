@@ -186,7 +186,7 @@ class PSparkContext():
 
     def from_pandas_rdd(self, pandas_rdd):
         def _extract_records(data):
-            return [r.tolist() for r in data.to_records(index=False)]
+            return [r for r in data.to_records(index=False).tolist()]
 
         def _from_pandas_rdd_records(pandas_rdd_records, schema):
             """Create a L{Dataframe} from an RDD of records with schema"""
