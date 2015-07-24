@@ -129,7 +129,8 @@ class PSparkContext():
     def parquetFile(self, *paths):
         """Loads a Parquet file, returning the result as a L{Dataframe}.
         """
-        return self.from_spark_rdd(self.sql_ctx.parquetFile(paths), self.sql_ctx)
+        return self.from_spark_rdd(self.sql_ctx.parquetFile(paths),
+                                   self.sql_ctx)
 
     def jsonFile(self, path, schema=None, sampling_ratio=1.0):
         """Loads a text file storing one JSON object per line as a
@@ -166,8 +167,8 @@ class PSparkContext():
 
     def table(self, table):
         """Returns the provided table as a L{Dataframe}"""
-        return Dataframe.from_spark_rdd(self.sql_ctx.table(table), self.sql_ctx)
-
+        return Dataframe.from_spark_rdd(self.sql_ctx.table(table),
+                                        self.sql_ctx)
 
     def from_spark_rdd(self, spark_rdd, sql_ctx):
         """
@@ -209,7 +210,7 @@ class PSparkContext():
         def json_file_to_df(files):
             """ Transforms a JSON file into a list of data"""
             for _, contents in files:
-               yield pandas.read_json(sio(contents), *args, **kwargs)
+                yield pandas.read_json(sio(contents), *args, **kwargs)
 
         return self.from_pandas_rdd(self.spark_ctx.wholeTextFiles(name)
                                     .mapPartitions(json_file_to_df))

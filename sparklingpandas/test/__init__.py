@@ -36,6 +36,6 @@ jars = run_cmd("ls %s/target/scala-2.10/*.jar" % project_root)
 
 # Set environment variables.
 os.environ["PYTHON_PATH"] = project_root
-os.environ["PYSPARK_SUBMIT_ARGS"] = ("--jars %s --driver-class-path %s" \
-                                     + " pyspark-shell") % (jars, jars)
+os.environ["PYSPARK_SUBMIT_ARGS"] = ("--jars %s --driver-class-path %s" +
+                                     " pyspark-shell") % (jars, jars)
 os.environ["JARS"] = jars

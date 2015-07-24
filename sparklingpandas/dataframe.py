@@ -259,7 +259,9 @@ class Dataframe:
         if axis is None or axis == 0:
             # TODO: * isn't happy we should only do this on some columns
             # Note: this code path doesn't work
-            return self.from_spark_rdd(self._schema_rdd.select("rowKurtosis(*)"), self.sql_ctx)
+            return self.from_spark_rdd(self._schema_rdd
+                                       .select("rowKurtosis(*)"),
+                                       self.sql_ctx)
         else:
             return self.groupby("true").aggregate(pd.Series.kurtosis)
 
