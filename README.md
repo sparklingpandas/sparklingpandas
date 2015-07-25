@@ -7,7 +7,8 @@ SparklingPandas
 ==============
 
 SparklingPandas aims to make it easy to use the distributed computing power
-of PySpark to scale your data analysis with Pandas.
+of PySpark to scale your data analysis with Pandas. SparklingPandas builds on
+Spark's DataFrame class to give you a polished, pythonic, and Pandas like API.
 
 Documentation
 =========
@@ -17,7 +18,8 @@ None (right now).
 
 Videos
 =========
-An early version of Sparkling Pandas was discussed in [Sparkling Pandas - using Apache Spark to scale Pandas - Holden Karau and Juliet Hougland](https://www.youtube.com/watch?v=AcyI_V8FeIU)
+An early version of Sparkling Pandas was discussed in [Sparkling Pandas - using 
+Apache Spark to scale Pandas - Holden Karau and Juliet Hougland](https://www.youtube.com/watch?v=AcyI_V8FeIU)
 
 Requirements
 =========
@@ -33,13 +35,12 @@ Make sure you have the SPARK_HOME enviroment variable set correctly, as
 SparklingPandas uses this for including the PySpark libraries
 
 Other than that you can install SparklingPandas with pip and just import it.
-The primary unit of SparklingPandas is a PRDD (Pandas Resillent Distributed
-Data Set)
 
 State
 =========
 
-This is in early development and should not be considered usable.
+This is in early development. Feedback is taken seriously and is seriously appreciated.
+As you can tell Us SparklingPandas are a pretty serious bunch.
 
 Support
 =========
