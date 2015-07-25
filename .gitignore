@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# Docs site.
+site/
+
 # C extensions
 *.so
 

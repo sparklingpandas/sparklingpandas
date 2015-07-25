@@ -1,0 +1,7 @@
+site_name: SparklingPandas
+pages:
+- Home: index.md
+theme: readthedocs
+site_url: http://sparklingpandas.com
+repo_url: https://github.com/sparklingpandas/sparklingpandas
+
