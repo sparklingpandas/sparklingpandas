@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='sparklingpandas',
-    version='0.0.2',
+    version='0.0.3',
     author='Holden Karau, Juliet Hougland',
     author_email='holden@pigscanfly.ca, juliet@cloudera.com',
     packages=['sparklingpandas', 'sparklingpandas.test'],
