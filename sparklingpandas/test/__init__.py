@@ -39,3 +39,5 @@ os.environ["PYTHON_PATH"] = project_root
 os.environ["PYSPARK_SUBMIT_ARGS"] = ("--jars %s --driver-class-path %s" +
                                      " pyspark-shell") % (jars, jars)
 os.environ["JARS"] = jars
+os.environ["SPARK_CONF_DIR"] = "%s/sparklingpandas/test/resources/conf" % \
+                               project_root

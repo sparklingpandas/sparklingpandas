@@ -27,6 +27,7 @@ from sparklingpandas.pcontext import PSparkContext
 import unittest2
 import sys
 from pandas.util.testing import assert_frame_equal
+import logging
 
 
 class SparklingPandasTestCase(unittest2.TestCase):
