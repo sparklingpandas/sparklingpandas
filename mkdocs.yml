@@ -4,4 +4,4 @@ pages:
 theme: readthedocs
 site_url: http://sparklingpandas.com
 repo_url: https://github.com/sparklingpandas/sparklingpandas
-
+google_analytics: ['UA-65642288-1', 'sparklingpandas.com']

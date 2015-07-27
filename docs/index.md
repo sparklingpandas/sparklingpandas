@@ -6,18 +6,26 @@ SparklingPandas aims to make it easy to use the distributed computing power
 of PySpark to scale your data analysis with Pandas. SparklingPandas builds on
 Spark's DataFrame class to give you a polished, pythonic, and Pandas-like API.
 
+
+# Using
+
+You can install SparklingPandas with pip:
+
+    pip install sparklingpandas
+
+Once installed, you can import the package and hack away:
+
+    import sparklingpandas
+
+Make sure you have the SPARK_HOME environment variable set to the root
+directory of your Spark 1.4.0 (or above) distribution.
+
 #Requirements
 
 The primary requirement of SparklingPandas is that you have a recent (v1.4
 currently) version of Spark installed - <http://spark.apache.org> and Python
 2.7.
 
-# Using
-
-Make sure you have the SPARK_HOME environment variable set correctly, as
-SparklingPandas uses this for including the PySpark libraries
-
-Other than that you can install SparklingPandas with pip and just import it.
 
 # State
 This is in early development. Feedback is taken seriously and is seriously appreciated.
