@@ -4,7 +4,7 @@ name := "sparklingpandas"
 
 publishMavenStyle := true
 
-version := "0.0.2-SNAPSHOT"
+version := "0.0.4-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
