@@ -18,15 +18,13 @@
   <link rel="stylesheet" href="./css/highlight.css">
 
   
-  <script>
-    // Current page data
-    var mkdocs_page_name = "None";
-  </script>
-  
   <script src="./js/jquery-2.1.1.min.js"></script>
   <script src="./js/modernizr-2.8.3.min.js"></script>
   <script type="text/javascript" src="./js/highlight.pack.js"></script>
-  <script src="./js/theme.js"></script> 
+  <script src="./js/theme.js"></script>
+  <script>var base_url = '.';</script>
+  <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
+
 
   
   <script>
@@ -60,30 +58,8 @@
         <ul class="current">
           
             <li>
-    <li class="toctree-l1 current">
-        <a class="current" href=".">Home</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#sparklingpandas">SparklingPandas</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#using">Using</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#requirements">Requirements</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#state">State</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#videos">Videos</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#support">Support</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href=".">Home</a>
         
     </li>
 <li>
@@ -108,9 +84,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href=".">Docs</a> &raquo;</li>
     
-      
     
-    <li>Home</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -124,33 +98,19 @@
           <div role="main">
             <div class="section">
               
-                <p><img align="right" src="img/logo.jpg"></p>
-<h1 id="sparklingpandas">SparklingPandas</h1>
-<p>SparklingPandas aims to make it easy to use the distributed computing power
-of PySpark to scale your data analysis with Pandas. SparklingPandas builds on
-Spark's DataFrame class to give you a polished, pythonic, and Pandas-like API.</p>
-<h1 id="using">Using</h1>
-<p>You can install SparklingPandas with pip:</p>
-<pre><code>pip install sparklingpandas
-</code></pre>
-<p>Once installed, you can import the package and hack away:</p>
-<pre><code>import sparklingpandas
-</code></pre>
-<p>Make sure you have the SPARK_HOME environment variable set to the root
-directory of your Spark 1.4.0 (or above) distribution.</p>
-<h1 id="requirements">Requirements</h1>
-<p>The primary requirement of SparklingPandas is that you have a recent (v1.4
-currently) version of Spark installed - <a href="http://spark.apache.org">http://spark.apache.org</a> and Python
-2.7.</p>
-<h1 id="state">State</h1>
-<p>This is in early development. Feedback is taken seriously and is seriously appreciated.
-As you can tell, us SparklingPandas are a pretty serious bunch.</p>
-<h1 id="videos">Videos</h1>
-<p>An early version of Sparkling Pandas was discussed in <a href="https://www.youtube.com/watch?v=AcyI_V8FeIU">Sparkling Pandas - using
-Apache Spark to scale Pandas - Holden Karau and Juliet Hougland</a></p>
-<h1 id="support">Support</h1>
-<p>Check out our Google group at https://groups.google.com/forum/#!forum/sparklingpandas</p>
-              
+
+  <h1 id="search">Search Results</h1>
+
+  <form id="content_search" action="search.html">
+    <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+    <input name="q" id="mkdocs-search-query" type="text" class="search_input search-query ui-autocomplete-input" placeholder="Search the Docs" autocomplete="off" autofocus>
+  </form>
+
+  <div id="mkdocs-search-results">
+    Sorry, page not found.
+  </div>
+
+
             </div>
           </div>
           <footer>
@@ -185,8 +145,3 @@ Apache Spark to scale Pandas - Holden Karau and Juliet Hougland</a></p>
 
 </body>
 </html>
-
-<!--
-MkDocs version : 0.14.0
-Build Date UTC : 2015-07-28 03:38:16.812942
--->
