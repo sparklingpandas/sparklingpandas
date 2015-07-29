@@ -41,6 +41,7 @@ class PSparkContext():
         if sql_ctx:
             self.sql_ctx = sql_ctx
         else:
+            print "No sql context provided, creating"
             from pyspark.sql import SQLContext
             self.sql_ctx = SQLContext(self.spark_ctx)
 
