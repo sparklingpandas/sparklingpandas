@@ -15,7 +15,7 @@ setup(
     license='LICENSE.txt',
     description='Enable a Pandas like API on PySpark',
     long_description=open('README.md').read(),
-    data_files=[('share/sparklingpandas', [JAR_FILE_PATH])],
+    data_files=[('jar', [JAR_FILE_PATH])],
     install_requires=[
         # Note: we also need PySpark 1.3 but that has to be installed manually.
         'pandas >= 0.13',

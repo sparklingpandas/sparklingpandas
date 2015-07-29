@@ -28,3 +28,13 @@ from sparklingpandas.pcontext import PSparkContext
 
 __all__ = ["Dataframe", "PSparkContext"]
 """
+import os
+import sys
+
+if 'IS_TEST' not in os.environ:
+    VERSION = '0.0.4'
+    JAR_FILE = 'sparklingpandas_2.10-' + VERSION + '-SNAPSHOT.jar'
+    jar = os.path.join(sys.prefix, 'jar', JAR_FILE)
+    os.environ["JARS"] = jar
+    os.environ["PYSPARK_SUBMIT_ARGS"] = ("--jars %s --driver-class-path %s" +
+                                         " pyspark-shell") % (jar, jar)
