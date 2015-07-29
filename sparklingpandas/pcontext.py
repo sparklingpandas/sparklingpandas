@@ -50,19 +50,35 @@ class PSparkContext():
         PSparkContext"""
         return PSparkContext(SparkContext(*args, **kwargs))
 
-    def read_csv(self, name, use_whole_file=False, names=None, skiprows=0,
+    def read_csv(self, file_path, use_whole_file=False, names=None, skiprows=0,
                  *args, **kwargs):
-        """Read a CSV file in and parse it into Pandas DataFrames.
-        If no names is provided we use the first row for the names.
-        header=0 is the default unless names is provided in which case
-        header=None is the default.
-        skiprows indicates how many rows of input to skip. This will
-        only be applied to the first partition of the data (so if
-        #skiprows > #row in first partition this will not work). Generally
-        this shouldn't be an issue for small values of skiprows.
-        No other values of header is supported.
-        All additional parameters are passed to the read_csv function.
-        TODO: Use spark-csv package if the request could be fulfilled by it.
+        """Read a CSV file in and parse it into Pandas DataFrames. By default,
+        the first row from the first partition of that data is parsed and used
+        as the column names for the data from. If no 'names' param is
+        provided we parse the first row of the first partition of data and
+        use it for column names.
+
+        Parameters
+        ----------
+        file_path: string
+            Path to input. Any valid file path in Spark works here, eg:
+            'my/path/in/local/file/system' or 'hdfs:/user/juliet/'
+        use_whole_file: boolean
+            Whether of not to use the whole file.
+        names: list of strings, optional
+        skiprows: integer, optional
+            indicates how many rows of input to skip. This will
+            only be applied to the first partition of the data (so if
+            #skiprows > #row in first partition this will not work). Generally
+            this shouldn't be an issue for small values of skiprows.
+        No other value of header is supported.
+        All additional parameters available in pandas.read_csv() are usable
+        here.
+
+        Returns
+        -------
+        A SparklingPandas DataFrame that contains the data from the
+        specified file.
         """
         def csv_file(partition_number, files):
             # pylint: disable=unexpected-keyword-arg
@@ -107,7 +123,7 @@ class PSparkContext():
             mynames = names
         else:
             # In the future we could avoid this expensive call.
-            first_line = self.spark_ctx.textFile(name).first()
+            first_line = self.spark_ctx.textFile(file_path).first()
             frame = pandas.read_csv(sio(first_line), **kwargs)
             # pylint sees frame as a tuple despite it being a Dataframe
             mynames = list(frame.columns)
@@ -196,19 +212,32 @@ class PSparkContext():
         rdd_records = pandas_rdd.flatMap(_extract_records)
         return _from_pandas_rdd_records(rdd_records, schema)
 
-    def read_json(self, name,
+    def read_json(self, file_path,
                   *args, **kwargs):
         """Read a json file in and parse it into Pandas DataFrames.
         If no names is provided we use the first row for the names.
         Currently, it is not possible to skip the first n rows of a file.
         Headers are provided in the json file and not specified separately.
+
+        Parameters
+        ----------
+        file_path: string
+            Path to input. Any valid file path in Spark works here, eg:
+            'my/path/in/local/file/system' or 'hdfs:/user/juliet/'
+        Other than skipRows, all additional parameters available in
+        pandas.read_csv() are usable here.
+
+        Returns
+        -------
+            A SparklingPandas DataFrame that contains the data from the
+        specified file.
         """
         def json_file_to_df(files):
             """ Transforms a JSON file into a list of data"""
             for _, contents in files:
                 yield pandas.read_json(sio(contents), *args, **kwargs)
 
-        return self.from_pandas_rdd(self.spark_ctx.wholeTextFiles(name)
+        return self.from_pandas_rdd(self.spark_ctx.wholeTextFiles(file_path)
                                     .mapPartitions(json_file_to_df))
 
     def stop(self):
