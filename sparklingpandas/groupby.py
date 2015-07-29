@@ -357,15 +357,10 @@ class GroupBy:
         that doesn't properly do partial aggregations, but we can improve
         it to do this eventually!
         """
-        if self._can_use_new_school() and f == pd.Series.kurtosis:
-            self._prep_new_school()
-            import custom_functions as CF
-            return self._use_aggregation(CF.kurtosis)
-        else:
-            self._prep_old_school()
-            return Dataframe.fromDataFrameRDD(
-                self._regroup_mergedRDD().values().map(
-                    lambda g: g.aggregate(f)), self.sql_ctx)
+        self._prep_old_school()
+        return Dataframe.fromDataFrameRDD(
+            self._regroup_mergedRDD().values().map(
+                lambda g: g.aggregate(f)), self.sql_ctx)
 
     def agg(self, f):
         return self.aggregate(f)

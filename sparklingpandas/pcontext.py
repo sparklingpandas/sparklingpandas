@@ -24,8 +24,6 @@ import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
 from sparklingpandas.dataframe import Dataframe, _normalize_index_names
-from sparklingpandas.custom_functions import register_sql_extensions
-
 
 class PSparkContext():
 

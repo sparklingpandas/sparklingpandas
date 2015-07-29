@@ -255,16 +255,6 @@ class Dataframe:
                           columns))
         return PStats(self.from_schema_rdd(self._schema_rdd.agg(*aggs)))
 
-    def kurtosis(self, axis=None):
-        if axis is None or axis == 0:
-            # TODO: * isn't happy we should only do this on some columns
-            # Note: this code path doesn't work
-            return self.from_spark_rdd(self._schema_rdd
-                                       .select("rowKurtosis(*)"),
-                                       self.sql_ctx)
-        else:
-            return self.groupby("true").aggregate(pd.Series.kurtosis)
-
     def min(self):
         return self.from_spark_rdd(self._schema_rdd.min(), self.sql_ctx)
 

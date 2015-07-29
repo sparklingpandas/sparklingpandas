@@ -148,15 +148,6 @@ class Groupby(SparklingPandasTestCase):
         self._compare_dfs(numeric_grouped_frame.var(),
                           dist_num_grouped_frame.var().collect())
 
-    def test_kurtosis(self):
-        """Test that kurtosis works on a numeric data frame."""
-        numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
-        dist_num_grouped_frame = self.numericpframe.groupby(
-            'a', sort=True)
-        from pandas import Series
-        expected = numeric_grouped_frame.aggregate(Series.kurtosis)
-        result = dist_num_grouped_frame.aggregate(Series.kurtosis)
-        self._compare_dfs(expected, result.collect())
 
     def test_sum_three_col(self):
         """Test that sum works on three column numeric data frame."""
