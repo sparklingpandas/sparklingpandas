@@ -16,10 +16,10 @@ spName := "sparklingpandas/sparklingpandas"
 
 sparkVersion := "1.3.1"
 
-sparkComponents ++= Seq("core", "streaming", "sql", "hive")
+sparkComponents ++= Seq("core", "sql", "hive")
 
 // additional libraries
-libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "2.2.1",
+libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "2.2.1" % "test",
   "io.github.nicolasstucki" % "multisets_2.10" % "0.1",
   "org.apache.commons" % "commons-math3" % "3.5")
 
