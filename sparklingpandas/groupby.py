@@ -259,6 +259,31 @@ class GroupBy:
             merge_combiner)).values()
         return Dataframe.fromDataFrameRDD(rddOfMax, self.sql_ctx)
 
+    def count(self):
+        """Compute the number of elements in each group."""
+        if self._can_use_new_school():
+            self._prep_spark_sql_groupby()
+            import pyspark.sql.functions as func
+            return self._use_aggregation(func.count)
+        self._prep_pandas_groupby()
+        myargs = self._myargs
+        mykwargs = self._mykwargs
+
+        def create_combiner(x):
+            return x.groupby(*myargs, **mykwargs).count()
+
+        def merge_value(x, y):
+            return x.append(create_combiner(y)).count()
+
+        def merge_combiner(x, y):
+            return x.append(y).count(level=0)
+
+        rddOfCounts = self._sortIfNeeded(self._distributedRDD.combineByKey(
+            create_combiner,
+            merge_value,
+            merge_combiner)).values()
+        return Dataframe.fromDataFrameRDD(rddOfCounts, self.sql_ctx)
+
     def _use_aggregation(self, agg, columns=None):
         """Compute the result using the aggregation function provided.
         The aggregation name must also be provided so we can strip of the extra

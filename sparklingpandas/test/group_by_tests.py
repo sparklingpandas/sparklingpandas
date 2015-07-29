@@ -172,6 +172,14 @@ class Groupby(SparklingPandasTestCase):
         self._compare_dfs(numeric_grouped_frame.max(),
                           dist_num_grouped_frame.max().collect())
 
+    def test_count(self):
+        """Test that max works on a numeric data frame."""
+        numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
+        dist_num_grouped_frame = self.numericpframe.groupby(
+            'a', sort=True)
+        self._compare_dfs(numeric_grouped_frame.count(),
+                          dist_num_grouped_frame.count().collect())
+
     def test_apply(self):
         """Test that apply works on a numeric data frame."""
         numeric_grouped_frame = self.numericframe.groupby('a', sort=True)
