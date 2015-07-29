@@ -1,4 +1,4 @@
 include *.txt
 include *.md
-recursive-include target *.jar
-recursive-include docs 
+include current-release/*.jar
+recursive-include docs *.md
