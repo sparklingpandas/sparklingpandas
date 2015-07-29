@@ -43,6 +43,8 @@ class PSparkContext():
         else:
             from pyspark.sql import SQLContext
             self.sql_ctx = SQLContext(self.spark_ctx)
+        # Register our magical functions
+        register_sql_extensions(self.sql_ctx)
 
     @classmethod
     def simple(cls, *args, **kwargs):
