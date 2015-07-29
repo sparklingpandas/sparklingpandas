@@ -148,7 +148,6 @@ class Groupby(SparklingPandasTestCase):
         self._compare_dfs(numeric_grouped_frame.var(),
                           dist_num_grouped_frame.var().collect())
 
-
     def test_sum_three_col(self):
         """Test that sum works on three column numeric data frame."""
         numeric_grouped_frame = self.numericthreeframe.groupby('a', sort=True)

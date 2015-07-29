@@ -25,8 +25,8 @@ from StringIO import StringIO as sio
 from pyspark.context import SparkContext
 from sparklingpandas.dataframe import Dataframe, _normalize_index_names
 
-class PSparkContext():
 
+class PSparkContext():
     """This is a thin wrapper around SparkContext from PySpark which makes it
     easy to load data into L{PRDD}s."""
 
