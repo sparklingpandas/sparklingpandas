@@ -11,6 +11,7 @@ setup(
     author='Holden Karau, Juliet Hougland',
     author_email='holden@pigscanfly.ca, juliet@cloudera.com',
     packages=['sparklingpandas', 'sparklingpandas.test'],
+    data_files=[('sparklingpandashell')],
     url='https://github.com/sparklingpandas/sparklingpandas',
     license='LICENSE.txt',
     description='Enable a Pandas like API on PySpark',
