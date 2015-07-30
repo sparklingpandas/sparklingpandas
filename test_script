@@ -1,9 +1,13 @@
 #!/bin/bash
 set -x
+sudo apt-get update &> /dev/null &
+UPDATE_PID=$!
 wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz &> downlaod &
 WGET_PID=$!
 ./sbt/sbt assembly &> assembly &
 ASSEMBLY_PID=$!
+waitpid UPDATE_PID || echo "update finished"
+sudo aptitude install liblapack-dev  libblas-dev liblapack-3gf.so libblas3gf
 sudo pip install . &> install_logs &
 INSTALL_PID=$!
 export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/
