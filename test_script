@@ -10,6 +10,7 @@ sudo conda init
 deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint scipy openpyxl'
 conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 source activate /home/travis/py
+export PATH=$HOME/py/bin:$PATH
 pip install unittest2
 pip install coverage
 export PATH=$HOME/py/bin:$PATH
