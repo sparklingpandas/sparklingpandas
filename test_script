@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz &> downlaod &
 WGET_PID=$!
 ./sbt/sbt assembly &> assembly &
