@@ -1,4 +1,4 @@
-![logo](docs/img/logo.jpg)
+<img align="right" src="img/logo.jpg">
 
 [![buildstatus](https://travis-ci.org/sparklingpandas/sparklingpandas.svg?branch=master)](https://travis-ci.org/sparklingpandas/sparklingpandas)
 
