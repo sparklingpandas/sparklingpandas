@@ -25,5 +25,5 @@ script:
   - "pylint -E sparklingpandas --extension-pkg-whitelist=numpy"
   - echo $PATH
   - export LOCATION=`pip show sparklingpandas|grep Location| cut -d ' ' -f 2`
-  - echo "exit(0)" | $LOCATION/sparklingpandas/sparklingpandashell
+  - echo "exit(0)" | $LOCATION/sparklingpandas/bin/sparklingpandashell
   
