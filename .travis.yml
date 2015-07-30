@@ -2,7 +2,7 @@ language: python
 python:
   - "2.7"
 before_install:
-   - wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz &> /dev/null &
+  - wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz &> /dev/null &
   - export WGET_PID=$!
   - sudo pip install --upgrade conda py4j
   - sudo conda init
