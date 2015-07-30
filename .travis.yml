@@ -10,14 +10,14 @@ install:
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install unittest2
+  # build our scala code
+  - ./sbt/sbt assembly
   # install our own package into the environment
   - "pip install ."
 script:
   # Download spark 1.4.1
   - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz"
   - "tar -xvf spark-1.4.1-bin-hadoop2.4.tgz"
-  # build our scala code
-  - ./sbt/sbt assembly
   # Run the tests
   - "export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/"
   - "nosetests --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
