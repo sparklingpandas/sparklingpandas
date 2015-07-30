@@ -11,7 +11,10 @@ setup(
     author='Holden Karau, Juliet Hougland',
     author_email='holden@pigscanfly.ca, juliet@cloudera.com',
     packages=['sparklingpandas', 'sparklingpandas.test'],
-    data_files=[('sparklingpandashell')],
+    data_files=[
+        ('/usr/local/bin', ['sparklingpandashell']),
+        ('/usr/local/sparklinpandas/jars',
+         ['./target/scala-2.10/sparklingpandas-assembly-0.0.2-SNAPSHOT.jar'])],
     url='https://github.com/sparklingpandas/sparklingpandas',
     license='LICENSE.txt',
     description='Enable a Pandas like API on PySpark',
