@@ -1,0 +1,18 @@
+#!/bin/bash
+wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz &> downlaod &
+WGET_PID=$!
+./sbt/sbt assembly &> assembly &
+ASSEMBLY_PID=$!
+sudo pip install . &> install_logs &
+INSTALL_PID=$!
+export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/
+export SPARK_CONF_DIR=./sparklingpandas/test/resources/conf
+waitpid $WGET_PID || echo "wget finished fast"
+tar -xf spark-1.4.1-bin-hadoop2.4.tgz
+nosetests --logging-level=ERROR --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas
+pep8 --ignore=E402 sparklingpandas/
+pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member
+export LOCATION=`pip show sparklingpandas|grep Location| cut -d ' ' -f 2`
+waitpid $INSTALL_PID || echo "install finished early"
+tail -n 10 install_logs
+echo "exit(0)" | $LOCATION/sparklingpandas/sparklingpandashell

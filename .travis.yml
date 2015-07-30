@@ -13,17 +13,4 @@ install:
   # install our own package into the environment
   - "pip install ."
 script:
-  # Download spark 1.4.1
-  - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz"
-  - "tar -xvf spark-1.4.1-bin-hadoop2.4.tgz"
-  # build our scala code
-  - ./sbt/sbt assembly
-  # Run the tests
-  - "export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/"
-  - "export SPARK_CONF_DIR=./sparklingpandas/test/resources/conf"
-  - "nosetests --logging-level=ERROR --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
-  - "pep8 --ignore=E402 sparklingpandas/"
-  - "pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member"
-  - "sudo pip install ."
-  - export LOCATION=`pip show sparklingpandas|grep Location| cut -d ' ' -f 2`
-  - echo "exit(0)" | $LOCATION/sparklingpandas/sparklingpandashell
+  - ./test_script
