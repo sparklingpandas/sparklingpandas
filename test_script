@@ -10,7 +10,6 @@ WGET_PID=$!
 ASSEMBLY_PID=$!
 echo "waiting on update"
 wait $UPDATE_PID || echo "update finished before we got here"
-cat update_logs
 sudo apt-get install liblapack-dev  libblas-dev  libblas3gf
 sudo pip install . &> install_logs &
 INSTALL_PID=$!
