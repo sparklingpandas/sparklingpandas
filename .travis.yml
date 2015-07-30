@@ -9,5 +9,6 @@ before_install:
   - deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint scipy openpyxl'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - pip install unittest2
+  - time pip install .
 script:
   - ./test_script

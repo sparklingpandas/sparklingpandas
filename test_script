@@ -11,8 +11,6 @@ UPDATE_PID=$!
 echo "waiting on update"
 time wait $UPDATE_PID || echo "update finished before we got here"
 sudo apt-get install liblapack-dev  libblas-dev  libblas3gf gfortran
-sudo pip install . &> install_logs &
-INSTALL_PID=$!
 export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/
 export SPARK_CONF_DIR=./sparklingpandas/test/resources/conf
 echo "waiting on spark download"
@@ -25,8 +23,6 @@ tail -n 10 assembly
 nosetests --logging-level=ERROR --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas
 pep8 --ignore=E402 sparklingpandas/
 pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member
-echo "waiting for pip install to finish..."
-time wait $INSTALL_PID || echo "install finished early"
 tail -n 10 install_logs
 export LOCATION=`pip show sparklingpandas|grep Location| cut -d ' ' -f 2`
 echo "exit(0)" | $LOCATION/sparklingpandas/sparklingpandashell
