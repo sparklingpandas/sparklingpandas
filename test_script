@@ -18,8 +18,10 @@ export SPARK_CONF_DIR=./sparklingpandas/test/resources/conf
 echo "waiting on spark download"
 wait $WGET_PID || echo "wget finished fast"
 tar -xf spark-1.4.1-bin-hadoop2.4.tgz
+tail -n 10 assembly
 echo "waiting on assembly"
 wait $ASSEMBLY_PID || echo "assembly finished"
+tail -n 10 assembly
 nosetests --logging-level=ERROR --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas
 pep8 --ignore=E402 sparklingpandas/
 pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member
