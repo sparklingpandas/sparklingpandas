@@ -13,7 +13,7 @@ setup(
     packages=['sparklingpandas', 'sparklingpandas.test'],
     data_files=[
         ('bin', ['sparklingpandashell']),
-        ('jar', [JAR_FILE_PATH])],
+        ('current-release', [JAR_FILE_PATH])],
     url='https://github.com/sparklingpandas/sparklingpandas',
     license='LICENSE.txt',
     description='Enable a Pandas like API on PySpark',

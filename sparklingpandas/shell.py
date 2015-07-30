@@ -20,7 +20,7 @@ An interactive shell.
 
 This file is designed to be launched by bin/pyspark
 """
-
+import sparklingpandas
 from sparklingpandas.pcontext import PSparkContext
 from pyspark.sql import SQLContext, HiveContext
 from pyspark import SparkContext
