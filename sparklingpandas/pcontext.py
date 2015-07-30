@@ -39,8 +39,10 @@ class PSparkContext():
         """
         self.spark_ctx = spark_context
         if sql_ctx:
+            print "Using provided sql context"
             self.sql_ctx = sql_ctx
         else:
+            print "No sql context provided, creating"
             from pyspark.sql import SQLContext
             self.sql_ctx = SQLContext(self.spark_ctx)
 
