@@ -2,8 +2,8 @@ from setuptools import setup
 import os
 
 VERSION = '0.0.4'
-JAR_FILE = 'sparklingpandas_2.10-' + VERSION + '-SNAPSHOT.jar'
-JAR_FILE_PATH = os.path.join('current-release', JAR_FILE)
+JAR_FILE = 'sparklingpandas-assembly-' + VERSION + '-SNAPSHOT.jar'
+JAR_FILE_PATH = os.path.join('target/scala-2.10/', JAR_FILE)
 
 setup(
     name='sparklingpandas',
@@ -13,7 +13,7 @@ setup(
     packages=['sparklingpandas', 'sparklingpandas.test'],
     data_files=[
         ('bin', ['sparklingpandashell']),
-        ('current-release', [JAR_FILE_PATH])],
+        ('jars', [JAR_FILE_PATH])],
     url='https://github.com/sparklingpandas/sparklingpandas',
     license='LICENSE.txt',
     description='Enable a Pandas like API on PySpark',

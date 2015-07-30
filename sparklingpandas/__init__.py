@@ -33,9 +33,14 @@ import sys
 
 if 'IS_TEST' not in os.environ:
     VERSION = '0.0.4'
-    JAR_FILE = 'sparklingpandas_2.10-' + VERSION + '-SNAPSHOT.jar'
-    prefix = os.path.realpath(__file__)
-    jar = os.path.join(prefix, '../curret-release/', JAR_FILE)
+    JAR_FILE = 'sparklingpandas-assembly-' + VERSION + '-SNAPSHOT.jar'
+    my_location = os.path.dirname(os.path.realpath(__file__))
+    prefixes = [os.path.join(my_location, '../target/scala-2.10/'),
+                os.path.join(my_location, '../curret-release/'),
+                os.path.join(sys.prefix, "jars/")]
+    jars = map(lambda prefix: os.path.join(prefix, JAR_FILE), prefixes)
+    print jars
+    jar = filter(lambda path: os.path.exists(path), jars)[0]
     os.environ["JARS"] = jar
     os.environ["PYSPARK_SUBMIT_ARGS"] = ("--jars %s --driver-class-path %s" +
                                          " pyspark-shell") % (jar, jar)
