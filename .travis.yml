@@ -25,4 +25,5 @@ script:
   - "pep8 --ignore=E402 sparklingpandas/"
   - "pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member"
   - "sudo pip install ."
-  - "/usr/local/sparklingpandashell ./sparklingpandas/test/utils.py"
+  - export LOCATION=`pip show sparklingpandas|grep Location| cut -d ' ' -f 2`
+  - "$LOCATION/sparklingpandas/sparklingpandashell ./sparklingpandas/test/utils.py"
