@@ -31,8 +31,6 @@ __all__ = ["Dataframe", "PSparkContext"]
 import os
 import sys
 
-print "running init"
-
 if 'IS_TEST' not in os.environ:
     VERSION = '0.0.4'
     JAR_FILE = 'sparklingpandas_2.10-' + VERSION + '-SNAPSHOT.jar'
@@ -41,5 +39,3 @@ if 'IS_TEST' not in os.environ:
     os.environ["JARS"] = jar
     os.environ["PYSPARK_SUBMIT_ARGS"] = ("--jars %s --driver-class-path %s" +
                                          " pyspark-shell") % (jar, jar)
-else:
-    print "Test mode, not setting jar info"
