@@ -9,4 +9,4 @@ fi
 set -x
 SPARK_EXECUTOR_MEMORY=${SPARK_EXECUTOR_MEMORY-"2000m"}
 SPARK_JAVA_OPTS=${SPARK_JAVA_OPTS-"-Dspark.executor.memory=$SPARK_EXECUTOR_MEMORY -cp $CLASSPATH"}
-python ./sparklingpandas/shell.py
+python -i ./sparklingpandas/shell.py
