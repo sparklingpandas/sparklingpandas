@@ -14,6 +14,7 @@ export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/
 export SPARK_CONF_DIR=./sparklingpandas/test/resources/conf
 waitpid $WGET_PID || echo "wget finished fast"
 tar -xf spark-1.4.1-bin-hadoop2.4.tgz
+waitpid $ASSEMBLY_PID || echo "assembly finished"
 nosetests --logging-level=ERROR --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas
 pep8 --ignore=E402 sparklingpandas/
 pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member
