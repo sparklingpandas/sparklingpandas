@@ -28,14 +28,24 @@ from sparklingpandas.dataframe import Dataframe, _normalize_index_names
 
 class PSparkContext():
     """This is a thin wrapper around SparkContext from PySpark which makes it
-    easy to load data into L{PRDD}s."""
+    easy to load data into L{DataFrame}s."""
 
     def __init__(self, spark_context, sql_ctx=None):
         """Initialize a PSparkContext with the associacted spark context,
-        and spark sql context if provided.
-        :param spark_context: Initialized and configured spark context.
-        :param sql_ctx: Initialized and configured SQL context, if relevant.
-        :return: Correctly initialized SparklingPandasContext.
+        and Spark SQL context if provided. This context is usef to load
+        data into L{DataFrame}s.
+
+        Parameters
+        ----------
+        spark_context: SparkContext
+            Initialized and configured spark context. If you are running in the
+            PySpark shell, this is already created as "sc".
+        sql_ctx: SQLContext, optional
+            Initialized and configured SQL context, if not provided Sparkling
+            Panda's will create one.
+        Returns
+        -------
+        Correctly initialized SparklingPandasContext.
         """
         self.spark_ctx = spark_context
         if sql_ctx:
@@ -62,7 +72,7 @@ class PSparkContext():
         ----------
         file_path: string
             Path to input. Any valid file path in Spark works here, eg:
-            'my/path/in/local/file/system' or 'hdfs:/user/juliet/'
+            'file:///my/path/in/local/file/system' or 'hdfs:/user/juliet/'
         use_whole_file: boolean
             Whether of not to use the whole file.
         names: list of strings, optional
@@ -141,6 +151,15 @@ class PSparkContext():
 
     def parquetFile(self, *paths):
         """Loads a Parquet file, returning the result as a L{Dataframe}.
+
+        Parameters
+        ----------
+        paths: string, variable length
+             The path(s) of the parquet files to load. Should be Hadoop style
+             paths (e.g. hdfs://..., file://... etc.). Paths may be directories.
+        Returns
+        -------
+        A L{Dataframe} of the contents of the parquet files.
         """
         return self.from_spark_rdd(self.sql_ctx.parquetFile(paths),
                                    self.sql_ctx)
@@ -148,13 +167,40 @@ class PSparkContext():
     def jsonFile(self, path, schema=None, sampling_ratio=1.0):
         """Loads a text file storing one JSON object per line as a
         L{Dataframe}.
+        Parameters
+        ----------
+        path: string
+             The path of the json files to load. Should be Hadoop style
+             paths (e.g. hdfs://..., file://... etc.). Paths may be directories.
+        schema: StructType, optional
+             If you know the schema of your input data you can specify it. The
+             schema is specified using Spark SQL's schema information. If not
+             specified will sample the json records to determine the schema.
+        sampling_ratio: int, default=1.0
+             Percentage of the records to sample when infering schema.
+             Defaults to all records for safety, but you may be able to set to
+             a lower ratio if the same fields are present accross records or
+             your input is of sufficient size.
+        Returns
+        -------
+        A L{Dataframe} of the contents of the json files.
         """
         schema_rdd = self.sql_ctx.jsonFile(path, schema, sampling_ratio)
         return self.from_spark_rdd(schema_rdd, self.sql_ctx)
 
     def from_pd_data_frame(self, local_df):
-        """Make a distributed dataframe from a local dataframe. The intend use
-        is for testing. Note: dtypes are re-infered, so they may not match."""
+        """Make a Sparkling Panda's dataframe from a local Panda's dataframe.
+        The intend use is for testing or joining distributed data with local
+        data.
+        The types are re-infered, so they may not match.
+        Parameters
+        ----------
+        local_df: Panda's Dataframe
+            The data to turn into a distributed Sparkling Panda's Dataframe.
+        Returns
+        -------
+        A Sparkling Panda's Dataframe.
+        """
         def frame_to_rows(frame):
             """Convert a Panda's DataFrame into Spark SQL Rows"""
             # TODO: Convert to row objects directly?
@@ -175,43 +221,76 @@ class PSparkContext():
         return sp_df
 
     def sql(self, query):
-        """Perform a SQL query and create a L{Dataframe} of the result."""
+        """Perform a SQL query and create a L{Dataframe} of the result.
+        The SQL query is run using the local Spark SQL context. This 
+        is not intended for querying arbitrary databases, but rather querying
+        Spark SQL tables.
+        Parameters
+        ----------
+        query: string
+            The SQL query to pass to Spark SQL to execute.
+        Returns
+        -------
+        Sparkling Panda's Dataframe.
+        """
         return Dataframe.from_spark_rdd(self.sql_ctx.sql(query), self.sql_ctx)
 
     def table(self, table):
-        """Returns the provided table as a L{Dataframe}"""
+        """Returns the provided Spark SQL table as a L{Dataframe}
+        Parameters
+        ----------
+        table: string
+            The name of the Spark SQL table to turn into a L{Dataframe}
+        Returns
+        -------
+        Sparkling Panda's Dataframe.
+        """
         return Dataframe.from_spark_rdd(self.sql_ctx.table(table),
                                         self.sql_ctx)
 
-    def from_spark_rdd(self, spark_rdd, sql_ctx):
+    def from_spark_rdd(self, spark_rdd):
         """
-        Translates a Spark DataFrame Rdd into a SparklingPandas dataframe.
-        :param dataframe_rdd: Input dataframe RDD to convert
-        :return: Matchign SparklingPandas dataframe
+        Translates a Spark Dataframe into a SparklingPandas Dataframe.
+        Currently, no checking or validation occurs.
+        Parameters
+        ----------
+        spark_rdd: Spark Dataframe
+            Input Spark Dataframe.
+        Returns
+        -------
+        Sparkling Panda's Dataframe.
         """
-        return Dataframe.from_spark_rdd(spark_rdd, sql_ctx)
+        return Dataframe.from_spark_rdd(spark_rdd, self.sql_ctx)
 
     def DataFrame(self, elements, *args, **kwargs):
-        """Wraps the pandas.DataFrame operation."""
+        """Create a Sparkling Panda's Dataframe for the provided
+        elements, following the same API as constructing a Panda's Dataframe.
+        Note: since elements is local this is only useful for distributing
+        dataframes which are small enough to fit on a single machine anyways.
+        Parameters
+        ----------
+        elements: numpy ndarray (structured or homogeneous), dict, or DataFrame
+            Input elements to use with the Dataframe.
+        Additional parameters as defined by L{pandas.DataFrame}.
+        Returns
+        -------
+        Sparkling Panda's Dataframe."""
         return self.from_pd_data_frame(pandas.DataFrame(
             elements,
             *args,
             **kwargs))
 
     def from_pandas_rdd(self, pandas_rdd):
-        def _extract_records(data):
-            return [r for r in data.to_records(index=False).tolist()]
-
-        def _from_pandas_rdd_records(pandas_rdd_records, schema):
-            """Create a L{Dataframe} from an RDD of records with schema"""
-            return Dataframe.from_spark_rdd(
-                self.sql_ctx.createDataFrame(pandas_rdd_records,
-                                             schema.values.tolist()),
-                self.sql_ctx)
-
-        schema = pandas_rdd.map(lambda x: x.columns).first()
-        rdd_records = pandas_rdd.flatMap(_extract_records)
-        return _from_pandas_rdd_records(rdd_records, schema)
+        """Create a Sparkling Panda's Dataframe from the provided RDD
+        which is comprised of Panda's Dataframe. Note: the current version
+        drops index information.
+        Parameters
+        ----------
+        pandas_rdd: RDD[pandas.Dataframe]
+        Returns
+        -------
+        Sparkling Panda's Dataframe."""
+        return Dataframe.fromDataFrameRDD(rdd, self.sql_ctx)
 
     def read_json(self, file_path,
                   *args, **kwargs):
