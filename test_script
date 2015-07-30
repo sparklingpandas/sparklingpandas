@@ -1,6 +1,11 @@
 #!/bin/bash
 set -x
 set -e
+sudo conda init
+deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint scipy openpyxl'
+conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
+export PATH=$HOME/py/bin:$PATH
+pip install unittest2
 echo "Our path is $PATH"
 sudo apt-get update &> update_logs &
 UPDATE_PID=$!
