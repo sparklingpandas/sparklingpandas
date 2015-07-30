@@ -7,7 +7,7 @@ WGET_PID=$!
 ./sbt/sbt assembly &> assembly &
 ASSEMBLY_PID=$!
 waitpid UPDATE_PID || echo "update finished"
-sudo aptitude install liblapack-dev  libblas-dev liblapack-3gf.so libblas3gf
+sudo aptitude install liblapack-dev  libblas-dev liblapack-3gf.so libblas3gf python-scipy python-numpy
 sudo pip install . &> install_logs &
 INSTALL_PID=$!
 export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/
