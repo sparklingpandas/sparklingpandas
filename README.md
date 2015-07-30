@@ -1,8 +1,7 @@
-<img align="right" src="img/logo.jpg">
+<img align="right" src="docs/img/logo.jpg">
 
 [![buildstatus](https://travis-ci.org/sparklingpandas/sparklingpandas.svg?branch=master)](https://travis-ci.org/sparklingpandas/sparklingpandas)
 
-==============
 SparklingPandas
 ==============
 
@@ -13,8 +12,7 @@ Spark's DataFrame class to give you a polished, pythonic, and Pandas-like API.
 Documentation
 =========
 
-None (right now).
-
+See [SparklingPandas.com.](http://sparklingpandas.com/)
 
 Videos
 =========
