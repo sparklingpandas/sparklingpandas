@@ -30,5 +30,5 @@ script:
   - ls $LOCATION/../../
   - ls $LOCATION/../../../
   - SHELL_LOCATION=$LOCATON/../../../
-  - echo "exit(0)" | $LOCATION/bin/sparklingpandashell
+  - echo "exit(0)" | $SHELL_LOCATION/bin/sparklingpandashell
   
