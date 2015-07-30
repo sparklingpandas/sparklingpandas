@@ -12,14 +12,12 @@ setup(
     author_email='holden@pigscanfly.ca, juliet@cloudera.com',
     packages=['sparklingpandas', 'sparklingpandas.test'],
     data_files=[
-        ('/usr/local/bin', ['sparklingpandashell']),
-        ('/usr/local/sparklinpandas/jars',
-         ['./target/scala-2.10/sparklingpandas-assembly-0.0.2-SNAPSHOT.jar'])],
+        ('bin', ['sparklingpandashell']),
+        ('jar', [JAR_FILE_PATH])],
     url='https://github.com/sparklingpandas/sparklingpandas',
     license='LICENSE.txt',
     description='Enable a Pandas like API on PySpark',
     long_description=open('README.md').read(),
-    data_files=[('jar', [JAR_FILE_PATH])],
     install_requires=[
         # Note: we also need PySpark 1.3 but that has to be installed manually.
         'pandas >= 0.13',
