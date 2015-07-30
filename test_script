@@ -4,6 +4,8 @@ set -e
 source activate /home/travis/py
 export PATH=$HOME/py/bin:$PATH
 echo "Our path is $PATH"
+time pip install . &> install_logs &
+INSTALL_PID=$!
 ./sbt/sbt assembly &> assembly &
 ASSEMBLY_PID=$!
 sudo apt-get update &> update_logs &
@@ -23,5 +25,9 @@ tail -n 10 assembly
 nosetests --logging-level=ERROR --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas
 pep8 --ignore=E402 sparklingpandas/
 pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member
+tail -n 15 install_logs
+echo "waiting for install"
+time waitpid $INSTALL_PID
+tail -n 15 install_logs
 export LOCATION=`pip show sparklingpandas|grep Location| cut -d ' ' -f 2`
 echo "exit(0)" | $LOCATION/sparklingpandas/sparklingpandashell

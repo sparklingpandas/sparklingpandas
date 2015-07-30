@@ -10,6 +10,5 @@ before_install:
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - pip install unittest2
   - source activate /home/travis/py
-  - time pip install .
 script:
   - ./test_script
