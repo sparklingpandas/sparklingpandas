@@ -9,7 +9,7 @@ WGET_PID=$!
 ASSEMBLY_PID=$!
 echo "waiting on update"
 wait UPDATE_PID || echo "update finished before we got here"
-sudo apt-get install liblapack-dev  libblas-dev liblapack-3gf.so libblas3gf python-scipy python-numpy
+sudo apt-get install liblapack-dev  libblas-dev  libblas3gf python-scipy python-numpy
 sudo pip install . &> install_logs &
 INSTALL_PID=$!
 export SPARK_HOME=./spark-1.4.1-bin-hadoop2.4/
