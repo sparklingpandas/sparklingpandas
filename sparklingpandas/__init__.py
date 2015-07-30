@@ -37,7 +37,7 @@ if 'IS_TEST' not in os.environ:
     my_location = os.path.dirname(os.path.realpath(__file__))
     prefixes = [os.path.join(my_location, '../target/scala-2.10/'),
                 os.path.join(my_location, '../curret-release/'),
-                os.path.join(sys.prefix, "jars/")]
+                os.path.join(sys.prefix, "local/jars/")]
     jars = map(lambda prefix: os.path.join(prefix, JAR_FILE), prefixes)
     print jars
     jar = filter(lambda path: os.path.exists(path), jars)[0]

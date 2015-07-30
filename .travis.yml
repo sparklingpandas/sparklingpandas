@@ -26,5 +26,6 @@ script:
   - echo $PATH
   - export LOCATION=`pip show sparklingpandas|grep Location| cut -d ' ' -f 2`
   - find $LOCATION
+  - SHELL_LOCATION=$LOCATON/../../../
   - echo "exit(0)" | $LOCATION/sparklingpandas/bin/sparklingpandashell
   

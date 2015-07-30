@@ -9,4 +9,11 @@ fi
 set -x
 SPARK_EXECUTOR_MEMORY=${SPARK_EXECUTOR_MEMORY-"2000m"}
 SPARK_JAVA_OPTS=${SPARK_JAVA_OPTS-"-Dspark.executor.memory=$SPARK_EXECUTOR_MEMORY -cp $CLASSPATH"}
-PYTHONSTARTUP=./sparklingpandas/shell.py python
+PIP_LOCATION=`pip show sparklingpandas|grep Location| cut -d ' ' -f 2`
+# If we have the shell relative to us use it, otherwise use the pip determined one
+if [ -e "./sparklingpandas/shell.py" ]; then
+export PYTHONSTARTUP="./sparklingpandas/shell.py"
+else
+export PYTHONSTARTUP="$PIP_LOCATION/sparklingpandas/shell.py"
+fi
+python
