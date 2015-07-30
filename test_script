@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x
+set -e
 sudo apt-get update &> /dev/null &
 UPDATE_PID=$!
 wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz &> downlaod &
