@@ -28,12 +28,12 @@ from sparklingpandas.dataframe import Dataframe, _normalize_index_names
 
 class PSparkContext():
     """This is a thin wrapper around SparkContext from PySpark which makes it
-    easy to load data into L{DataFrame}s."""
+    easy to load data into L{Dataframe}s."""
 
     def __init__(self, spark_context, sql_ctx=None):
         """Initialize a PSparkContext with the associacted spark context,
         and Spark SQL context if provided. This context is usef to load
-        data into L{DataFrame}s.
+        data into L{Dataframe}s.
 
         Parameters
         ----------
@@ -62,7 +62,7 @@ class PSparkContext():
 
     def read_csv(self, file_path, use_whole_file=False, names=None, skiprows=0,
                  *args, **kwargs):
-        """Read a CSV file in and parse it into Pandas DataFrames. By default,
+        """Read a CSV file in and parse it into Pandas Dataframes. By default,
         the first row from the first partition of that data is parsed and used
         as the column names for the data from. If no 'names' param is
         provided we parse the first row of the first partition of data and
@@ -87,7 +87,7 @@ class PSparkContext():
 
         Returns
         -------
-        A SparklingPandas DataFrame that contains the data from the
+        A SparklingPandas Dataframe that contains the data from the
         specified file.
         """
         def csv_file(partition_number, files):
@@ -202,7 +202,7 @@ class PSparkContext():
         A Sparkling Panda's Dataframe.
         """
         def frame_to_rows(frame):
-            """Convert a Panda's DataFrame into Spark SQL Rows"""
+            """Convert a Panda's Dataframe into Spark SQL Rows"""
             # TODO: Convert to row objects directly?
             return [r.tolist() for r in frame.to_records()]
         schema = list(local_df.columns)
@@ -269,7 +269,7 @@ class PSparkContext():
         dataframes which are small enough to fit on a single machine anyways.
         Parameters
         ----------
-        elements: numpy ndarray (structured or homogeneous), dict, or DataFrame
+        elements: numpy ndarray (structured or homogeneous), dict, or Dataframe
             Input elements to use with the Dataframe.
         Additional parameters as defined by L{pandas.DataFrame}.
         Returns
@@ -294,7 +294,7 @@ class PSparkContext():
 
     def read_json(self, file_path,
                   *args, **kwargs):
-        """Read a json file in and parse it into Pandas DataFrames.
+        """Read a json file in and parse it into Pandas Dataframes.
         If no names is provided we use the first row for the names.
         Currently, it is not possible to skip the first n rows of a file.
         Headers are provided in the json file and not specified separately.
@@ -309,7 +309,7 @@ class PSparkContext():
 
         Returns
         -------
-            A SparklingPandas DataFrame that contains the data from the
+            A SparklingPandas Dataframe that contains the data from the
         specified file.
         """
         def json_file_to_df(files):
