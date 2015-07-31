@@ -156,13 +156,12 @@ class PSparkContext():
         ----------
         paths: string, variable length
              The path(s) of the parquet files to load. Should be Hadoop style
-             paths (e.g. hdfs://..., file://... etc.). Paths may be directories.
+             paths (e.g. hdfs://..., file://... etc.).
         Returns
         -------
         A L{Dataframe} of the contents of the parquet files.
         """
-        return self.from_spark_rdd(self.sql_ctx.parquetFile(paths),
-                                   self.sql_ctx)
+        return self.from_spark_rdd(self.sql_ctx.parquetFile(paths))
 
     def jsonFile(self, path, schema=None, sampling_ratio=1.0):
         """Loads a text file storing one JSON object per line as a
@@ -171,7 +170,7 @@ class PSparkContext():
         ----------
         path: string
              The path of the json files to load. Should be Hadoop style
-             paths (e.g. hdfs://..., file://... etc.). Paths may be directories.
+             paths (e.g. hdfs://..., file://... etc.).
         schema: StructType, optional
              If you know the schema of your input data you can specify it. The
              schema is specified using Spark SQL's schema information. If not
@@ -186,7 +185,7 @@ class PSparkContext():
         A L{Dataframe} of the contents of the json files.
         """
         schema_rdd = self.sql_ctx.jsonFile(path, schema, sampling_ratio)
-        return self.from_spark_rdd(schema_rdd, self.sql_ctx)
+        return self.from_spark_rdd(schema_rdd)
 
     def from_pd_data_frame(self, local_df):
         """Make a Sparkling Panda's dataframe from a local Panda's dataframe.
@@ -222,7 +221,7 @@ class PSparkContext():
 
     def sql(self, query):
         """Perform a SQL query and create a L{Dataframe} of the result.
-        The SQL query is run using the local Spark SQL context. This 
+        The SQL query is run using the local Spark SQL context. This
         is not intended for querying arbitrary databases, but rather querying
         Spark SQL tables.
         Parameters
@@ -290,7 +289,7 @@ class PSparkContext():
         Returns
         -------
         Sparkling Panda's Dataframe."""
-        return Dataframe.fromDataFrameRDD(rdd, self.sql_ctx)
+        return Dataframe.fromDataFrameRDD(pandas_rdd, self.sql_ctx)
 
     def read_json(self, file_path,
                   *args, **kwargs):
