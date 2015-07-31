@@ -53,14 +53,14 @@ class DataFrame:
             else:
                 loaded_df = pd.DataFrame.from_records([records],
                                                       columns=columns)
-                indexed_df = _update_index_on_df(loaded_df, index_names)
+                indexed_df = DataFrame._update_index_on_df(loaded_df, index_names)
                 return [indexed_df]
 
         return self._schema_rdd.rdd.flatMap(fromRecords)
 
     def _column_names(self):
         """Return the column names"""
-        index_names = set(_normalize_index_names(self._index_names))
+        index_names = DataFrame._pandas_index_to_spark(self._index_names)
         column_names = [col_name for col_name in self._schema_rdd.columns if
                         col_name not in index_names]
         return column_names
@@ -89,7 +89,7 @@ class DataFrame:
         df = pd.DataFrame.from_records(
             [self._schema_rdd.first()],
             columns=self._schema_rdd.columns)
-        df = _update_index_on_df(df, self._index_names)
+        df = DataFrame._update_index_on_df(df, self._index_names)
         return df
 
     def from_rdd_of_dataframes(self, rdd, column_idxs=None):
@@ -125,7 +125,7 @@ class DataFrame:
         else:
             (schema, index_names) = column_idxs
         # Add the index_names to the schema.
-        index_names = _normalize_index_names(index_names)
+        index_names = DataFrame._pandas_index_to_spark(index_names)
         schema = index_names + schema
         ddf = DataFrame.from_schema_rdd(
             self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql),
@@ -234,7 +234,7 @@ class DataFrame:
         """Collect the elements in an DataFrame
         and concatenate the partition."""
         local_df = self._schema_rdd.toPandas()
-        correct_idx_df = _update_index_on_df(local_df, self._index_names)
+        correct_idx_df = DataFrame._update_index_on_df(local_df, self._index_names)
         return correct_idx_df
 
     def stats(self, columns):
@@ -267,37 +267,45 @@ class DataFrame:
     def _flatmap(self, f, items):
         return chain.from_iterable(imap(f, items))
 
+    @classmethod
+    def _update_index_on_df(cls, df, index_names):
+        """Helper function to restore index information after collection. Doesn't
+        use self so we can serialize this."""
+        if index_names:
+            df = df.set_index(index_names)
+            # Remove names from unnamed indexes
+            index_names = DataFrame._spark_index_to_pandas(index_names)
+            df.index.names = index_names
+        return df
 
-# DataFrame helper functions that don't depend on the class
-def _update_index_on_df(df, index_names):
-    """Helper function to restore index information after collection. Doesn't
-    use self so we can serialize this."""
-    if index_names:
-        df = df.set_index(index_names)
-        # Remove names from unnamed indexes
-        index_names = _denormalize_index_names(index_names)
-        df.index.names = index_names
-    return df
+    @classmethod
+    def _spark_index_helper(cls, index):
+        """ Returns 'None' if index name starts with sp_index_.
+        """
+
+        if index.startswith("index_"):
+            return None
+        else:
+            return index
+
+    @classmethod
+    def _spark_index_to_pandas(cls, index_names):
+        """ Trnaslates internal spark index names into pandas compatible index names.
+        """
+        return [DataFrame._spark_index_helper(index) for index in index_names]
+
+    @classmethod
+    def _pandas_index_helper(cls, order, index):
+        if not index:
+            return "index_" + str(order)
+        else:
+            return index
+
+    @classmethod
+    def _pandas_index_to_spark(cls, index_names):
+        """Generates a column name to be used in a Spark Dataframe from any unnamed index.
+        """
+        return [DataFrame._pandas_index_helper(order, index_name) for order, index_name in enumerate(index_names)]
 
 
-def _denormalize_index_names(index_names):
-    z = 0
-    index_names = list(index_names)
-    while z < len(index_names):
-        if index_names[z].startswith("index_") or index_names[z] == "index":
-            index_names[z] = None
-        z = z + 1
-    return index_names
 
-
-def _normalize_index_names(index_names):
-    z = 0
-    index_names = list(index_names)
-    while z < len(index_names):
-        if not index_names[z]:
-            if z > 0:
-                index_names[z] = "index_" + str(z)
-            else:
-                index_names[z] = "index"
-        z = z + 1
-    return index_names

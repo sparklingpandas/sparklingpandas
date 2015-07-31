@@ -17,6 +17,7 @@ Test methods in dataframe
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from sparklingpandas.dataframe import DataFrame
 
 from sparklingpandas.test.sp_test_case import \
     SparklingPandasTestCase
@@ -28,7 +29,7 @@ from pandas.util.testing import (assert_almost_equal,
                                  assert_series_equal,
                                  assert_frame_equal,
                                  assert_index_equal)
-
+import sparklingpandas.dataframe as dataframe
 
 class DataFrameTests(SparklingPandasTestCase):
 
@@ -127,6 +128,19 @@ class DataFrameTests(SparklingPandasTestCase):
         assert self.basicpframe.shape == self.basicframe.shape
         assert self.numericpframe.shape == self.numericframe.shape
         assert self.mixedpframe.shape == self.mixedframe.shape
+
+    def test_denormalize_index(self):
+        index = ['index_0', 'index_1', 'column_name']
+        expected = [None, None, 'column_name']
+        actual = DataFrame._spark_index_to_pandas(index)
+        self.assertListEqual(actual, expected)
+
+    def test_normalize_index(self):
+        expected = ['index_0', 'index_1', 'column_name']
+        index = [None, None, 'column_name']
+        actual = DataFrame._pandas_index_to_spark(index)
+        self.assertListEqual(actual, expected)
+
 
 
 if __name__ == "__main__":
