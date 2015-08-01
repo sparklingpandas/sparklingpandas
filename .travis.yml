@@ -3,6 +3,7 @@ python:
   - "2.7"
 before_install:
   - sudo pip install --upgrade conda py4j
+  - pip install codecov
 install:
   # install deps
   - sudo conda init
@@ -24,3 +25,5 @@ script:
   - "nosetests --logging-level=ERROR --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
   - "pep8 --ignore=E402 sparklingpandas/"
   - "pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member"
+after_success:
+  - codecov
