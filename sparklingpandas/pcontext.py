@@ -173,8 +173,11 @@ class PSparkContext():
              paths (e.g. hdfs://..., file://... etc.).
         schema: StructType, optional
              If you know the schema of your input data you can specify it. The
-             schema is specified using Spark SQL's schema information. If not
+             schema is specified using Spark SQL's schema format. If not
              specified will sample the json records to determine the schema.
+             Spark SQL's schema format is documented (somewhat) in the
+             "Programmatically Specifying the Schema" of the Spark SQL
+             programming guide at: http://bit.ly/sparkSQLprogrammingGuide
         sampling_ratio: int, default=1.0
              Percentage of the records to sample when infering schema.
              Defaults to all records for safety, but you may be able to set to
@@ -188,20 +191,21 @@ class PSparkContext():
         return self.from_spark_rdd(schema_rdd)
 
     def from_pd_data_frame(self, local_df):
-        """Make a Sparkling Panda's dataframe from a local Panda's dataframe.
+        """Make a Sparkling Pandas dataframe from a local Pandas DataFrame.
         The intend use is for testing or joining distributed data with local
         data.
         The types are re-infered, so they may not match.
         Parameters
         ----------
-        local_df: Panda's Dataframe
-            The data to turn into a distributed Sparkling Panda's Dataframe.
+        local_df: Pandas DataFrame
+            The data to turn into a distributed Sparkling Pandas Dataframe.
+            See http://bit.ly/pandasDataFrame for docs.
         Returns
         -------
-        A Sparkling Panda's Dataframe.
+        A Sparkling Pandas Dataframe.
         """
         def frame_to_rows(frame):
-            """Convert a Panda's Dataframe into Spark SQL Rows"""
+            """Convert a Pandas Dataframe into a list of Spark SQL Rows"""
             # TODO: Convert to row objects directly?
             return [r.tolist() for r in frame.to_records()]
         schema = list(local_df.columns)
@@ -221,16 +225,15 @@ class PSparkContext():
 
     def sql(self, query):
         """Perform a SQL query and create a L{Dataframe} of the result.
-        The SQL query is run using the local Spark SQL context. This
-        is not intended for querying arbitrary databases, but rather querying
-        Spark SQL tables.
+        The SQL query is run using Spark SQL. This is not intended for
+        querying arbitrary databases, but rather querying Spark SQL tables.
         Parameters
         ----------
         query: string
             The SQL query to pass to Spark SQL to execute.
         Returns
         -------
-        Sparkling Panda's Dataframe.
+        Sparkling Pandas Dataframe.
         """
         return Dataframe.from_spark_rdd(self.sql_ctx.sql(query), self.sql_ctx)
 
@@ -242,14 +245,14 @@ class PSparkContext():
             The name of the Spark SQL table to turn into a L{Dataframe}
         Returns
         -------
-        Sparkling Panda's Dataframe.
+        Sparkling Pandas Dataframe.
         """
         return Dataframe.from_spark_rdd(self.sql_ctx.table(table),
                                         self.sql_ctx)
 
     def from_spark_rdd(self, spark_rdd):
         """
-        Translates a Spark Dataframe into a SparklingPandas Dataframe.
+        Translates a Spark Dataframe into a Sparkling Pandas Dataframe.
         Currently, no checking or validation occurs.
         Parameters
         ----------
@@ -257,30 +260,31 @@ class PSparkContext():
             Input Spark Dataframe.
         Returns
         -------
-        Sparkling Panda's Dataframe.
+        Sparkling Pandas Dataframe.
         """
         return Dataframe.from_spark_rdd(spark_rdd, self.sql_ctx)
 
     def DataFrame(self, elements, *args, **kwargs):
-        """Create a Sparkling Panda's Dataframe for the provided
+        """Create a Sparkling Pandas Dataframe for the provided
         elements, following the same API as constructing a Panda's Dataframe.
         Note: since elements is local this is only useful for distributing
         dataframes which are small enough to fit on a single machine anyways.
         Parameters
         ----------
-        elements: numpy ndarray (structured or homogeneous), dict, or Dataframe
+        elements: numpy ndarray (structured or homogeneous), dict, or
+        Pandas Dataframe.
             Input elements to use with the Dataframe.
         Additional parameters as defined by L{pandas.DataFrame}.
         Returns
         -------
-        Sparkling Panda's Dataframe."""
+        Sparkling Pandas Dataframe."""
         return self.from_pd_data_frame(pandas.DataFrame(
             elements,
             *args,
             **kwargs))
 
     def from_pandas_rdd(self, pandas_rdd):
-        """Create a Sparkling Panda's Dataframe from the provided RDD
+        """Create a Sparkling Pandas Dataframe from the provided RDD
         which is comprised of Panda's Dataframe. Note: the current version
         drops index information.
         Parameters
@@ -288,7 +292,7 @@ class PSparkContext():
         pandas_rdd: RDD[pandas.Dataframe]
         Returns
         -------
-        Sparkling Panda's Dataframe."""
+        Sparkling Pandas Dataframe."""
         return Dataframe.fromDataFrameRDD(pandas_rdd, self.sql_ctx)
 
     def read_json(self, file_path,
