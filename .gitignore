@@ -88,3 +88,6 @@ sparkle_dist.zip
 
 #ignore the metastore
 metastore_db/*
+
+# ignore files on a mac.
+.DS_Store
