@@ -56,7 +56,7 @@ if 'IS_TEST' not in os.environ and "JARS" not in os.environ:
     try:
         jar = filter(lambda path: os.path.exists(path), jars)[0]
     except IndexError:
-        raise IOError("Failed to find jars " + str(jar))
+        raise IOError("Failed to find jars.")
     os.environ["JARS"] = jar
     os.environ["PYSPARK_SUBMIT_ARGS"] = ("--jars %s --driver-class-path %s" +
                                          " pyspark-shell") % (jar, jar)
