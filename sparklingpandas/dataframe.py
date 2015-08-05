@@ -28,9 +28,9 @@ import pyspark
 import pandas as pd
 
 
-class Dataframe:
-    """A Panda Resilient Distributed Dataset (Dataframe), is based on
-    Spark SQL's DataFrame (previously known as SchemaRDD). Dataframes aim to
+class DataFrame:
+    """A Panda Resilient Distributed Dataset (DataFrame), is based on
+    Spark SQL's DataFrame (previously known as SchemaRDD). DataFrames aim to
     provide, as close as reasonable, Panda's compatable inferface.
     Note: RDDs are lazy, so you operations are not performed until required."""
 
@@ -83,7 +83,7 @@ class Dataframe:
             result_rdd, column_idxs=column_idxs)
 
     def _first_as_df(self):
-        """Gets the first row as a Panda's Dataframe. Useful for functions like
+        """Gets the first row as a Panda's DataFrame. Useful for functions like
         dtypes & ftypes"""
         columns = self._schema_rdd.columns
         df = pd.DataFrame.from_records(
@@ -93,7 +93,7 @@ class Dataframe:
         return df
 
     def from_rdd_of_dataframes(self, rdd, column_idxs=None):
-        """Take an RDD of Panda's Dataframes and return a Dataframe.
+        """Take an RDD of Panda's DataFrames and return a Dataframe.
         If the columns and indexes are already known (e.g. applyMap)
         then supplying them with columnsIndexes will skip eveluating
         the first partition to determine index info."""
@@ -127,7 +127,7 @@ class Dataframe:
         # Add the index_names to the schema.
         index_names = _normalize_index_names(index_names)
         schema = index_names + schema
-        ddf = Dataframe.from_schema_rdd(
+        ddf = DataFrame.from_schema_rdd(
             self.sql_ctx.createDataFrame(rdd.flatMap(frame_to_spark_sql),
                                          schema=schema))
         ddf._index_names = index_names
@@ -137,22 +137,22 @@ class Dataframe:
 
     @classmethod
     def from_schema_rdd(cls, schema_rdd, index_names=None):
-        """Construct a Dataframe from an SchemaRDD.
+        """Construct a DataFrame from an SchemaRDD.
         No checking or validation occurs."""
-        return Dataframe(schema_rdd, schema_rdd.sql_ctx, index_names)
+        return DataFrame(schema_rdd, schema_rdd.sql_ctx, index_names)
 
     @classmethod
     def fromDataFrameRDD(cls, rdd, sql_ctx):
-        """Construct a Dataframe from an RDD of DataFrames.
+        """Construct a DataFrame from an RDD of DataFrames.
         No checking or validation occurs."""
-        result = Dataframe(None, sql_ctx)
+        result = DataFrame(None, sql_ctx)
         return result.from_rdd_of_dataframes(rdd)
 
     @classmethod
     def from_spark_rdd(cls, spark_rdd, sql_ctx):
-        """Construct a Dataframe from an RDD.
+        """Construct a DataFrame from an RDD.
         No checking or validation occurs."""
-        return Dataframe(spark_rdd, sql_ctx)
+        return DataFrame(spark_rdd, sql_ctx)
 
     def to_spark_sql(self):
         """A Sparkling Pandas specific function to turn a DDF into
@@ -163,7 +163,7 @@ class Dataframe:
         return self._schema_rdd
 
     def applymap(self, f, **kwargs):
-        """Return a new Dataframe by applying a function to each element of each
+        """Return a new DataFrame by applying a function to each element of each
         Panda DataFrame."""
         def transform_rdd(rdd):
             return rdd.map(lambda data: data.applymap(f), **kwargs)
@@ -171,7 +171,7 @@ class Dataframe:
                                                 preserves_cols=True)
 
     def __getitem__(self, key):
-        """Returns a new Dataframe of elements from those keys.
+        """Returns a new DataFrame of elements from those keys.
         Note: this differs from Pandas DataFrames in that when selecting
         a single key it returns a series, however we don't have good
         support for series just yet so we always returns DataFrames.
@@ -231,7 +231,7 @@ class Dataframe:
                 .reduce(lambda xy, ab: (xy[0] + ab[0], xy[1])))
 
     def collect(self):
-        """Collect the elements in an Dataframe
+        """Collect the elements in an DataFrame
         and concatenate the partition."""
         local_df = self._schema_rdd.toPandas()
         correct_idx_df = _update_index_on_df(local_df, self._index_names)

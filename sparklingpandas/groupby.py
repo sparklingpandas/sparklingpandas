@@ -1,4 +1,4 @@
-"""Provide wrapper around the grouped result from L{Dataframe}"""
+"""Provide wrapper around the grouped result from L{DataFrame}"""
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -17,7 +17,7 @@
 #
 
 from sparklingpandas.utils import add_pyspark_path
-from sparklingpandas.dataframe import Dataframe
+from sparklingpandas.dataframe import DataFrame
 add_pyspark_path()
 import pyspark
 import pandas as pd
@@ -26,7 +26,7 @@ import numpy as np
 
 class GroupBy:
 
-    """An RDD with key value pairs, where each value is a Pandas Dataframe and
+    """An RDD with key value pairs, where each value is a Pandas DataFrame and
     the key is the result of the group. Supports many of the same operations
     as a Pandas GroupBy."""
 
@@ -149,7 +149,7 @@ class GroupBy:
         For multiple groupings, the result index will be a MultiIndex.
         """
         self._prep_pandas_groupby()
-        return Dataframe.fromDataFrameRDD(
+        return DataFrame.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.median()), self.sql_ctx)
 
@@ -163,7 +163,7 @@ class GroupBy:
             import pyspark.sql.functions as func
             return self._use_aggregation(func.mean)
         self._prep_pandas_groupby()
-        return Dataframe.fromDataFrameRDD(
+        return DataFrame.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.mean()), self.sql_ctx)
 
@@ -173,7 +173,7 @@ class GroupBy:
         For multiple groupings, the result index will be a MultiIndex.
         """
         self._prep_pandas_groupby()
-        return Dataframe.fromDataFrameRDD(
+        return DataFrame.fromDataFrameRDD(
             self._regroup_mergedRDD().values().map(
                 lambda x: x.var(ddof=ddof)), self.sql_ctx)
 
@@ -200,7 +200,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfSum, self.sql_ctx)
+        return DataFrame.fromDataFrameRDD(rddOfSum, self.sql_ctx)
 
     def _create_exprs_using_func(self, f, columns):
         """Create aggregate expressions using the provided function
@@ -232,7 +232,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfMin, self.sql_ctx)
+        return DataFrame.fromDataFrameRDD(rddOfMin, self.sql_ctx)
 
     def max(self):
         """Compute the max for each group."""
@@ -257,7 +257,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfMax, self.sql_ctx)
+        return DataFrame.fromDataFrameRDD(rddOfMax, self.sql_ctx)
 
     def count(self):
         """Compute the number of elements in each group."""
@@ -282,7 +282,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfCounts, self.sql_ctx)
+        return DataFrame.fromDataFrameRDD(rddOfCounts, self.sql_ctx)
 
     def _use_aggregation(self, agg, columns=None):
         """Compute the result using the aggregation function provided.
@@ -293,7 +293,7 @@ class GroupBy:
         from pyspark.sql import functions as F
         aggs = map(lambda column: agg(column).alias(column), self._columns)
         aggRdd = self._grouped_spark_sql.agg(*aggs)
-        df = Dataframe.from_schema_rdd(aggRdd, self._by)
+        df = DataFrame.from_schema_rdd(aggRdd, self._by)
         return df
 
     def first(self):
@@ -323,7 +323,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfFirst, self.sql_ctx)
+        return DataFrame.fromDataFrameRDD(rddOfFirst, self.sql_ctx)
 
     def last(self):
         """Pull out the last from each group."""
@@ -348,7 +348,7 @@ class GroupBy:
             create_combiner,
             merge_value,
             merge_combiner)).values()
-        return Dataframe.fromDataFrameRDD(rddOfLast, self.sql_ctx)
+        return DataFrame.fromDataFrameRDD(rddOfLast, self.sql_ctx)
 
     def _regroup_mergedRDD(self):
         """A common pattern is we want to call groupby again on the dataframes
@@ -372,7 +372,7 @@ class GroupBy:
         nthRDD = self._regroup_mergedRDD().mapValues(
             lambda r: r.nth(
                 n, *args, **kwargs)).values()
-        return Dataframe.fromDataFrameRDD(nthRDD, self.sql_ctx)
+        return DataFrame.fromDataFrameRDD(nthRDD, self.sql_ctx)
 
     def aggregate(self, f):
         """Apply the aggregation function.
@@ -388,7 +388,7 @@ class GroupBy:
             return self._use_aggregation(CF.kurtosis)
         else:
             self._prep_pandas_groupby()
-            return Dataframe.fromDataFrameRDD(
+            return DataFrame.fromDataFrameRDD(
                 self._regroup_mergedRDD().values().map(
                     lambda g: g.aggregate(f)), self.sql_ctx)
 
@@ -399,7 +399,7 @@ class GroupBy:
         """Apply the provided function and combine the results together in the
         same way as apply from groupby in pandas.
 
-        This returns a Dataframe.
+        This returns a DataFrame.
         """
         self._prep_pandas_groupby()
 
@@ -419,4 +419,4 @@ class GroupBy:
             lambda key_data: key_data[1].apply(func, *args, **kwargs))
         reKeyedRDD = appliedRDD.flatMap(key_by_index)
         dataframe = self._sortIfNeeded(reKeyedRDD).values()
-        return Dataframe.fromDataFrameRDD(dataframe, self.sql_ctx)
+        return DataFrame.fromDataFrameRDD(dataframe, self.sql_ctx)
