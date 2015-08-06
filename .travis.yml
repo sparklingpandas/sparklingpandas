@@ -24,5 +24,6 @@ script:
   - "nosetests --logging-level=INFO --detailed-errors --verbosity=2 --with-coverage --cover-html-dir=./htmlcov --cover-package=sparklingpandas"
   - "pep8 --ignore=E402 sparklingpandas/"
   - "pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member"
+  - cd /tmp; echo "exit(0)"| sparklingpandasshell
 after_success:
   - codecov
