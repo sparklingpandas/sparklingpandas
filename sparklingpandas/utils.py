@@ -3,6 +3,7 @@ Simple common utils shared between the sparklingpandas modules
 """
 import sys
 import os
+import logging
 
 from glob import glob
 
@@ -23,9 +24,9 @@ def add_pyspark_path():
             py4j_src_zip = sorted(py4j_src_zip)[::-1]
             sys.path.append(py4j_src_zip[0])
     except KeyError:
-        print("""SPARK_HOME was not set. please set it. e.g.
+        logging.error("""SPARK_HOME was not set. please set it. e.g.
         SPARK_HOME='/home/...' ./bin/pyspark [program]""")
         exit(-1)
     except ValueError as e:
-        print(str(e))
+        logging.error(str(e))
         exit(-1)

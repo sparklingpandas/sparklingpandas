@@ -1,4 +1,5 @@
 import timeit
+import logging
 
 SETUP_STR = """import pandas as pd
 import numpy.random as nprnd
@@ -15,5 +16,5 @@ N_ITERS = 1000
 
 for command in CMDS:
     command_timer = timeit.Timer(command, SETUP_STR)
-    print "Time to execute: '{}'".format(command)
-    print command_timer.timeit(N_ITERS) / N_ITERS
+    logging.info("Time to execute: '{}'".format(command))
+    logging.info(command_timer.timeit(N_ITERS) / N_ITERS)

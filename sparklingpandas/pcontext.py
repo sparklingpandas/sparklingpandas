@@ -24,7 +24,7 @@ import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
 from sparklingpandas.dataframe import DataFrame, _normalize_index_names
-
+import logging
 
 class PSparkContext():
     """This is a thin wrapper around SparkContext from PySpark which makes it
@@ -51,7 +51,7 @@ class PSparkContext():
         if sql_ctx:
             self.sql_ctx = sql_ctx
         else:
-            print "No sql context provided, creating"
+            logging.info("No sql context provided, creating")
             from pyspark.sql import SQLContext
             self.sql_ctx = SQLContext(self.spark_ctx)
 

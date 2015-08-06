@@ -38,7 +38,7 @@ class SparklingPandasTestCase(unittest2.TestCase):
     def setUp(self):
         """Setup the basic panda spark test case. This right now just creates a
         PSparkContext."""
-        print "Setting up spark context"
+        logging.info( "Setting up spark context")
         self._old_sys_path = list(sys.path)
         class_name = self.__class__.__name__
         conf = SparkConf()
@@ -95,7 +95,7 @@ class SparklingPandasTestCase(unittest2.TestCase):
         Tear down the basic panda spark test case. This stops the running
         context and does a hack to prevent Akka rebinding on the same port.
         """
-        print "tearing down spark context"
+        logging.info("tearing down spark context")
         self.psc.stop()
         sys.path = self._old_sys_path
         # To avoid Akka rebinding to the same port, since it doesn't unbind
