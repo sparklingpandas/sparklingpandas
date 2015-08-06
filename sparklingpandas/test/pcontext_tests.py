@@ -21,6 +21,7 @@ import json
 import csv
 import os
 import tempfile
+import logging
 
 from sparklingpandas.test.sp_test_case import \
     SparklingPandasTestCase
@@ -47,7 +48,7 @@ class PContextTests(SparklingPandasTestCase):
             json.dump(input, f)
 
         dataframe = self.psc.read_json(temp_file.name, orient='records')
-        print dataframe._schema_rdd.collect()
+        logging.info(dataframe._schema_rdd.collect())
         elements = dataframe.collect()
         os.unlink(temp_file.name)
         assert len(elements.index) == 3

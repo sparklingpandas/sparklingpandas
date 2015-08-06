@@ -4,6 +4,7 @@ directly.
 """
 import subprocess as sub
 import os
+import logging
 
 
 def run_cmd(cmd):
@@ -14,8 +15,8 @@ def run_cmd(cmd):
         out = sub.check_output(cmd, shell=True, stderr=sub.STDOUT)
         return out
     except sub.CalledProcessError, err:
-        print "The failed test setup command was [%s]." % err.cmd
-        print "The output of the command was [%s]" % err.output
+        logging.error("The failed test setup command was [%s]." % err.cmd)
+        logging.error("The output of the command was [%s]" % err.output)
         raise
 
 
