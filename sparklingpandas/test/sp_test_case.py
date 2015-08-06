@@ -38,7 +38,7 @@ class SparklingPandasTestCase(unittest2.TestCase):
     def setUp(self):
         """Setup the basic panda spark test case. This right now just creates a
         PSparkContext."""
-        logging.info( "Setting up spark context")
+        logging.info("Setting up spark context")
         self._old_sys_path = list(sys.path)
         class_name = self.__class__.__name__
         conf = SparkConf()

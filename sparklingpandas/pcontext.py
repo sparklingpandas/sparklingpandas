@@ -26,6 +26,7 @@ from pyspark.context import SparkContext
 from sparklingpandas.dataframe import DataFrame, _normalize_index_names
 import logging
 
+
 class PSparkContext():
     """This is a thin wrapper around SparkContext from PySpark which makes it
     easy to load data into L{DataFrame}s."""
