@@ -11,7 +11,8 @@ setup(
     author_email='holden@pigscanfly.ca, juliet@cloudera.com',
     packages=find_packages(),
     package_data={
-        'sparklingpandas': ["jar/" + JAR_FILE]},
+        'sparklingpandas': ["jar/" + JAR_FILE],
+        'sparklingpandas': ['shell/sparklingpandasshel']},
     url='https://github.com/sparklingpandas/sparklingpandas',
     license='LICENSE.txt',
     description='Enable a Pandas like API on PySpark',
