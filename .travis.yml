@@ -3,6 +3,8 @@ sudo: false
 python:
   - "2.7"
 install:
+  # build our scala code
+  - ./sbt/sbt assembly
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -17,16 +19,11 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint scipy openpyxl'
+  - deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint scipy openpyxl unittest2 py4j'
   # Replace dep1 dep2 ... with your dependencies
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
   - source activate test-environment
   - python setup.py install  - export PATH=$HOME/py/bin:$PATH
-  - pip install unittest2
-  # build our scala code
-  - ./sbt/sbt assembly
-  # install our own package into the environment
-  - "pip install ."
 script:
   # Download spark 1.4.1
   - "wget http://d3kbcqa49mib13.cloudfront.net/spark-1.4.1-bin-hadoop2.4.tgz"
