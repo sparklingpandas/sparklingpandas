@@ -1,5 +1,5 @@
 include *.txt
 include *.md
 include sparklingpandashell
-include current-release/*.jar
+include sparklingpandas/jar/*.jar
 recursive-include docs *.md

@@ -1,19 +1,17 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 
 VERSION = '0.0.4'
 JAR_FILE = 'sparklingpandas-assembly-' + VERSION + '-SNAPSHOT.jar'
-JAR_FILE_PATH = os.path.join('target/scala-2.10/', JAR_FILE)
 
 setup(
     name='sparklingpandas',
     version=VERSION,
     author='Holden Karau, Juliet Hougland',
     author_email='holden@pigscanfly.ca, juliet@cloudera.com',
-    packages=['sparklingpandas', 'sparklingpandas.test'],
-    data_files=[
-        ('bin', ['sparklingpandashell']),
-        ('jars', [JAR_FILE_PATH])],
+    packages=find_packages(),
+    package_data={
+        'sparklingpandas': ["jar/" + JAR_FILE]},
     url='https://github.com/sparklingpandas/sparklingpandas',
     license='LICENSE.txt',
     description='Enable a Pandas like API on PySpark',
