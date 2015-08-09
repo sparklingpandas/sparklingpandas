@@ -23,6 +23,7 @@ add_pyspark_path()
 import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
+from sparklingpandas.custom_functions import register_sql_extensions
 from sparklingpandas.dataframe import DataFrame, _normalize_index_names
 import logging
 
