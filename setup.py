@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-VERSION = '0.0.4'
+VERSION = '0.0.6'
 JAR_FILE = 'sparklingpandas-assembly-' + VERSION + '-SNAPSHOT.jar'
 
 setup(
