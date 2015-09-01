@@ -43,7 +43,7 @@ class Merge(SparklingPandasTestCase):
         right_dataframe = self.psc.DataFrame(right_input,
                                              columns=['nothing', 'magic'])
         merged = self.merge(left_dataframe, right_dataframe, left_on='thing',
-                            right_on='nothing', on='left').collect()
+                            right_on='nothing', how='left').collect()
         assert len(merged.index) == 3
         expected = sorted(['thing', 'nothing', 'magic_x', 'magic_y'])
         assert sorted(merged.columns) == expected
@@ -60,7 +60,7 @@ class Merge(SparklingPandasTestCase):
                                              columns=['nothing', 'magic'])
         merged = self.merge(left_dataframe, right_dataframe,
                             left_on='thing', right_on='nothing',
-                            on='right').collect()
+                            how='right').collect()
         assert len(merged.index) == 3
         expected = sorted(['thing', 'nothing', 'magic_x', 'magic_y'])
         assert sorted(merged.columns) == expected
@@ -80,7 +80,7 @@ class Merge(SparklingPandasTestCase):
                        left_on=['thing', 'magic']).collect()
 
     def test_merge_fails_with_right_on_only(self):
-        with assertRaises(MergeError):
+        with assertRaises(ValueError):
             left_input = [("tea", "happy"), ("water", "sad"),
                           ("coffee", "happiest")]
             right_input = [("tea", "yummy"), ("water", "ok"),
@@ -93,7 +93,7 @@ class Merge(SparklingPandasTestCase):
                        right_on='thing').collect()
 
     def test_merge_fails_with_left_on_only(self):
-        with assertRaises(MergeError):
+        with assertRaises(ValueError):
             left_input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
             right_input = [("tea", "yummy"), ("water", "ok"), ("coffee", "meh")]
             left_dataframe = self.psc.DataFrame(left_input, columns=['thing', 'magic'])
