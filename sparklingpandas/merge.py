@@ -29,9 +29,9 @@ def merge(left, right, how='inner', on=None, left_on=None, right_on=None,
           left_index=False, right_index=False, sort=False,
           suffixes=('_x', '_y'), copy=True):
     joined = _MergeOperation(left=left, right=right, how=how, on=on,
-                             left_on=left_on, right_on=right_on, left_index=left_index,
-                             right_index=right_index, sort=sort, suffixes=suffixes,
-                             copy=copy)
+                             left_on=left_on, right_on=right_on,
+                             left_index=left_index, right_index=right_index,
+                             sort=sort, suffixes=suffixes, copy=copy)
     return joined.get_result()
 
 
@@ -91,8 +91,8 @@ class _MergeOperation:
         # 2. join using on where there is only one key
         # spark cannot support a list of keys using on or joining without
         # specifying a key
-        if ((self.left_on is not None or self.right_on is not None)
-            and self.on is not None):
+        if ((self.left_on is not None or self.right_on is not None) and
+                    self.on is not None):
             raise MergeError('Can only pass on OR left_on and '
                              'right_on')
         if self.left_on:
@@ -150,10 +150,11 @@ class _MergeOperation:
 
         self._validate_specification()
         left_rdd_with_suffixes, \
-        right_rdd_with_suffixes = self._prep_for_merge()
+            right_rdd_with_suffixes = self._prep_for_merge()
+
         def create_condition(left_rdd, right_rdd, left_on, right_on):
             return getattr(left_rdd, left_on) == \
-                   getattr(right_rdd, right_on)
+                getattr(right_rdd, right_on)
 
         def join_condition(left_rdd, right_rdd, left_on, right_on):
             condition = create_condition(left_rdd, right_rdd,
@@ -170,8 +171,8 @@ class _MergeOperation:
             joined = left_rdd_with_suffixes. \
                 join(right_rdd_with_suffixes,
                      join_condition(left_rdd_with_suffixes,
-                                     right_rdd_with_suffixes, self.left_on,
-                                     self.right_on), self.how)
+                                    right_rdd_with_suffixes, self.left_on,
+                                    self.right_on), self.how)
         if self.sort:
             # according to spark documentation, we can only sort
             # by one column

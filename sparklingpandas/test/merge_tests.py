@@ -94,9 +94,13 @@ class Merge(SparklingPandasTestCase):
 
     def test_merge_fails_with_left_on_only(self):
         with assertRaises(ValueError):
-            left_input = [("tea", "happy"), ("water", "sad"), ("coffee", "happiest")]
-            right_input = [("tea", "yummy"), ("water", "ok"), ("coffee", "meh")]
-            left_dataframe = self.psc.DataFrame(left_input, columns=['thing', 'magic'])
-            right_dataframe = self.psc.DataFrame(right_input, columns=['nothing', 'magic'])
-            self.merge(left_dataframe, right_dataframe, left_on='thing').collect()
-
+            left_input = [("tea", "happy"), ("water", "sad"),
+                          ("coffee", "happiest")]
+            right_input = [("tea", "yummy"), ("water", "ok"),
+                           ("coffee", "meh")]
+            left_dataframe = self.psc.DataFrame(left_input,
+                                                columns=['thing', 'magic'])
+            right_dataframe = self.psc.DataFrame(right_input,
+                                                 columns=['nothing', 'magic'])
+            self.merge(left_dataframe, right_dataframe,
+                       left_on='thing').collect()
