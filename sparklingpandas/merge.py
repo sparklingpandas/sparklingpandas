@@ -91,16 +91,20 @@ class _MergeOperation:
         # 2. join using on where there is only one key
         # spark cannot support a list of keys using on or joining without
         # specifying a key
+        def xor(a, b):
+            return (a and not b) or (b and not a)
+
         if ((self.left_on is not None or self.right_on is not None) and
                     self.on is not None):
             raise MergeError('Can only pass on OR left_on and '
                              'right_on')
-        if self.left_on:
-            if len(self.left_on) != len(self.right_on):
+        if self.on is None:
+            if xor(self.left_on is None, self.right_on is None) or \
+                    len(self.left_on) != len(self.right_on):
                 raise ValueError('len(right_on) must equal the number '
                                  'of levels in the index of "left"')
-        if (self.right_on is None and self.left_on is None
-            and self.on is None):
+        if (self.right_on is None and self.left_on is None and
+                    self.on is None):
             raise MergeError('Spark does not support this until '
                              'version 1.6. Please specify key names')
         if (self.on is not None and len(self.on) > 1):
@@ -150,11 +154,11 @@ class _MergeOperation:
 
         self._validate_specification()
         left_rdd_with_suffixes, \
-            right_rdd_with_suffixes = self._prep_for_merge()
+        right_rdd_with_suffixes = self._prep_for_merge()
 
         def create_condition(left_rdd, right_rdd, left_on, right_on):
             return getattr(left_rdd, left_on) == \
-                getattr(right_rdd, right_on)
+                   getattr(right_rdd, right_on)
 
         def join_condition(left_rdd, right_rdd, left_on, right_on):
             condition = create_condition(left_rdd, right_rdd,
