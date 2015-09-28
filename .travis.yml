@@ -3,7 +3,7 @@ python:
   - "2.7"
 before_install:
   - sudo pip install --upgrade conda py4j
-  - pip install codecov
+  - pip install codecov coverage
 install:
   # install deps
   - sudo conda init
