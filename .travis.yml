@@ -4,10 +4,11 @@ python:
 before_install:
   - sudo pip install --upgrade conda py4j
   - pip install codecov coverage
+  - export OWD=`pwd`
 install:
   # install deps
   - sudo conda init
-  - deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint scipy openpyxl'
+  - deps='pip numpy pandas requests nose numpydoc sphinx pep8 pylint scipy openpyxl coverage'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install unittest2
@@ -26,4 +27,4 @@ script:
   - "pylint -E sparklingpandas --extension-pkg-whitelist=numpy --disable=no-member"
   - cd /tmp; echo "exit(0)"| sparklingpandasshell
 after_success:
-  - codecov
+  - cd $OWD; codecov
