@@ -23,7 +23,7 @@ add_pyspark_path()
 import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
-from sparklingpandas.dataframe import DataFrame, _normalize_index_names
+from sparklingpandas.dataframe import DataFrame
 import logging
 
 
@@ -212,7 +212,7 @@ class PSparkContext():
             return [r.tolist() for r in frame.to_records()]
         schema = list(local_df.columns)
         index_names = list(local_df.index.names)
-        index_names = _normalize_index_names(index_names)
+        index_names = DataFrame._pandas_index_to_spark(index_names)
         schema = index_names + schema
         rows = self.spark_ctx.parallelize(frame_to_rows(local_df))
         sp_df = DataFrame.from_schema_rdd(
