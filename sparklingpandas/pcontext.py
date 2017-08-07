@@ -21,7 +21,10 @@ from sparklingpandas.utils import add_pyspark_path
 
 add_pyspark_path()
 import pandas
-from StringIO import StringIO as sio
+try:
+    from StringIO import StringIO as sio
+except:
+    from io import StringIO as sio
 from pyspark.context import SparkContext
 from sparklingpandas.dataframe import DataFrame, _normalize_index_names
 import logging
