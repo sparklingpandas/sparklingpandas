@@ -34,7 +34,7 @@ _functions = {
 # Functions on Dataframes
 _functions_on_df = {
     'histogram': 'Calculate the histogram',
-}    
+}
 
 def registerSQLExtensions(sqlCtx):
     scala_SQLContext = sqlCtx._ssql_ctx
