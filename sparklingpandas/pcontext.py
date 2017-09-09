@@ -23,6 +23,7 @@ add_pyspark_path()
 import pandas
 from StringIO import StringIO as sio
 from pyspark.context import SparkContext
+from sparklingpandas.custom_functions import register_sql_extensions
 from sparklingpandas.dataframe import DataFrame, _normalize_index_names
 import logging
 
@@ -55,6 +56,8 @@ class PSparkContext():
             logging.info("No sql context provided, creating")
             from pyspark.sql import SQLContext
             self.sql_ctx = SQLContext(self.spark_ctx)
+        # Register our magical functions
+        register_sql_extensions(self.sql_ctx)
 
     @classmethod
     def simple(cls, *args, **kwargs):
