@@ -24,6 +24,7 @@ import pandas
 add_pyspark_path()
 from pyspark import SparkConf
 from sparklingpandas.pcontext import PSparkContext
+from sparklingpandas.merge import merge
 import unittest2
 import sys
 from pandas.util.testing import assert_frame_equal
@@ -89,6 +90,7 @@ class SparklingPandasTestCase(unittest2.TestCase):
                                                 columns=['a', 'b', 'c', 'd'])
         self.mixednaframe = pandas.DataFrame(self.mixednainput,
                                              columns=['a', 'b', 'c', 'd'])
+        self.merge = merge
 
     def tearDown(self):
         """
