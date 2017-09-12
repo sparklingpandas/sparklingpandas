@@ -18,8 +18,11 @@
 
 from sparklingpandas.utils import add_pyspark_path
 from sparklingpandas.pstats import PStats
-from itertools import chain, imap
-
+from itertools import chain
+try:
+    from itertools import imap
+except:
+    imap = map
 add_pyspark_path()
 from pyspark.join import python_join, python_left_outer_join, \
     python_right_outer_join, python_cogroup
