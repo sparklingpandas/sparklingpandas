@@ -26,7 +26,7 @@ setup(
         'openpyxl>=1.6.1',
         'py4j==0.9',
         'scipy==0.16.0',
-        'numpy==1.9.2'
+        'numpy==1.22.0'
     ],
     test_requires=[
         'nose==1.3.7',
