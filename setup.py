@@ -25,7 +25,7 @@ setup(
         'pandas >= 0.13',
         'openpyxl>=1.6.1',
         'py4j==0.9',
-        'scipy==0.16.0',
+        'scipy==1.10.0',
         'numpy==1.9.2'
     ],
     test_requires=[
